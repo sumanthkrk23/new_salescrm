@@ -1,0 +1,6 @@
+/* Remove blue outline from recharts charts */
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus {
+  outline: none !important;
+  box-shadow: none !important;
+} 
