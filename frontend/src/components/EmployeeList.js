@@ -76,22 +76,21 @@ const EmployeeList = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
           <p className="text-gray-600 mt-1">Manage your team members</p>
         </div>
-        {/* {isAdmin && (
+        {isAdmin && (
           <Link
             to="/employees/add"
-            className="btn-primary mt-4 sm:mt-0 flex items-center"
+            className="btn-primary flex items-center space-x-2"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Employee
+            <span>+ Add Employee</span>
           </Link>
-        )} */}
+        )}
       </div>
 
       {/* Filters */}
@@ -127,7 +126,7 @@ const EmployeeList = () => {
       </div>
 
       {/* Employee Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEmployees.map((employee) => (
           <div
             key={employee.id}
@@ -139,7 +138,7 @@ const EmployeeList = () => {
                   <User className="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 break-words whitespace-normal">
                     {employee.full_name}
                   </h3>
                   <p className="text-sm text-gray-500 capitalize">

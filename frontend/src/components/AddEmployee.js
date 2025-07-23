@@ -24,8 +24,8 @@ const AddEmployee = () => {
     doj: "",
     email: "",
     password: "",
-    user_type: "Employee",
-    user_role: "sales_executive",
+    user_type: "",
+    user_role: "",
     department: "",
     address: "",
     salary: "0",
@@ -55,7 +55,7 @@ const AddEmployee = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="flex items-center mb-6">
         <button
@@ -96,7 +96,7 @@ const AddEmployee = () => {
                     value={formData.empid}
                     onChange={handleChange}
                     className="input-field pl-10"
-                    placeholder="Enter employee ID"
+                    placeholder="e.g. EMP-1000 (should start with EMP-1000)"
                     required
                   />
                 </div>
@@ -214,10 +214,12 @@ const AddEmployee = () => {
                 </label>
                 <select
                   name="user_type"
+                  className="input-field"
+                  required
                   value={formData.user_type}
                   onChange={handleChange}
-                  className="input-field"
                 >
+                  <option value="" disabled>Select User Type</option>
                   <option value="Employee">Employee</option>
                   <option value="Manager">Manager</option>
                   <option value="Admin">Admin</option>
@@ -230,10 +232,12 @@ const AddEmployee = () => {
                 </label>
                 <select
                   name="user_role"
+                  className="input-field"
+                  required
                   value={formData.user_role}
                   onChange={handleChange}
-                  className="input-field"
                 >
+                  <option value="" disabled>Select User Role</option>
                   <option value="sales_executive">Sales Executive</option>
                   <option value="sales_manager">Sales Manager</option>
                 </select>
@@ -244,12 +248,13 @@ const AddEmployee = () => {
                   Department
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="department"
                   value={formData.department}
                   onChange={handleChange}
                   className="input-field"
-                  placeholder="Enter department"
+                  placeholder="Enter department number"
+                  required
                 />
               </div>
             </div>

@@ -261,13 +261,23 @@ def get_databases():
     try:
         user = get_user_from_request()
         cur = mysql.connection.cursor()
-        cur.execute("""
-            SELECT d.*, e.full_name as uploaded_by_name
-            FROM `databases` d
-            LEFT JOIN employee e ON d.uploaded_by = e.id
-            ORDER BY d.created_date DESC
-        """)
-        
+        if user['user_role'] == 'sales_manager':
+            cur.execute("""
+                SELECT d.*, e.full_name as uploaded_by_name
+                FROM `databases` d
+                LEFT JOIN employee e ON d.uploaded_by = e.id
+                ORDER BY d.created_date DESC
+            """)
+        else:
+            # Get all databases uploaded by the user OR where the user is assigned to at least one call
+            cur.execute("""
+                SELECT DISTINCT d.*, e.full_name as uploaded_by_name
+                FROM `databases` d
+                LEFT JOIN employee e ON d.uploaded_by = e.id
+                LEFT JOIN calls c ON c.database_id = d.id
+                WHERE d.uploaded_by = %s OR c.assigned_to = %s
+                ORDER BY d.created_date DESC
+            """, (user['id'], user['id']))
         databases = []
         for row in cur.fetchall():
             databases.append({
@@ -281,10 +291,8 @@ def get_databases():
                 'category': row[7],
                 'uploaded_by_name': row[8]
             })
-        
         cur.close()
         return jsonify({'databases': databases})
-        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -403,14 +411,22 @@ def get_database_calls(db_id):
     try:
         user = get_user_from_request()
         cur = mysql.connection.cursor()
-        cur.execute("""
-            SELECT c.*, e.full_name as assigned_to_name
-            FROM calls c
-            LEFT JOIN employee e ON c.assigned_to = e.id
-            WHERE c.database_id = %s
-            ORDER BY c.created_date DESC
-        """, (db_id,))
-        
+        if user['user_role'] == 'sales_manager':
+            cur.execute("""
+                SELECT c.*, e.full_name as assigned_to_name
+                FROM calls c
+                LEFT JOIN employee e ON c.assigned_to = e.id
+                WHERE c.database_id = %s
+                ORDER BY c.created_date DESC
+            """, (db_id,))
+        else:
+            cur.execute("""
+                SELECT c.*, e.full_name as assigned_to_name
+                FROM calls c
+                LEFT JOIN employee e ON c.assigned_to = e.id
+                WHERE c.database_id = %s AND c.assigned_to = %s
+                ORDER BY c.created_date DESC
+            """, (db_id, user['id']))
         calls = []
         for row in cur.fetchall():
             calls.append({
@@ -436,10 +452,8 @@ def get_database_calls(db_id):
                 'designation': row[19],
                 'assigned_to_name': row[20]
             })
-        
         cur.close()
         return jsonify({'calls': calls})
-        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -756,107 +770,82 @@ def update_disposition(call_id):
     try:
         user = get_user_from_request()
         cur = mysql.connection.cursor()
-        
         data = request.get_json()
         disposition = data.get('disposition')
         notes = data.get('notes', '')
-        follow_up = data.get('follow_up', False)
-        closure = data.get('closure', False)
-        converted = data.get('converted', False)
         follow_up_date = data.get('follow_up_date')
         if follow_up_date == "":
             follow_up_date = None
-        
-        # Define dispositions that should trigger deletion after 2 occurrences
-        deletion_dispositions = [
-            'Ringing Number No Response',
-            'Switchoff', 
+
+        ringing_dispositions = [
+            'Ringing Number But No Response',
+            'SwitchOff',
             'Number Not a Use',
             'Line Busy'
         ]
-        
-        # Check if this disposition should be tracked for deletion
-        should_track_deletion = disposition in deletion_dispositions
-        
-        # Update or insert disposition count
-        if should_track_deletion:
-            cur.execute("""
-                INSERT INTO disposition_counts (call_id, disposition, count)
-                VALUES (%s, %s, 1)
-                ON DUPLICATE KEY UPDATE count = count + 1
-            """, (call_id, disposition))
-            
-            # Get the updated count
-            cur.execute("""
-                SELECT count FROM disposition_counts 
-                WHERE call_id = %s AND disposition = %s
-            """, (call_id, disposition))
-            
-            count_result = cur.fetchone()
-            disposition_count = count_result[0] if count_result else 1
-            
-            # If count reaches 2, delete the call
-            if disposition_count >= 2:
-                # Delete from disposition_counts
-                cur.execute("DELETE FROM disposition_counts WHERE call_id = %s", (call_id,))
-                
-                # Delete from call_history
-                cur.execute("DELETE FROM call_history WHERE call_id = %s", (call_id,))
-                
-                # Delete from communications
-                cur.execute("DELETE FROM communications WHERE call_id = %s", (call_id,))
-                
-                # Delete the call itself
-                cur.execute("DELETE FROM calls WHERE id = %s", (call_id,))
-                
-                mysql.connection.commit()
-                cur.close()
-                
-                return jsonify({
-                    'success': True, 
-                    'message': f'Call deleted after {disposition_count} occurrences of "{disposition}"',
-                    'deleted': True
-                })
-        
-        # Determine new status based on disposition and checkboxes
-        if converted:
-            new_status = 'converted'
-        elif closure:
-            new_status = 'closure'
-        elif follow_up and disposition == 'Interested' and follow_up_date:
-            new_status = 'follow_up'
-        else:
-            new_status = 'fresh'
-            follow_up_date = None
-        
-        # Update call disposition
+
+        cur.execute("SELECT status FROM calls WHERE id = %s", (call_id,))
+        row = cur.fetchone()
+        current_status = row[0] if row else 'fresh'
+
+        new_status = current_status
+        if current_status == 'fresh':
+            if disposition == 'Interested':
+                new_status = 'follow_up'
+            elif disposition in ['Joined / Converted', 'Not Interested']:
+                new_status = 'closure'
+            elif disposition in ringing_dispositions:
+                # Count all ringing_dispositions as a group
+                cur.execute("""
+                    INSERT INTO disposition_counts (call_id, disposition, count)
+                    VALUES (%s, 'ringing_group', 1)
+                    ON DUPLICATE KEY UPDATE count = count + 1
+                """, (call_id,))
+                cur.execute("SELECT count FROM disposition_counts WHERE call_id = %s AND disposition = 'ringing_group'", (call_id,))
+                count_result = cur.fetchone()
+                disposition_count = count_result[0] if count_result else 1
+                if disposition_count >= 3:
+                    new_status = 'closure'
+                    disposition = 'Not Interested'
+                    cur.execute("DELETE FROM disposition_counts WHERE call_id = %s", (call_id,))
+        elif current_status == 'follow_up':
+            if disposition == 'Interested':
+                new_status = 'follow_up'
+            elif disposition in ['Joined / Converted', 'Not Interested']:
+                new_status = 'closure'
+            elif disposition in ringing_dispositions:
+                # Count all ringing_dispositions as a group
+                cur.execute("""
+                    INSERT INTO disposition_counts (call_id, disposition, count)
+                    VALUES (%s, 'ringing_group', 1)
+                    ON DUPLICATE KEY UPDATE count = count + 1
+                """, (call_id,))
+                cur.execute("SELECT count FROM disposition_counts WHERE call_id = %s AND disposition = 'ringing_group'", (call_id,))
+                count_result = cur.fetchone()
+                disposition_count = count_result[0] if count_result else 1
+                if disposition_count >= 3:
+                    new_status = 'closure'
+                    disposition = 'Not Interested'
+                    cur.execute("DELETE FROM disposition_counts WHERE call_id = %s", (call_id,))
+        elif current_status == 'closure':
+            # Do not update disposition/status in closure
+            cur.close()
+            return jsonify({'success': True, 'message': 'No update allowed for closure calls'})
+
         cur.execute("""
             UPDATE calls 
             SET disposition = %s, notes = %s, status = %s, called_date = NOW(), follow_up_date = %s
             WHERE id = %s
         """, (disposition, notes, new_status, follow_up_date, call_id))
-        
-        # Add to call history
+
         cur.execute("""
             INSERT INTO call_history (call_id, user_id, disposition, notes)
             VALUES (%s, %s, %s, %s)
         """, (call_id, user['id'], disposition, notes))
-        
+
         mysql.connection.commit()
         cur.close()
-        
-        # Return count information if tracking deletion
-        response_data = {
-            'success': True, 
-            'message': 'Disposition updated successfully'
-        }
-        
-        if should_track_deletion:
-            response_data['disposition_count'] = disposition_count
-            response_data['will_delete_after'] = 2 - disposition_count
-        
-        return jsonify(response_data)
-        
+        return jsonify({'success': True, 'message': 'Disposition updated successfully'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -954,9 +943,7 @@ def get_call_reports():
         date_from = request.args.get('date_from')
         date_to = request.args.get('date_to')
         status = request.args.get('status')
-        
         cur = mysql.connection.cursor()
-        
         query = """
             SELECT c.*, e.full_name as agent_name, d.name as database_name
             FROM calls c
@@ -965,31 +952,27 @@ def get_call_reports():
             WHERE 1=1
         """
         params = []
-        
+        # Only show calls assigned to this user if sales executive
+        if user['user_role'] != 'sales_manager':
+            query += " AND c.assigned_to = %s"
+            params.append(user['id'])
         if db_name:
             query += " AND d.name = %s"
             params.append(db_name)
-        
         if sales_agent:
             query += " AND e.full_name LIKE %s"
             params.append(f"%{sales_agent}%")
-        
         if date_from:
             query += " AND DATE(c.created_date) >= %s"
             params.append(date_from)
-        
         if date_to:
             query += " AND DATE(c.created_date) <= %s"
             params.append(date_to)
-        
         if status:
             query += " AND c.status = %s"
             params.append(status)
-        
         query += " ORDER BY c.created_date DESC"
-        
         cur.execute(query, params)
-        
         calls = []
         for row in cur.fetchall():
             calls.append({
@@ -1016,10 +999,8 @@ def get_call_reports():
                 'agent_name': row[20],
                 'database_name': row[21]
             })
-        
         cur.close()
         return jsonify({'calls': calls})
-        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

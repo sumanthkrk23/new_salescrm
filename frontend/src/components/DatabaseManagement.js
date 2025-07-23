@@ -211,7 +211,7 @@ const DatabaseManagement = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
@@ -401,13 +401,9 @@ const DatabaseManagement = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {databases.map((db) => (
                 <tr key={db.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <Database className="w-5 h-5 text-primary-600 mr-2" />
-                      <span className="font-medium text-gray-900">
-                        {db.name}
-                      </span>
-                    </div>
+                  <td className="px-6 py-4 whitespace-normal break-words font-medium text-gray-900 flex items-center">
+                    <Database className="w-5 h-5 text-primary-500 mr-2" />
+                    {db.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -447,7 +443,7 @@ const DatabaseManagement = () => {
                     >
                       <Eye className="w-4 h-4" />
                     </button>
-                    {(isAdmin || user?.id === db.uploaded_by) && (
+                    {isAdmin && (
                       <button
                         className="text-red-600 hover:text-red-900"
                         onClick={() => handleDeleteDatabase(db.id)}
@@ -519,7 +515,7 @@ const DatabaseManagement = () => {
           )}
 
           {/* Assign Calls */}
-          {(isAdmin || user?.id === selectedDbObj?.uploaded_by) && (
+          {isAdmin && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Assign Calls

@@ -159,35 +159,40 @@ const CallManagement = () => {
   };
 
   const getDispositionOptions = () => {
-    const { follow_up, closure, converted } = dispositionForm;
-
-    if (converted) {
-      return ["Converted"];
-    } else if (closure) {
-      return ["Joined / Converted", "Not Interested"];
-    } else if (follow_up) {
+    if (!selectedCall) return [];
+    if (selectedCall.status === "fresh") {
       return [
         "Interested",
         "Ringing Number But No Response",
         "SwitchOff",
         "Number Not in Use",
         "Line Busy",
+        "Joined / Converted",
+        "Not Interested"
       ];
-    } else {
+    } else if (selectedCall.status === "follow_up") {
       return [
-        "Interested",
-        "Not Interested",
-        "Busy",
-        "Callback Requested",
-        "Appointment Set",
-        "Converted",
-        "No Answer",
-        "Wrong Number",
-        "Voicemail",
-        "Number Unreachable",
-        "Do Not Call",
+        "Ringing Number But No Response",
+        "SwitchOff",
+        "Number Not in Use",
+        "Line Busy",
+        "Joined / Converted",
+        "Not Interested"
       ];
+    } else if (selectedCall.status === "closure") {
+      return [];
     }
+    return [];
+  };
+
+  // Helper to format phone number for WhatsApp
+  const formatPhoneNumber = (number) => {
+    let cleaned = (number || '').replace(/\D/g, '');
+    cleaned = cleaned.replace(/^0+/, '');
+    if (!cleaned.startsWith('91') && cleaned.length === 10) {
+      cleaned = '91' + cleaned;
+    }
+    return cleaned;
   };
 
   const tabs = [
@@ -208,7 +213,7 @@ const CallManagement = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Call Management</h1>
@@ -261,7 +266,7 @@ const CallManagement = () => {
       )}
 
       {/* Calls Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         {calls.map((call) => (
           <div key={call.id} className="card hover:shadow-lg transition-shadow">
             <div className="flex items-start justify-between mb-4">
@@ -270,7 +275,7 @@ const CallManagement = () => {
                   <User className="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 text-lg">
+                  <h3 className="font-semibold text-gray-900 text-lg break-words whitespace-normal">
                     {call.client_name || call.contact_person || "-"}
                   </h3>
                   <p className="text-sm text-gray-500">
@@ -291,21 +296,6 @@ const CallManagement = () => {
                 >
                   {call.type === "B2B" ? "B2B" : call.type === "B2C" ? "B2C" : call.type}
                 </span>
-                {/*
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    call.status === "fresh"
-                      ? "bg-cyan-100 text-cyan-800"
-                      : call.status === "follow_up"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : call.status === "closure"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-green-100 text-green-800"
-                  }`}
-                >
-                  {call.status.replace("_", " ")}
-                </span>
-                */}
               </div>
             </div>
 
@@ -364,13 +354,14 @@ const CallManagement = () => {
                   {call.disposition || "Not Initiated"}
                 </span>
               </div>
-              {activeTab === "follow_up" && (
+              {/* In the call card, make follow up date use the same color as other data */}
+              {activeTab === "follow_up" && call.follow_up_date && (
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span className="flex items-center text-gray-500 font-semibold uppercase tracking-wide">
                     <Clock className="w-4 h-4 mr-1" /> Follow Up Date
                   </span>
                   <span className="text-gray-900">
-                    {call.follow_up_date ? new Date(call.follow_up_date).toLocaleString() : "-"}
+                    {new Date(call.follow_up_date).toLocaleString()}
                   </span>
                 </div>
               )}
@@ -383,8 +374,8 @@ const CallManagement = () => {
                   <span className="text-sm font-medium text-gray-700">
                     Actions
                   </span>
-                  {/* Hide Update Disposition for converted tab */}
-                  {activeTab !== "converted" && (
+                  {/* Hide Update Disposition for closure tab */}
+                  {activeTab !== "closure" && (
                     <button
                       onClick={async () => {
                         setSelectedCall(call);
@@ -401,6 +392,13 @@ const CallManagement = () => {
                 </div>
                 <div className="flex space-x-2">
                   <a
+                    href={`tel:${call.phone_number}`}
+                    className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    <Phone className="w-4 h-4 mr-1" />
+                    Call
+                  </a>
+                  <a
                     href={`mailto:${call.email}`}
                     className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                     target="_blank"
@@ -410,12 +408,12 @@ const CallManagement = () => {
                     Email
                   </a>
                   <a
-                    href={`https://wa.me/${call.phone_number}`}
+                    href={`https://wa.me/${formatPhoneNumber(call.phone_number)}`}
                     className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <FaWhatsapp className="size-6 mr-1 text-black rounded-full p-1" />
+                    <FaWhatsapp className="w-4 h-4 mr-1" />
                     WhatsApp
                   </a>
                 </div>
@@ -451,7 +449,14 @@ const CallManagement = () => {
               {Object.keys(dispositionCounts).length > 0 && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                   <h4 className="text-sm font-medium text-yellow-800 mb-2">
-                    Call will be deleted after 2 attempts:
+                    {(() => {
+                      const ringingGroup = dispositionCounts['ringing_group'];
+                      if (ringingGroup) {
+                        const attemptsLeft = 3 - ringingGroup;
+                        return `Call will be closed after ${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'}:`;
+                      }
+                      return 'Call will be closed after 3 attempts:';
+                    })()}
                   </h4>
                   <div className="space-y-1">
                     {Object.entries(dispositionCounts).map(
@@ -460,13 +465,13 @@ const CallManagement = () => {
                           key={disposition}
                           className="flex justify-between text-sm"
                         >
-                          <span className="text-yellow-700">{disposition}</span>
+                          <span className="text-yellow-700">
+                            {disposition === 'ringing_group' ? 'Ringing/No Response' : disposition}
+                          </span>
                           <span
-                            className={`font-medium ${
-                              count >= 2 ? "text-red-600" : "text-yellow-600"
-                            }`}
+                            className={`font-medium ${count >= 3 ? "text-red-600" : "text-yellow-600"}`}
                           >
-                            {count}/2
+                            {count}/3
                           </span>
                         </div>
                       )
@@ -475,195 +480,31 @@ const CallManagement = () => {
                 </div>
               )}
 
+              {/* In the Update Disposition modal, show follow up date if present (read-only) */}
+              {activeTab === "follow_up" && selectedCall?.follow_up_date && (
+                <div className="mb-2 text-blue-700 font-semibold flex items-center">
+                  <Clock className="w-4 h-4 mr-1" />
+                  Follow Up Date: {new Date(selectedCall.follow_up_date).toLocaleString()}
+                </div>
+              )}
+
               <form onSubmit={handleDispositionUpdate} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Call Type
+                    Status
                   </label>
-                  <div className="space-y-2">
-                    {/* Show/hide checkboxes based on activeTab */}
-                    {activeTab === "fresh" && (
-                      <>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={dispositionForm.follow_up}
-                            onChange={(e) =>
-                              setDispositionForm({
-                                ...dispositionForm,
-                                follow_up: e.target.checked,
-                                closure: false,
-                                converted: false,
-                              })
-                            }
-                            className="rounded border-gray-300 mr-2"
-                            required={
-                              !(
-                                dispositionForm.follow_up ||
-                                dispositionForm.closure ||
-                                dispositionForm.converted
-                              )
-                            }
-                          />
-                          Follow Up Call
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={dispositionForm.closure}
-                            onChange={(e) =>
-                              setDispositionForm({
-                                ...dispositionForm,
-                                closure: e.target.checked,
-                                follow_up: false,
-                                converted: false,
-                              })
-                            }
-                            className="rounded border-gray-300 mr-2"
-                            required={
-                              !(
-                                dispositionForm.follow_up ||
-                                dispositionForm.closure ||
-                                dispositionForm.converted
-                              )
-                            }
-                          />
-                          Closure Call
-                        </label>
-                        {/*
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={dispositionForm.converted}
-                            onChange={(e) =>
-                              setDispositionForm({
-                                ...dispositionForm,
-                                converted: e.target.checked,
-                                follow_up: false,
-                                closure: false,
-                              })
-                            }
-                            className="rounded border-gray-300 mr-2"
-                            required={
-                              !(
-                                dispositionForm.follow_up ||
-                                dispositionForm.closure ||
-                                dispositionForm.converted
-                              )
-                            }
-                          />
-                          Converted Call
-                        </label>
-                        */}
-                      </>
-                    )}
-                    {activeTab === "follow_up" && (
-                      <>
-                        {/* Hide Follow Up Call */}
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={dispositionForm.closure}
-                            onChange={(e) =>
-                              setDispositionForm({
-                                ...dispositionForm,
-                                closure: e.target.checked,
-                                follow_up: false,
-                                converted: false,
-                              })
-                            }
-                            className="rounded border-gray-300 mr-2"
-                            required={
-                              !(
-                                dispositionForm.closure ||
-                                dispositionForm.converted
-                              )
-                            }
-                          />
-                          Closure Call
-                        </label>
-                        {/*
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={dispositionForm.converted}
-                            onChange={(e) =>
-                              setDispositionForm({
-                                ...dispositionForm,
-                                converted: e.target.checked,
-                                follow_up: false,
-                                closure: false,
-                              })
-                            }
-                            className="rounded border-gray-300 mr-2"
-                            required={
-                              !(
-                                dispositionForm.closure ||
-                                dispositionForm.converted
-                              )
-                            }
-                          />
-                          Converted Call
-                        </label>
-                        */}
-                      </>
-                    )}
-                    {activeTab === "closure" && (
-                      <>
-                        {/* Hide Follow Up Call and Closure Call */}
-                        {/*
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={dispositionForm.converted}
-                            onChange={(e) =>
-                              setDispositionForm({
-                                ...dispositionForm,
-                                converted: e.target.checked,
-                                follow_up: false,
-                                closure: false,
-                              })
-                            }
-                            className="rounded border-gray-300 mr-2"
-                            required={!dispositionForm.converted}
-                          />
-                          Converted Call
-                        </label>
-                        */}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Disposition
-                  </label>
-                  {/* Prompt to select call type before disposition */}
-                  {!(dispositionForm.follow_up || dispositionForm.closure) && (
-                    <div className="text-sm text-red-500 mb-2">
-                      Select the call type to update disposition
-                    </div>
-                  )}
                   <select
                     value={dispositionForm.disposition}
                     onChange={(e) =>
                       setDispositionForm({
                         ...dispositionForm,
                         disposition: e.target.value,
-                        follow_up_date:
-                          e.target.value === "Interested"
-                            ? dispositionForm.follow_up_date
-                            : "",
                       })
                     }
                     className="input-field"
                     required
-                    disabled={
-                      !(dispositionForm.follow_up || dispositionForm.closure)
-                    }
                   >
-                    <option value="">Select disposition</option>
+                    <option value="">Select Status</option>
                     {getDispositionOptions().map((option) => (
                       <option key={option} value={option}>
                         {option}
@@ -673,26 +514,25 @@ const CallManagement = () => {
                 </div>
 
                 {/* Show follow up date/time picker if 'Interested' is selected in Follow Up Call */}
-                {dispositionForm.follow_up &&
-                  dispositionForm.disposition === "Interested" && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Follow Up Date & Time
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={dispositionForm.follow_up_date}
-                        onChange={(e) =>
-                          setDispositionForm({
-                            ...dispositionForm,
-                            follow_up_date: e.target.value,
-                          })
-                        }
-                        className="input-field"
-                        required
-                      />
-                    </div>
-                  )}
+                {dispositionForm.disposition === "Interested" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Follow Up Date & Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={dispositionForm.follow_up_date}
+                      onChange={(e) =>
+                        setDispositionForm({
+                          ...dispositionForm,
+                          follow_up_date: e.target.value,
+                        })
+                      }
+                      className="input-field"
+                      required
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">

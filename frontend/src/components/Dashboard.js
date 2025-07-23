@@ -12,10 +12,14 @@ import {
   Phone,
   BarChart3,
   MessageSquare,
+  XCircle,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 import axios from "axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import '../dashboard-chart-no-outline.css';
+import CircularProgress from "./CircularProgress";
 
 // Custom Tooltip for BarChart
 const CustomTooltip = ({ active, payload, label }) => {
@@ -44,6 +48,7 @@ const Dashboard = () => {
     totalDatabases: 0,
     interestedCalls: 0,
     joinedConvertedCalls: 0,
+    notInterestedCalls: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -69,6 +74,7 @@ const Dashboard = () => {
         closureCalls = 0;
       let interestedCalls = 0;
       let joinedConvertedCalls = 0;
+      let notInterestedCalls = 0;
       if (user?.user_role === "sales_manager") {
         // Fetch all calls for each status
         const [freshRes, followUpRes, closureRes, convertedRes] =
@@ -105,6 +111,9 @@ const Dashboard = () => {
       joinedConvertedCalls = allCalls.filter(
         (call) => call.disposition === "Joined / Converted"
       ).length;
+      notInterestedCalls = allCalls.filter(
+        (call) => call.disposition === "Not Interested"
+      ).length;
       setStats({
         totalEmployees: employees.length,
         activeEmployees: employees.filter((emp) => emp.active === "active")
@@ -123,6 +132,7 @@ const Dashboard = () => {
         totalDatabases: databases.length,
         interestedCalls,
         joinedConvertedCalls,
+        notInterestedCalls,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -130,19 +140,16 @@ const Dashboard = () => {
     setLoading(false);
   };
 
-  const StatCard = ({ title, value, icon: Icon, color, link }) => (
-    <div
-      className={`card hover:shadow-lg transition-shadow ${
-        link ? "cursor-pointer" : ""
-      }`}
-    >
+  // Update StatCard to render icon as a React element and only show value if not null
+  const StatCard = ({ title, value, icon, color, link, iconClassName }) => (
+    <div className={`card hover:shadow-lg transition-shadow ${link ? "cursor-pointer" : ""}`}>
       <div className="flex items-center">
-        <div className={`p-3 rounded-lg ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
+        <div className={`rounded-lg ${color} flex items-center justify-center ${iconClassName || 'p-3'}`} style={{ minWidth: 56, minHeight: 56 }}>
+          {icon}
         </div>
         <div className="ml-4">
           <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          {value !== null && <p className="text-2xl font-bold text-gray-900">{value}</p>}
         </div>
       </div>
     </div>
@@ -175,8 +182,12 @@ const Dashboard = () => {
     );
   }
 
+  // Calculate percentages for joined/converted and not interested calls
+  const joinedConvertedPercent = stats.totalCalls > 0 ? ((stats.joinedConvertedCalls / stats.totalCalls) * 100).toFixed(2) : '0.00';
+  const notInterestedPercent = stats.totalCalls > 0 ? ((stats.notInterestedCalls / stats.totalCalls) * 100).toFixed(2) : '0.00';
+
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-8">
       {/* Welcome Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -188,7 +199,7 @@ const Dashboard = () => {
       </div>
 
       {/* Combined Stats Grid: 3 columns x 2 rows */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* <StatCard
           title="Sales Executives"
           value={stats.salesExecutives}
@@ -198,19 +209,19 @@ const Dashboard = () => {
         <StatCard
           title="Databases"
           value={stats.totalDatabases}
-          icon={Database}
+          icon={<Database className="w-6 h-6 text-white" />}
           color="bg-gray-500"
         />
         <StatCard
           title="Total Calls"
           value={stats.totalCalls}
-          icon={Phone}
+          icon={<Phone className="w-6 h-6 text-white" />}
           color="bg-indigo-500"
         />
         <StatCard
           title="Fresh Calls"
           value={stats.freshCalls}
-          icon={Phone}
+          icon={<Phone className="w-6 h-6 text-white" />}
           color="bg-blue-500"
         />
         {/* <StatCard
@@ -222,20 +233,54 @@ const Dashboard = () => {
         <StatCard
           title="Interested Calls"
           value={stats.interestedCalls}
-          icon={Phone}
+          icon={<ThumbsUp className="w-6 h-6 text-white" />}
           color="bg-pink-500"
         />
         <StatCard
           title="Joined / Converted"
           value={stats.joinedConvertedCalls}
-          icon={TrendingUp}
+          icon={<TrendingUp className="w-6 h-6 text-white" />}
           color="bg-green-500"
         />
         <StatCard
           title="Closure Calls"
           value={stats.closureCalls}
-          icon={Phone}
+          icon={<Phone className="w-6 h-6 text-white" />}
           color="bg-red-500"
+        />
+        <StatCard
+          title="Not Interested Calls"
+          value={stats.notInterestedCalls}
+          icon={<ThumbsDown className="w-6 h-6 text-white" />}
+          color="bg-gray-400"
+        />
+        <StatCard
+          title="Joined / Converted"
+          value={null}
+          icon={
+            <CircularProgress
+              percent={Number(joinedConvertedPercent)}
+              size={68}
+              color="#22c55e"
+              bg="#e5e7eb"
+            />
+          }
+          color="bg-transparent"
+          iconClassName="p-0"
+        />
+        <StatCard
+          title="Not Interested"
+          value={null}
+          icon={
+            <CircularProgress
+              percent={Number(notInterestedPercent)}
+              size={68}
+              color="#f87171"
+              bg="#e5e7eb"
+            />
+          }
+          color="bg-transparent"
+          iconClassName="p-0"
         />
       </div>
 
@@ -320,10 +365,10 @@ const Dashboard = () => {
           <ResponsiveContainer width="100%" height={260} style={{ outline: 'none' }}>
             <BarChart
               data={[
-                { name: 'Fresh Calls', value: stats.freshCalls },
-                { name: 'Interested Calls', value: stats.interestedCalls },
-                { name: 'Joined / Converted', value: stats.joinedConvertedCalls },
-                { name: 'Closure Calls', value: stats.closureCalls },
+                { name: 'Fresh', value: stats.freshCalls },
+                { name: 'Interested', value: stats.interestedCalls },
+                { name: 'Converted', value: stats.joinedConvertedCalls },
+                { name: 'Closure', value: stats.closureCalls },
               ]}
               margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
               barCategoryGap={30}
