@@ -160,6 +160,175 @@ INSERT INTO `attendances` VALUES (1,22,'2024-05-21 12:23:47 PM','','online'),(2,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `auth_group`
+--
+
+DROP TABLE IF EXISTS `auth_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_group` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_group`
+--
+
+LOCK TABLES `auth_group` WRITE;
+/*!40000 ALTER TABLE `auth_group` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_group` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_group_permissions`
+--
+
+DROP TABLE IF EXISTS `auth_group_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_group_permissions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `group_id` int NOT NULL,
+  `permission_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_group_permissions_group_id_permission_id_0cd325b0_uniq` (`group_id`,`permission_id`),
+  KEY `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` (`permission_id`),
+  CONSTRAINT `auth_group_permissio_permission_id_84c5c92e_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
+  CONSTRAINT `auth_group_permissions_group_id_b120cbf9_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_group_permissions`
+--
+
+LOCK TABLES `auth_group_permissions` WRITE;
+/*!40000 ALTER TABLE `auth_group_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_group_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_permission`
+--
+
+DROP TABLE IF EXISTS `auth_permission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_permission` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `content_type_id` int NOT NULL,
+  `codename` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
+  CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_permission`
+--
+
+LOCK TABLES `auth_permission` WRITE;
+/*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
+INSERT INTO `auth_permission` VALUES (1,'Can add log entry',1,'add_logentry'),(2,'Can change log entry',1,'change_logentry'),(3,'Can delete log entry',1,'delete_logentry'),(4,'Can view log entry',1,'view_logentry'),(5,'Can add permission',2,'add_permission'),(6,'Can change permission',2,'change_permission'),(7,'Can delete permission',2,'delete_permission'),(8,'Can view permission',2,'view_permission'),(9,'Can add group',3,'add_group'),(10,'Can change group',3,'change_group'),(11,'Can delete group',3,'delete_group'),(12,'Can view group',3,'view_group'),(13,'Can add user',4,'add_user'),(14,'Can change user',4,'change_user'),(15,'Can delete user',4,'delete_user'),(16,'Can view user',4,'view_user'),(17,'Can add content type',5,'add_contenttype'),(18,'Can change content type',5,'change_contenttype'),(19,'Can delete content type',5,'delete_contenttype'),(20,'Can view content type',5,'view_contenttype'),(21,'Can add session',6,'add_session'),(22,'Can change session',6,'change_session'),(23,'Can delete session',6,'delete_session'),(24,'Can view session',6,'view_session'),(25,'Can add category',7,'add_category'),(26,'Can change category',7,'change_category'),(27,'Can delete category',7,'delete_category'),(28,'Can view category',7,'view_category'),(29,'Can add database',8,'add_database'),(30,'Can change database',8,'change_database'),(31,'Can delete database',8,'delete_database'),(32,'Can view database',8,'view_database'),(33,'Can add employee',9,'add_employee'),(34,'Can change employee',9,'change_employee'),(35,'Can delete employee',9,'delete_employee'),(36,'Can view employee',9,'view_employee'),(37,'Can add file',10,'add_file'),(38,'Can change file',10,'change_file'),(39,'Can delete file',10,'delete_file'),(40,'Can view file',10,'view_file'),(41,'Can add call',11,'add_call'),(42,'Can change call',11,'change_call'),(43,'Can delete call',11,'delete_call'),(44,'Can view call',11,'view_call'),(45,'Can add communication',12,'add_communication'),(46,'Can change communication',12,'change_communication'),(47,'Can delete communication',12,'delete_communication'),(48,'Can view communication',12,'view_communication'),(49,'Can add call history',13,'add_callhistory'),(50,'Can change call history',13,'change_callhistory'),(51,'Can delete call history',13,'delete_callhistory'),(52,'Can view call history',13,'view_callhistory'),(53,'Can add template',14,'add_template'),(54,'Can change template',14,'change_template'),(55,'Can delete template',14,'delete_template'),(56,'Can view template',14,'view_template'),(57,'Can add disposition count',15,'add_dispositioncount'),(58,'Can change disposition count',15,'change_dispositioncount'),(59,'Can delete disposition count',15,'delete_dispositioncount'),(60,'Can view disposition count',15,'view_dispositioncount');
+/*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user`
+--
+
+DROP TABLE IF EXISTS `auth_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_user` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `password` varchar(128) NOT NULL,
+  `last_login` datetime(6) DEFAULT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `username` varchar(150) NOT NULL,
+  `first_name` varchar(150) NOT NULL,
+  `last_name` varchar(150) NOT NULL,
+  `email` varchar(254) NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `date_joined` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user`
+--
+
+LOCK TABLES `auth_user` WRITE;
+/*!40000 ALTER TABLE `auth_user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user_groups`
+--
+
+DROP TABLE IF EXISTS `auth_user_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_user_groups` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `group_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_user_groups_user_id_group_id_94350c0c_uniq` (`user_id`,`group_id`),
+  KEY `auth_user_groups_group_id_97559544_fk_auth_group_id` (`group_id`),
+  CONSTRAINT `auth_user_groups_group_id_97559544_fk_auth_group_id` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`),
+  CONSTRAINT `auth_user_groups_user_id_6a12ed8b_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user_groups`
+--
+
+LOCK TABLES `auth_user_groups` WRITE;
+/*!40000 ALTER TABLE `auth_user_groups` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_user_groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user_user_permissions`
+--
+
+DROP TABLE IF EXISTS `auth_user_user_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auth_user_user_permissions` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `permission_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `auth_user_user_permissions_user_id_permission_id_14a6b632_uniq` (`user_id`,`permission_id`),
+  KEY `auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm` (`permission_id`),
+  CONSTRAINT `auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`),
+  CONSTRAINT `auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user_user_permissions`
+--
+
+LOCK TABLES `auth_user_user_permissions` WRITE;
+/*!40000 ALTER TABLE `auth_user_user_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_user_user_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `call_history`
 --
 
@@ -175,7 +344,7 @@ CREATE TABLE `call_history` (
   `call_duration` int DEFAULT NULL,
   `created_date` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,7 +353,7 @@ CREATE TABLE `call_history` (
 
 LOCK TABLES `call_history` WRITE;
 /*!40000 ALTER TABLE `call_history` DISABLE KEYS */;
-INSERT INTO `call_history` VALUES (1,3,15,'Busy','Did\'nt pick the call',NULL,'2025-07-14 15:04:10'),(2,3,15,'Do Not Call','Not to call itseems',NULL,'2025-07-14 15:05:31'),(3,3,15,'Interested','',NULL,'2025-07-14 15:06:56'),(4,3,15,'Do Not Call','',NULL,'2025-07-14 15:07:20'),(5,7,15,'Busy','',NULL,'2025-07-14 17:20:31'),(6,9,15,'Busy','',NULL,'2025-07-14 18:02:19'),(7,10,15,'Do Not Call','',NULL,'2025-07-14 18:02:33'),(8,4,15,'No Answer','',NULL,'2025-07-14 19:33:10'),(9,4,15,'Do Not Call','',NULL,'2025-07-14 19:33:34'),(10,10,15,'Converted','',NULL,'2025-07-14 19:33:52'),(11,7,15,'Ringing Number No Response','they are not receiving call',NULL,'2025-07-16 10:50:11'),(12,11,15,'Interested','',NULL,'2025-07-16 11:12:47'),(13,2017,27,'Interested','',NULL,'2025-07-16 12:47:11'),(14,2017,27,'Number Unreachable','',NULL,'2025-07-16 12:47:47'),(15,2017,27,'Converted','',NULL,'2025-07-16 12:48:13'),(16,2016,35,'Interested','',NULL,'2025-07-16 12:51:34'),(17,2018,15,'Interested','fvf',NULL,'2025-07-16 13:24:24'),(18,2018,15,'Number Unreachable','',NULL,'2025-07-16 14:50:26'),(19,2018,15,'Converted','',NULL,'2025-07-16 14:50:35'),(20,15,35,'Ringing Number No Response','no response',NULL,'2025-07-17 11:06:26'),(21,16,35,'Switchoff','switch off call',NULL,'2025-07-17 11:23:38'),(22,14,27,'Ringing Number No Response','',NULL,'2025-07-17 16:08:58'),(23,14,27,'Number Unreachable','',NULL,'2025-07-17 16:09:28'),(24,14,27,'Converted','',NULL,'2025-07-17 16:09:37'),(25,13,35,'Interested','',NULL,'2025-07-17 16:12:20'),(26,15,35,'Converted','',NULL,'2025-07-17 16:15:25'),(27,16,35,'Converted','',NULL,'2025-07-17 16:15:32'),(32,18,27,'Line Busy','busy',NULL,'2025-07-17 18:08:45'),(33,18,27,'Do Not Call','pjhbio',NULL,'2025-07-17 18:09:23'),(34,25,35,'Line Busy','the person is busy',NULL,'2025-07-18 12:31:15'),(35,23,15,'Not Interested','hgy',NULL,'2025-07-18 13:07:24'),(36,24,35,'Interested','The boy is interested in me.',NULL,'2025-07-18 15:51:32'),(37,27,35,'Ringing Number But No Response','mgvcj',NULL,'2025-07-18 15:59:04'),(38,27,35,'Interested','this is',NULL,'2025-07-18 16:10:12'),(39,27,35,'Joined / Converted',' xmbv',NULL,'2025-07-18 16:16:10'),(40,28,35,'Interested','mjgcxy',NULL,'2025-07-18 16:16:54'),(41,29,35,'SwitchOff','erghreg',NULL,'2025-07-18 16:19:19'),(42,29,35,'Interested','asfedf',NULL,'2025-07-18 17:57:51'),(43,28,35,'Not Interested','gdhg',NULL,'2025-07-18 18:03:40'),(44,31,35,'Interested','Interested',NULL,'2025-07-18 22:12:30'),(45,34,35,'SwitchOff','switch off',NULL,'2025-07-18 22:13:14'),(46,34,35,'Interested','Interested',NULL,'2025-07-18 22:13:48'),(47,31,35,'Not Interested','Not Interested',NULL,'2025-07-18 22:14:05'),(48,33,35,'Interested','Interestuj',NULL,'2025-07-18 22:14:51'),(49,34,35,'Joined / Converted','Joined',NULL,'2025-07-18 22:15:32'),(50,35,29,'Interested','Interested',NULL,'2025-07-19 13:17:36'),(51,36,29,'Ringing Number But No Response','not',NULL,'2025-07-19 13:17:51');
+INSERT INTO `call_history` VALUES (1,3,15,'Busy','Did\'nt pick the call',NULL,'2025-07-14 15:04:10'),(2,3,15,'Do Not Call','Not to call itseems',NULL,'2025-07-14 15:05:31'),(3,3,15,'Interested','',NULL,'2025-07-14 15:06:56'),(4,3,15,'Do Not Call','',NULL,'2025-07-14 15:07:20'),(5,7,15,'Busy','',NULL,'2025-07-14 17:20:31'),(6,9,15,'Busy','',NULL,'2025-07-14 18:02:19'),(7,10,15,'Do Not Call','',NULL,'2025-07-14 18:02:33'),(8,4,15,'No Answer','',NULL,'2025-07-14 19:33:10'),(9,4,15,'Do Not Call','',NULL,'2025-07-14 19:33:34'),(10,10,15,'Converted','',NULL,'2025-07-14 19:33:52'),(11,7,15,'Ringing Number No Response','they are not receiving call',NULL,'2025-07-16 10:50:11'),(12,11,15,'Interested','',NULL,'2025-07-16 11:12:47'),(13,2017,27,'Interested','',NULL,'2025-07-16 12:47:11'),(14,2017,27,'Number Unreachable','',NULL,'2025-07-16 12:47:47'),(15,2017,27,'Converted','',NULL,'2025-07-16 12:48:13'),(16,2016,35,'Interested','',NULL,'2025-07-16 12:51:34'),(17,2018,15,'Interested','fvf',NULL,'2025-07-16 13:24:24'),(18,2018,15,'Number Unreachable','',NULL,'2025-07-16 14:50:26'),(19,2018,15,'Converted','',NULL,'2025-07-16 14:50:35'),(20,15,35,'Ringing Number No Response','no response',NULL,'2025-07-17 11:06:26'),(21,16,35,'Switchoff','switch off call',NULL,'2025-07-17 11:23:38'),(22,14,27,'Ringing Number No Response','',NULL,'2025-07-17 16:08:58'),(23,14,27,'Number Unreachable','',NULL,'2025-07-17 16:09:28'),(24,14,27,'Converted','',NULL,'2025-07-17 16:09:37'),(25,13,35,'Interested','',NULL,'2025-07-17 16:12:20'),(26,15,35,'Converted','',NULL,'2025-07-17 16:15:25'),(27,16,35,'Converted','',NULL,'2025-07-17 16:15:32'),(32,18,27,'Line Busy','busy',NULL,'2025-07-17 18:08:45'),(33,18,27,'Do Not Call','pjhbio',NULL,'2025-07-17 18:09:23'),(34,25,35,'Line Busy','the person is busy',NULL,'2025-07-18 12:31:15'),(35,23,15,'Not Interested','hgy',NULL,'2025-07-18 13:07:24'),(36,24,35,'Interested','The boy is interested in me.',NULL,'2025-07-18 15:51:32'),(37,27,35,'Ringing Number But No Response','mgvcj',NULL,'2025-07-18 15:59:04'),(38,27,35,'Interested','this is',NULL,'2025-07-18 16:10:12'),(39,27,35,'Joined / Converted',' xmbv',NULL,'2025-07-18 16:16:10'),(40,28,35,'Interested','mjgcxy',NULL,'2025-07-18 16:16:54'),(41,29,35,'SwitchOff','erghreg',NULL,'2025-07-18 16:19:19'),(42,29,35,'Interested','asfedf',NULL,'2025-07-18 17:57:51'),(43,28,35,'Not Interested','gdhg',NULL,'2025-07-18 18:03:40'),(44,31,35,'Interested','Interested',NULL,'2025-07-18 22:12:30'),(45,34,35,'SwitchOff','switch off',NULL,'2025-07-18 22:13:14'),(46,34,35,'Interested','Interested',NULL,'2025-07-18 22:13:48'),(47,31,35,'Not Interested','Not Interested',NULL,'2025-07-18 22:14:05'),(48,33,35,'Interested','Interestuj',NULL,'2025-07-18 22:14:51'),(49,34,35,'Joined / Converted','Joined',NULL,'2025-07-18 22:15:32'),(50,35,29,'Interested','Interested',NULL,'2025-07-19 13:17:36'),(51,36,29,'Ringing Number But No Response','not',NULL,'2025-07-19 13:17:51'),(52,36,29,'Interested','Interested',NULL,'2025-07-22 09:21:57'),(56,35,29,'Joined / Converted','gfh',NULL,'2025-07-23 11:34:59'),(59,38,29,'Interested','Hello',NULL,'2025-07-23 12:09:37'),(60,29,29,'Not Interested','Not interested',NULL,'2025-07-23 12:28:53'),(61,38,29,'Joined / Converted','Joined',NULL,'2025-07-23 12:29:23'),(62,32,29,'Ringing Number But No Response','ringing',NULL,'2025-07-23 12:29:48'),(63,32,29,'SwitchOff','switch off',NULL,'2025-07-23 12:30:05'),(64,32,29,'SwitchOff','switch off',NULL,'2025-07-23 12:30:30'),(65,32,29,'Not Interested','switch off',NULL,'2025-07-23 12:30:50'),(66,30,29,'SwitchOff','So',NULL,'2025-07-23 12:31:32'),(67,30,29,'SwitchOff','wef',NULL,'2025-07-23 12:31:40'),(68,30,29,'Not Interested','wfe',NULL,'2025-07-23 12:31:48'),(69,39,29,'Interested','inter',NULL,'2025-07-23 12:33:36'),(70,44,29,'Joined / Converted','joined',NULL,'2025-07-23 12:36:35'),(71,33,29,'SwitchOff','swibb',NULL,'2025-07-23 13:12:53'),(72,33,29,'Ringing Number But No Response','vhc',NULL,'2025-07-23 13:13:11'),(73,33,29,'Line Busy','vhgc',NULL,'2025-07-23 13:13:23'),(74,33,29,'SwitchOff','vjkj',NULL,'2025-07-23 13:13:46'),(75,33,29,'Not Interested','hjbv',NULL,'2025-07-23 13:14:02'),(76,41,29,'Ringing Number But No Response','feafe',NULL,'2025-07-23 13:16:56'),(77,41,29,'SwitchOff','zasfdv',NULL,'2025-07-23 13:17:47'),(78,41,29,'Not Interested','szdv',NULL,'2025-07-23 13:18:00'),(79,39,29,'Ringing Number But No Response','awf',NULL,'2025-07-23 13:18:31'),(80,39,29,'SwitchOff','gfx',NULL,'2025-07-23 13:21:02'),(81,42,29,'Interested','call',NULL,'2025-07-23 15:09:16'),(82,36,29,'SwitchOff','wqe',NULL,'2025-07-23 15:09:46');
 /*!40000 ALTER TABLE `call_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -218,7 +387,7 @@ CREATE TABLE `calls` (
   `designation` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `call_id` (`call_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -227,7 +396,7 @@ CREATE TABLE `calls` (
 
 LOCK TABLES `calls` WRITE;
 /*!40000 ALTER TABLE `calls` DISABLE KEYS */;
-INSERT INTO `calls` VALUES (27,'CALL_20250718155827_26_0','Sumanth','8675643219','alice@mail.com','Sales','Mumbai',NULL,26,29,'closure','Joined / Converted',' xmbv','2025-07-18 16:16:10',NULL,'2025-07-18 15:58:27','B2C','QRS Pvt Ltd',NULL,NULL),(28,'CALL_20250718155827_26_1','Kumar','7647478273','bob@mail.com','Marketing','Chennai',NULL,26,29,'closure','Not Interested','gdhg','2025-07-18 18:03:40',NULL,'2025-07-18 15:58:27','B2C','TUV Corp',NULL,NULL),(29,'CALL_20250718155827_26_2','Raju','8877665544','bob@mail.com','Marketing','Bangalore',NULL,26,29,'follow_up','Interested','asfedf','2025-07-18 17:57:51','2025-07-19 18:00:00','2025-07-18 15:58:27','B2C','TUV Corp',NULL,NULL),(30,'CALL_20250718155827_26_3','K','876543223','qf@g.com','hello','hey',NULL,26,29,'fresh',NULL,NULL,NULL,NULL,'2025-07-18 15:58:27','B2C','hi',NULL,NULL),(31,'CALL_20250718200350_27_0','Suresh','9988776655','alice@mail.com','Sales','Mumbai',NULL,27,29,'closure','Not Interested','Not Interested','2025-07-18 22:14:05',NULL,'2025-07-18 20:03:50','B2C','QRS Pvt Ltd',NULL,NULL),(32,'CALL_20250718200350_27_1','Ramesh','8877665544','bob@mail.com','Marketing','Chennai',NULL,27,29,'fresh',NULL,NULL,NULL,NULL,'2025-07-18 20:03:50','B2C','TUV Corp',NULL,NULL),(33,'CALL_20250718200350_27_2','Rajesh','8877665544','bob@mail.com','Marketing','Bangalore',NULL,27,29,'follow_up','Interested','Interestuj','2025-07-18 22:14:51','2025-07-19 23:14:00','2025-07-18 20:03:50','B2C','TUV Corp',NULL,NULL),(34,'CALL_20250718200350_27_3','Sukesh','876543223','qf@g.com','hello','hey',NULL,27,29,'closure','Joined / Converted','Joined','2025-07-18 22:15:32',NULL,'2025-07-18 20:03:50','B2C','hi',NULL,NULL),(35,'CALL_20250719130905_30_0',NULL,'1234567890','john@abc.com',NULL,NULL,NULL,30,29,'follow_up','Interested','Interested','2025-07-19 13:17:36','2025-07-19 14:17:00','2025-07-19 13:09:05','B2B','ABC Corp','John Doe','Manager'),(36,'CALL_20250719130905_30_1',NULL,'987654321','jane@xyz.com',NULL,NULL,NULL,30,29,'fresh','Ringing Number But No Response','not','2025-07-19 13:17:51',NULL,'2025-07-19 13:09:05','B2B','XYZ Ltd','Jane Smith','Director'),(37,'CALL_20250719130905_30_2',NULL,'9826433546','snow@gmail.com',NULL,NULL,NULL,30,29,'fresh',NULL,NULL,NULL,NULL,'2025-07-19 13:09:05','B2B','Hello Corp','Jon snow','Employee'),(38,'CALL_20250719130905_30_3',NULL,'643235734','dan@gmail.com',NULL,NULL,NULL,30,29,'fresh',NULL,NULL,NULL,NULL,'2025-07-19 13:09:05','B2B','Hey Ltd','Danereyas','Team Lead');
+INSERT INTO `calls` VALUES (27,'CALL_20250718155827_26_0','Sumanth','8675643219','alice@mail.com','Sales','Mumbai',NULL,26,29,'closure','Joined / Converted',' xmbv','2025-07-18 16:16:10',NULL,'2025-07-18 15:58:27','B2C','QRS Pvt Ltd',NULL,NULL),(28,'CALL_20250718155827_26_1','Kumar','7647478273','bob@mail.com','Marketing','Chennai',NULL,26,29,'closure','Not Interested','gdhg','2025-07-18 18:03:40',NULL,'2025-07-18 15:58:27','B2C','TUV Corp',NULL,NULL),(29,'CALL_20250718155827_26_2','Raju','8877665544','bob@mail.com','Marketing','Bangalore',NULL,26,29,'closure','Not Interested','Not interested','2025-07-23 12:28:53',NULL,'2025-07-18 15:58:27','B2C','TUV Corp',NULL,NULL),(30,'CALL_20250718155827_26_3','K','876543223','qf@g.com','hello','hey',NULL,26,29,'closure','Not Interested','wfe','2025-07-23 12:31:48',NULL,'2025-07-18 15:58:27','B2C','hi',NULL,NULL),(31,'CALL_20250718200350_27_0','Suresh','9988776655','alice@mail.com','Sales','Mumbai',NULL,27,29,'closure','Not Interested','Not Interested','2025-07-18 22:14:05',NULL,'2025-07-18 20:03:50','B2C','QRS Pvt Ltd',NULL,NULL),(32,'CALL_20250718200350_27_1','Ramesh','8877665544','bob@mail.com','Marketing','Chennai',NULL,27,29,'closure','Not Interested','switch off','2025-07-23 12:30:50',NULL,'2025-07-18 20:03:50','B2C','TUV Corp',NULL,NULL),(33,'CALL_20250718200350_27_2','Rajesh','8877665544','bob@mail.com','Marketing','Bangalore',NULL,27,29,'closure','Not Interested','hjbv','2025-07-23 13:14:02',NULL,'2025-07-18 20:03:50','B2C','TUV Corp',NULL,NULL),(34,'CALL_20250718200350_27_3','Sukesh','876543223','qf@g.com','hello','hey',NULL,27,29,'closure','Joined / Converted','Joined','2025-07-18 22:15:32',NULL,'2025-07-18 20:03:50','B2C','hi',NULL,NULL),(35,'CALL_20250719130905_30_0',NULL,'1234567890','john@abc.com',NULL,NULL,NULL,30,29,'closure','Joined / Converted','gfh','2025-07-23 11:34:59',NULL,'2025-07-19 13:09:05','B2B','ABC Corp','John Doe','Manager'),(36,'CALL_20250719130905_30_1',NULL,'987654321','jane@xyz.com',NULL,NULL,NULL,30,29,'follow_up','SwitchOff','wqe','2025-07-23 15:09:46',NULL,'2025-07-19 13:09:05','B2B','XYZ Ltd','Jane Smith','Director'),(38,'CALL_20250719130905_30_3',NULL,'643235734','dan@gmail.com',NULL,NULL,NULL,30,29,'closure','Joined / Converted','Joined','2025-07-23 12:29:23',NULL,'2025-07-19 13:09:05','B2B','Hey Ltd','Danereyas','Team Lead'),(39,'CALL_20250723123245_31_0',NULL,'1234567890','john@abc.com',NULL,NULL,NULL,31,29,'follow_up','SwitchOff','gfx','2025-07-23 13:21:02',NULL,'2025-07-23 12:32:45','B2B','ABC Corp','John Doe','Manager'),(40,'CALL_20250723123245_31_1',NULL,'987654321','jane@xyz.com',NULL,NULL,NULL,31,29,'fresh',NULL,NULL,NULL,NULL,'2025-07-23 12:32:45','B2B','XYZ Ltd','Jane Smith','Director'),(41,'CALL_20250723123552_32_0','Suresh','9988776655','alice@mail.com','Sales','Mumbai',NULL,32,29,'closure','Not Interested','szdv','2025-07-23 13:18:00',NULL,'2025-07-23 12:35:52','B2C','QRS Pvt Ltd',NULL,NULL),(42,'CALL_20250723123552_32_1','Ramesh','8877665544','bob@mail.com','Marketing','Chennai',NULL,32,29,'follow_up','Interested','call','2025-07-23 15:09:16','2025-07-24 15:10:00','2025-07-23 12:35:52','B2C','TUV Corp',NULL,NULL),(43,'CALL_20250723123552_32_2','Rajesh','7875354623','hello@gmail.com','Marketing','Bangalore',NULL,32,29,'fresh',NULL,NULL,NULL,NULL,'2025-07-23 12:35:52','B2C','TUV Corp',NULL,NULL),(44,'CALL_20250723123552_32_3','Sukesh','876543223','qf@g.com','hello','hey',NULL,32,29,'closure','Joined / Converted','joined','2025-07-23 12:36:35',NULL,'2025-07-23 12:35:52','B2C','hi',NULL,NULL),(45,'CALL_20250723175848_33_0','Suresh','9988776655','alice@mail.com','Sales','Mumbai',NULL,33,29,'fresh',NULL,NULL,NULL,NULL,'2025-07-23 17:58:48','B2C','QRS Pvt Ltd',NULL,NULL),(46,'CALL_20250723175848_33_1','Ramesh','8877665544','bob@mail.com','Marketing','Chennai',NULL,33,35,'fresh',NULL,NULL,NULL,NULL,'2025-07-23 17:58:48','B2C','TUV Corp',NULL,NULL),(47,'CALL_20250723175848_33_2','Rajesh','8877665544','bob@mail.com','Marketing','Bangalore',NULL,33,29,'fresh',NULL,NULL,NULL,NULL,'2025-07-23 17:58:48','B2C','TUV Corp',NULL,NULL),(48,'CALL_20250723175848_33_3','Sukesh','876543223','qf@g.com','hello','hey',NULL,33,35,'fresh',NULL,NULL,NULL,NULL,'2025-07-23 17:58:48','B2C','hi',NULL,NULL);
 /*!40000 ALTER TABLE `calls` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -243,7 +412,7 @@ CREATE TABLE `category` (
   `category` varchar(255) NOT NULL,
   `created_date` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -252,7 +421,7 @@ CREATE TABLE `category` (
 
 LOCK TABLES `category` WRITE;
 /*!40000 ALTER TABLE `category` DISABLE KEYS */;
-INSERT INTO `category` VALUES (1,'school event','2025-07-16 16:43:47'),(2,'college data','2025-07-16 00:00:00');
+INSERT INTO `category` VALUES (1,'school event','2025-07-16 16:43:47'),(2,'college data','2025-07-16 00:00:00'),(8,'event for swifterz','2025-07-22 07:39:30');
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -578,6 +747,297 @@ INSERT INTO `corporate` VALUES (1,'Ashwini','satti','ashwini@gmail.com','8765437
 UNLOCK TABLES;
 
 --
+-- Table structure for table `crm_call`
+--
+
+DROP TABLE IF EXISTS `crm_call`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_call` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `call_id` varchar(255) NOT NULL,
+  `client_name` varchar(255) DEFAULT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `institution_name` varchar(255) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `disposition` varchar(100) DEFAULT NULL,
+  `notes` longtext,
+  `called_date` datetime(6) DEFAULT NULL,
+  `follow_up_date` datetime(6) DEFAULT NULL,
+  `created_date` datetime(6) NOT NULL,
+  `type` varchar(20) DEFAULT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `contact_person` varchar(255) DEFAULT NULL,
+  `designation` varchar(255) DEFAULT NULL,
+  `database_id` bigint NOT NULL,
+  `assigned_to_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `call_id` (`call_id`),
+  KEY `crm_call_database_id_f6a96421_fk_crm_database_id` (`database_id`),
+  KEY `crm_call_assigned_to_id_43e862fb_fk_crm_employee_id` (`assigned_to_id`),
+  CONSTRAINT `crm_call_assigned_to_id_43e862fb_fk_crm_employee_id` FOREIGN KEY (`assigned_to_id`) REFERENCES `crm_employee` (`id`),
+  CONSTRAINT `crm_call_database_id_f6a96421_fk_crm_database_id` FOREIGN KEY (`database_id`) REFERENCES `crm_database` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_call`
+--
+
+LOCK TABLES `crm_call` WRITE;
+/*!40000 ALTER TABLE `crm_call` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_call` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `crm_callhistory`
+--
+
+DROP TABLE IF EXISTS `crm_callhistory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_callhistory` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `disposition` varchar(100) NOT NULL,
+  `notes` longtext,
+  `call_duration` int DEFAULT NULL,
+  `created_date` datetime(6) NOT NULL,
+  `call_id` bigint NOT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_callhistory_call_id_b70b7180_fk_crm_call_id` (`call_id`),
+  KEY `crm_callhistory_user_id_c018e1cf_fk_crm_employee_id` (`user_id`),
+  CONSTRAINT `crm_callhistory_call_id_b70b7180_fk_crm_call_id` FOREIGN KEY (`call_id`) REFERENCES `crm_call` (`id`),
+  CONSTRAINT `crm_callhistory_user_id_c018e1cf_fk_crm_employee_id` FOREIGN KEY (`user_id`) REFERENCES `crm_employee` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_callhistory`
+--
+
+LOCK TABLES `crm_callhistory` WRITE;
+/*!40000 ALTER TABLE `crm_callhistory` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_callhistory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `crm_category`
+--
+
+DROP TABLE IF EXISTS `crm_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_category` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `category` varchar(255) NOT NULL,
+  `created_date` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_category`
+--
+
+LOCK TABLES `crm_category` WRITE;
+/*!40000 ALTER TABLE `crm_category` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_category` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `crm_communication`
+--
+
+DROP TABLE IF EXISTS `crm_communication`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_communication` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `type` varchar(20) NOT NULL,
+  `message` longtext,
+  `subject` varchar(255) DEFAULT NULL,
+  `status` varchar(20) NOT NULL,
+  `attachment_path` varchar(500) DEFAULT NULL,
+  `created_date` datetime(6) NOT NULL,
+  `call_id` bigint NOT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_communication_call_id_34fe8ccb_fk_crm_call_id` (`call_id`),
+  KEY `crm_communication_user_id_6586ccc4_fk_crm_employee_id` (`user_id`),
+  CONSTRAINT `crm_communication_call_id_34fe8ccb_fk_crm_call_id` FOREIGN KEY (`call_id`) REFERENCES `crm_call` (`id`),
+  CONSTRAINT `crm_communication_user_id_6586ccc4_fk_crm_employee_id` FOREIGN KEY (`user_id`) REFERENCES `crm_employee` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_communication`
+--
+
+LOCK TABLES `crm_communication` WRITE;
+/*!40000 ALTER TABLE `crm_communication` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_communication` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `crm_database`
+--
+
+DROP TABLE IF EXISTS `crm_database`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_database` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `description` longtext,
+  `category` varchar(255) DEFAULT NULL,
+  `created_date` datetime(6) NOT NULL,
+  `uploaded_by_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_database_uploaded_by_id_7e14883e_fk_crm_employee_id` (`uploaded_by_id`),
+  CONSTRAINT `crm_database_uploaded_by_id_7e14883e_fk_crm_employee_id` FOREIGN KEY (`uploaded_by_id`) REFERENCES `crm_employee` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_database`
+--
+
+LOCK TABLES `crm_database` WRITE;
+/*!40000 ALTER TABLE `crm_database` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_database` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `crm_dispositioncount`
+--
+
+DROP TABLE IF EXISTS `crm_dispositioncount`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_dispositioncount` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `disposition` varchar(100) NOT NULL,
+  `count` int NOT NULL,
+  `created_date` datetime(6) NOT NULL,
+  `updated_date` datetime(6) NOT NULL,
+  `call_id` bigint NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `crm_dispositioncount_call_id_disposition_2d21338d_uniq` (`call_id`,`disposition`),
+  CONSTRAINT `crm_dispositioncount_call_id_0fe759ae_fk_crm_call_id` FOREIGN KEY (`call_id`) REFERENCES `crm_call` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_dispositioncount`
+--
+
+LOCK TABLES `crm_dispositioncount` WRITE;
+/*!40000 ALTER TABLE `crm_dispositioncount` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_dispositioncount` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `crm_employee`
+--
+
+DROP TABLE IF EXISTS `crm_employee`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_employee` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `empid` varchar(255) NOT NULL,
+  `full_name` varchar(255) NOT NULL,
+  `dob` date DEFAULT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `doj` date DEFAULT NULL,
+  `email` varchar(254) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `user_type` varchar(50) NOT NULL,
+  `user_role` varchar(50) NOT NULL,
+  `department` varchar(100) NOT NULL,
+  `profile_picture` varchar(255) DEFAULT NULL,
+  `address` longtext,
+  `salary` decimal(10,2) DEFAULT NULL,
+  `status` varchar(50) NOT NULL,
+  `active` varchar(50) NOT NULL,
+  `created_date` datetime(6) NOT NULL,
+  `company_id` int DEFAULT NULL,
+  `online_status` varchar(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_employee`
+--
+
+LOCK TABLES `crm_employee` WRITE;
+/*!40000 ALTER TABLE `crm_employee` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_employee` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `crm_file`
+--
+
+DROP TABLE IF EXISTS `crm_file`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_file` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `category` varchar(255) NOT NULL,
+  `created_date` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_file`
+--
+
+LOCK TABLES `crm_file` WRITE;
+/*!40000 ALTER TABLE `crm_file` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_file` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `crm_template`
+--
+
+DROP TABLE IF EXISTS `crm_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `crm_template` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `content` longtext NOT NULL,
+  `created_date` datetime(6) NOT NULL,
+  `created_by_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `crm_template_created_by_id_8b501574_fk_crm_employee_id` (`created_by_id`),
+  CONSTRAINT `crm_template_created_by_id_8b501574_fk_crm_employee_id` FOREIGN KEY (`created_by_id`) REFERENCES `crm_employee` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `crm_template`
+--
+
+LOCK TABLES `crm_template` WRITE;
+/*!40000 ALTER TABLE `crm_template` DISABLE KEYS */;
+/*!40000 ALTER TABLE `crm_template` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `databases`
 --
 
@@ -594,7 +1054,7 @@ CREATE TABLE `databases` (
   `created_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `category` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -603,7 +1063,7 @@ CREATE TABLE `databases` (
 
 LOCK TABLES `databases` WRITE;
 /*!40000 ALTER TABLE `databases` DISABLE KEYS */;
-INSERT INTO `databases` VALUES (26,'Sumanth B2C','institution','uploads/20250718_155827_Untitled spreadsheet.xlsx','tdfghj',16,'2025-07-18 15:58:27','college data'),(27,'New B2C','institution','uploads/20250718_200350_b2c.xlsx','',16,'2025-07-18 20:03:50','school event'),(30,'Sumanth B2B','corporate','uploads/20250719_130905_sample-b2b.xlsx','',29,'2025-07-19 13:09:05','college data');
+INSERT INTO `databases` VALUES (26,'Sumanth B2C','institution','uploads/20250718_155827_Untitled spreadsheet.xlsx','tdfghj',16,'2025-07-18 15:58:27','college data'),(27,'New B2C','institution','uploads/20250718_200350_b2c.xlsx','',16,'2025-07-18 20:03:50','school event'),(30,'Sumanth B2B','corporate','uploads/20250719_130905_sample-b2b.xlsx','',29,'2025-07-19 13:09:05','college data'),(31,'New B2B','corporate','uploads/20250723_123244_sample-b2b (2).xlsx','edrgbvr',29,'2025-07-23 12:32:44','event for swifterz'),(32,'New B2C','institution','uploads/20250723_123552_b2c.xlsx','ekhrfi',16,'2025-07-23 12:35:52','event for swifterz'),(33,'Raju','institution','uploads/20250723_175847_b2c.xlsx','dfbves',16,'2025-07-23 17:58:47','event for swifterz');
 /*!40000 ALTER TABLE `databases` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -678,7 +1138,7 @@ CREATE TABLE `disposition_counts` (
   `updated_date` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_call_disposition` (`call_id`,`disposition`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -687,8 +1147,119 @@ CREATE TABLE `disposition_counts` (
 
 LOCK TABLES `disposition_counts` WRITE;
 /*!40000 ALTER TABLE `disposition_counts` DISABLE KEYS */;
-INSERT INTO `disposition_counts` VALUES (1,16,'Switchoff',1,'2025-07-17 11:23:38','2025-07-17 11:23:38'),(2,14,'Ringing Number No Response',1,'2025-07-17 16:08:58','2025-07-17 16:08:58'),(5,18,'Line Busy',1,'2025-07-17 18:08:45','2025-07-17 18:08:45'),(6,25,'Line Busy',1,'2025-07-18 12:31:15','2025-07-18 12:31:15');
+INSERT INTO `disposition_counts` VALUES (1,16,'Switchoff',1,'2025-07-17 11:23:38','2025-07-17 11:23:38'),(2,14,'Ringing Number No Response',1,'2025-07-17 16:08:58','2025-07-17 16:08:58'),(5,18,'Line Busy',1,'2025-07-17 18:08:45','2025-07-17 18:08:45'),(6,25,'Line Busy',1,'2025-07-18 12:31:15','2025-07-18 12:31:15'),(24,39,'ringing_group',2,'2025-07-23 13:18:31','2025-07-23 13:21:02'),(26,36,'ringing_group',1,'2025-07-23 15:09:46','2025-07-23 15:09:46');
 /*!40000 ALTER TABLE `disposition_counts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_admin_log`
+--
+
+DROP TABLE IF EXISTS `django_admin_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_admin_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `action_time` datetime(6) NOT NULL,
+  `object_id` longtext,
+  `object_repr` varchar(200) NOT NULL,
+  `action_flag` smallint unsigned NOT NULL,
+  `change_message` longtext NOT NULL,
+  `content_type_id` int DEFAULT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `django_admin_log_content_type_id_c4bce8eb_fk_django_co` (`content_type_id`),
+  KEY `django_admin_log_user_id_c564eba6_fk_auth_user_id` (`user_id`),
+  CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
+  CONSTRAINT `django_admin_log_user_id_c564eba6_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`),
+  CONSTRAINT `django_admin_log_chk_1` CHECK ((`action_flag` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_admin_log`
+--
+
+LOCK TABLES `django_admin_log` WRITE;
+/*!40000 ALTER TABLE `django_admin_log` DISABLE KEYS */;
+/*!40000 ALTER TABLE `django_admin_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_content_type`
+--
+
+DROP TABLE IF EXISTS `django_content_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_content_type` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `app_label` varchar(100) NOT NULL,
+  `model` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_content_type`
+--
+
+LOCK TABLES `django_content_type` WRITE;
+/*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
+INSERT INTO `django_content_type` VALUES (1,'admin','logentry'),(3,'auth','group'),(2,'auth','permission'),(4,'auth','user'),(5,'contenttypes','contenttype'),(11,'crm','call'),(13,'crm','callhistory'),(7,'crm','category'),(12,'crm','communication'),(8,'crm','database'),(15,'crm','dispositioncount'),(9,'crm','employee'),(10,'crm','file'),(14,'crm','template'),(6,'sessions','session');
+/*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_migrations`
+--
+
+DROP TABLE IF EXISTS `django_migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_migrations` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `app` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `applied` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_migrations`
+--
+
+LOCK TABLES `django_migrations` WRITE;
+/*!40000 ALTER TABLE `django_migrations` DISABLE KEYS */;
+INSERT INTO `django_migrations` VALUES (1,'contenttypes','0001_initial','2025-07-22 05:35:02.860214'),(2,'auth','0001_initial','2025-07-22 05:35:02.998003'),(3,'admin','0001_initial','2025-07-22 05:35:03.028779'),(4,'admin','0002_logentry_remove_auto_add','2025-07-22 05:35:03.032380'),(5,'admin','0003_logentry_add_action_flag_choices','2025-07-22 05:35:03.035226'),(6,'contenttypes','0002_remove_content_type_name','2025-07-22 05:35:03.057335'),(7,'auth','0002_alter_permission_name_max_length','2025-07-22 05:35:03.071492'),(8,'auth','0003_alter_user_email_max_length','2025-07-22 05:35:03.080090'),(9,'auth','0004_alter_user_username_opts','2025-07-22 05:35:03.082793'),(10,'auth','0005_alter_user_last_login_null','2025-07-22 05:35:03.092964'),(11,'auth','0006_require_contenttypes_0002','2025-07-22 05:35:03.093495'),(12,'auth','0007_alter_validators_add_error_messages','2025-07-22 05:35:03.096916'),(13,'auth','0008_alter_user_username_max_length','2025-07-22 05:35:03.110779'),(14,'auth','0009_alter_user_last_name_max_length','2025-07-22 05:35:03.125374'),(15,'auth','0010_alter_group_name_max_length','2025-07-22 05:35:03.131930'),(16,'auth','0011_update_proxy_permissions','2025-07-22 05:35:03.134680'),(17,'auth','0012_alter_user_first_name_max_length','2025-07-22 05:35:03.147423'),(18,'crm','0001_initial','2025-07-22 05:35:03.280706'),(19,'sessions','0001_initial','2025-07-22 05:35:03.287526');
+/*!40000 ALTER TABLE `django_migrations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_session`
+--
+
+DROP TABLE IF EXISTS `django_session`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `django_session` (
+  `session_key` varchar(40) NOT NULL,
+  `session_data` longtext NOT NULL,
+  `expire_date` datetime(6) NOT NULL,
+  PRIMARY KEY (`session_key`),
+  KEY `django_session_expire_date_a5c62663` (`expire_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_session`
+--
+
+LOCK TABLES `django_session` WRITE;
+/*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
+/*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -749,7 +1320,7 @@ CREATE TABLE `employee` (
   `Allpannel` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'Employee',
   `online_status` enum('online','offline') COLLATE utf8mb4_general_ci DEFAULT 'offline',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -758,7 +1329,7 @@ CREATE TABLE `employee` (
 
 LOCK TABLES `employee` WRITE;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
-INSERT INTO `employee` VALUES (1,'EMP-0001','Nisha C R','2001-02-21','7397718515','2022-03-05','nishar.mine@gmail.com','17ae4741e0c8be5fa97a87bc0bb79535','Employee','admin',1,'WhatsApp Image 2024-06-24 at 3.15.30 PM.jpeg','                                                                bangalore                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ','0','Online',NULL,0,476,'active','2023-11-27 11:57:25',NULL,'1','123456784','Admin','offline'),(2,'EMP-0002','Anusiya M ','2001-10-15','8754891839','2023-06-19','anusiyam@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','FrontEnd Developer',1,'anu.jpg','Tamil Nadu                                                                                                                                ','25000','Online',NULL,0,7,'deactive','2024-05-28 12:01:17',NULL,'1','12345678','Employee','offline'),(3,'EMP-0003','Nithin MA','2002-02-06','8105445466','2024-03-06','nithin@mineit.tech','81b2dd9387fae32865a9773f0b443d45','Trainee','Backend Developer',0,'pasportpic.jpg','                                      TRVH Hostel                          No.130,Veerapillai Street, Shivajinagar                                                                ','0','Online',NULL,0,0,'deactive','2024-05-28 12:21:10','36908','1','0622500103428701','Employee','offline'),(4,'EMP-0004','SANJANA H NADIG','2002-05-30','7899725664','2024-03-06','sanjana@mineit.tech','a31d254b7558a05009491a60b47d0103','Trainee','FrontEnd Developer',0,'pic.jpg','santhrupti lig 66 khb colony chitradurga','0',NULL,NULL,0,0,'active','2024-05-28 12:25:22','32692','1',NULL,'Employee','offline'),(5,'EMP-0005','L PAVITHRA','1999-12-13','9380283947','2024-03-04','pavithra@mineit.tech','69ea35d46fcfe61630876d88659dac5f','Trainee','FrontEnd Developer',0,'20221212_160218.jpg','#62, RBI COLONY MAIN ROAD PAPPANNA BLOCK GANGANAGAR BENGALURU-24','0',NULL,NULL,0,0,'active','2024-05-28 12:27:02',NULL,'1',NULL,'Employee','offline'),(6,'EMP-0006','suman kumar jha','2003-09-15','8789648459','2024-03-04','jhasuman.1503@gmail.com','90ef5e044f3377bce9dd77306e2c4e8a','Trainee','Backend Developer',0,'suman photo.jpg','chalapathi raju layout ,Bethal nagar\r\nKR puram, Bangalore -560049','0','Online',NULL,0,0,'active','2024-05-28 12:30:46','35072','1',NULL,'Employee','offline'),(7,'EMP-0007','Jayamani M','2001-02-21','6385855002','2023-06-19','jayamani@mineit.tech','4abec234eba4ef1f3e636a65833f4465','Employee','Project Manager',1,'jayamani.jpg','                                                                                                                                                                                                                                            447 , chinnasalem,                                                                                                                                                                                                                                                                                                                                 ','40000','Online',NULL,0,26,'active','2024-05-28 12:34:19',NULL,'1','123456784','All','offline'),(8,'EMP-0008','RUTHALA AVINASH','2000-05-07','6302498946','2024-03-06','Avinash@mineit.tech','559cf726753328daedf67c82f92e6e3e','Trainee','FrontEnd Developer',0,'IMG-20231210-WA0025.jpg','                                                                Sairam PG,near presidency College,Hebbal,kempapura, Bangalore                                                                 ','0','Online',NULL,0,0,'active','2024-05-28 12:44:20','62115','1','6060247817881','Employee','offline'),(9,'EMP-0009','Chandan yadav ks','2002-10-21','7022591217','2024-03-04','chandanyadavks1217@gmail.com','9b574fbb149516fa80638510c1f77026','Trainee','FrontEnd Developer',0,'1000209050.jpg','karahalli village,bangarpet (t),kolar(d)\r\nkarahalli village,bangarpet (t),kolar(d)','0',NULL,NULL,0,0,'active','2024-05-28 12:44:56',NULL,'1',NULL,'Employee','offline'),(10,'EMP-0010','Prateek Choudhary ','2024-03-25',' 6363450742 ','2024-03-04','prateek@mineit.tech','a6662d732518a5107c88418168e6cf25','Trainee','FrontEnd Developer',0,'My Image.jpg','                                                                #5,Gowthampura,Ulsoor, Bangalore-08                                                                 ','0','Online',NULL,0,0,'active','2024-05-28 13:07:59',NULL,'1','561156518989','Employee','offline'),(11,'EMP-0011','Shabaz Pasha ','2003-05-31','93531 14993','2024-03-04','shabazsahza.mine@gmail.com','84836b4d0cec166b071419f0a3634019','Trainee','FrontEnd Developer',0,'1000088698.jpg','#321 Near Ayesha Masjid Madeena Nagar Mangammanapalya Bommanahalli Bangalore ','0','Online',NULL,0,0,'active','2024-05-28 13:09:06','87112','1',NULL,'Employee','offline'),(12,'EMP-0012','Ayush Kumar ','2003-09-04','+91 78926 82726','2024-03-04','ayushkumar8511@gmail.com','0746e65cbb84329869fed007803caaa4','Trainee','FrontEnd Developer',0,'1000155256.jpg','No. 16 Durga maheswari Nilaya and cross, manjunatha Layout Near Amar Jyothi Public school, Devasandra, K.R Pura, Bangalore-560036.','0','Online',NULL,0,0,'active','2024-05-28 13:11:01',NULL,'1',NULL,'Employee','offline'),(13,'EMP-0013','Kailash Prasad ','2001-07-25','8957902281','2024-03-04','kp350722@gmail.com','715da37a9ec01ced13fd49bde24fc373','Trainee','FrontEnd Developer',0,'SAVE_20240409_154934.jpg','Kr puram Baswanapura Main road Gayatri layout 15 cross ','0','Online',NULL,0,0,'active','2024-05-28 13:12:00',NULL,'1',NULL,'Employee','offline'),(15,'EMP-0014','Divya MN','2001-09-08','9108292351','2023-11-02','divya@mineit.tech','6aa5141a7609a5d9fe3f5db8413bf50d','Employee','sales_executive',0,'1000153420.jpg','Bangalore','0','Offline',NULL,0,0,'active','2024-05-28 13:33:38',NULL,'1',NULL,'Employee','offline'),(16,'EMP-0015','Sabari Raj S R','2001-05-19','9789469166','2023-11-16','sabariraj@mineit.tech','6aa5141a7609a5d9fe3f5db8413bf50d','Employee','sales_manager',0,'sabariraj.jpg','No .11/85 Thadagam Road,\r\nKovilmedu Privu, Near Kiruba Hospital , Velandipalayam Post, Coimbatore -641025','0','Offline',NULL,0,0,'active','2024-05-28 13:34:16','14187','1',NULL,'Employee','online'),(17,'EMP-0016','Vijay M','2001-04-26','6360611485','2024-03-06','vijay@mineit.tech','23590df197efc8beb7f6078ffb84a4e9','Trainee','Backend Developer',0,'WhatsApp Image 2024-05-22 at 9.42.30 AM.jpeg','JC Nagar','0','Online',NULL,0,0,'active','2024-05-28 13:43:19',NULL,'1',NULL,'Employee','offline'),(18,'EMP-0017','Deepthi S','2000-11-01','8317339167','2024-03-06','deepthi@mineit.tech','b59cd9608154255fc88b32d53930795c','Trainee','Backend Developer',0,'phototcs.jpeg','8th main,basaveshwaranagar bangalore','0',NULL,NULL,0,0,'active','2024-05-28 13:49:52',NULL,'1',NULL,'Employee','offline'),(19,'EMP-0018','Nayana Motagi ','2000-09-05','9945516910','2024-03-08','nayanamotagi24@gmail.com','ae9993fa41002253c6eb8744500eb8bc','Trainee','FrontEnd Developer',0,'IMG_20240418_095747.png','Kempapura hebbal Bangalore ','0','Online',NULL,0,0,'active','2024-05-28 15:00:05',NULL,'1',NULL,'Employee','offline'),(20,'EMP-0019','Jeethu Pathak','2002-04-02','7760320371','2024-03-04','jeethu@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Trainee','FrontEnd Developer',0,'Jeethu Pathak.jpg','Seetharama palya,Mahadeva pura post,Bangalore-560048','0','Online',NULL,0,0,'active','2024-05-28 19:49:37','62569','1',NULL,'Employee','offline'),(21,'EMP-0020','Vaibhavi Khiranand Dhadde','2002-12-14','2147483647','2024-05-01','vaibhavi@mineit.tech','252ce5808b0e032921a3bd50830f0cc8','Employee','Testing Engineer',0,'img.png.jpg',' 53, 1st Main Road, Maruthi layout, RMV 2nd Stage, Sanjay Nagar, Bangalore - 560094, Karnataka, India     ','12000','Online',NULL,0,0,'active','2024-05-29 06:24:31','39276','1','234516','Employee','offline'),(22,'EMP-0021','Shashi Bhavan C K','2002-01-19','7483984655','2023-11-02','shashibhavan@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Backend Developer',0,'1000041860.jpg','K R puram, Bangalore - 560036','0','Offline',NULL,0,0,'active','2024-05-29 08:32:26',NULL,'1',NULL,'Employee','offline'),(24,'EMP-0023','Dilip P','1999-03-06','9743591277','2023-11-01','dilip@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Backend Developer',0,'WhatsApp Image 2023-12-22 at 12.41.42 PM.jpeg','                                                                                                                                                                                                Nagashettyhalli Bangalore                                                                                                                                                                                                 ','0','Offline',NULL,0,0,'deactive','2024-06-04 05:51:19',NULL,'1','0','Employee','offline'),(25,'EMP-0024','Jyothsna ','2001-04-15','94912 15409','2023-12-01','jyothsna@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','FrontEnd Developer',0,'IMG_20240516_182232.jpg','                                                                Banglore                                                                 ','0','Online',NULL,0,7,'active','2024-06-04 06:01:44',NULL,'1','923010050685409','Employee','offline'),(26,'EMP-0025','Ajith Kumar','2001-04-30','6382712217','2024-01-08','ajith@mineit.tech','89b644724244532adc17d74afc18b9c0','Employee','FrontEnd Developer',1,'AEC_logo.png','                                                                                                                                                                                                2/147 A, Mela street, Thiranipalayam, Lalgudi (tk), Trichy - 621 109                                                                                                                                                                                                ','15000','Online',NULL,0,7,'active','2024-06-04 06:28:01',NULL,'1','923010050640956','Employee','offline'),(27,'EMP-0026','BHAVYA SREE M','2002-05-29','9491207140','2023-12-01','bhavyasreem@mineit.tech','202cb962ac59075b964b07152d234b70','Employee','sales_executive',12,'1000004705.jpg','                                                                                                                                                                                                Bangalore                                                                                                                                                                                                 ','15000','Online',NULL,0,0,'active','2024-06-04 06:33:21',NULL,'1','923010048327601','Employee','offline'),(28,'EMP-0027','Abdul Ahad','2001-10-03','9113979679','2024-02-14','abdulahad@mineit.tech','13d469fdf44444b621d19f23ecb891d4','Employee','FrontEnd Developer',1,'Abdul Ahad Photo.jpg','                                                                Bangalore                                                                ','0','Online',NULL,0,0,'deactive','2024-06-04 06:39:48',NULL,'1','12345678','Sales,Employee','offline'),(29,'EMP-0028','K SUMANTH KUMAR RAJU','2001-10-21','9100896317','2023-11-02','sumanth@mineit.tech','470e9b1c51fa4cb3bda3557fb7e9d749','Employee','sales_executive',0,'photo.jpg','Kshatriya Nagar 1st cross, Tirupati, Andhra Pradesh.','0','Offline',NULL,0,20,'active','2024-06-04 06:42:08',NULL,'1','923010050618164','Employee','online'),(30,'EMP-0029','Bhanuprasadyadav P ','2001-06-24','0','2023-11-02','bhanuprasad@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Backend Developer',0,'bhanuprasad.jpg','                                                                                                                                                                                                                                                                                                                                Bengaluru                                                                                                                                                                                                                                                                                                                                 ','0','Online',NULL,0,38,'active','2024-06-04 06:43:38',NULL,'1','0','Employee','offline'),(31,'EMP-0030','Nithyashree N Bannur ','1999-07-23','7337703618','2023-11-06','nithyashree@mineit.tech','a3e37db79e07bece99ae5d36999b7618','Employee','Backend Developer',0,'1000038910.jpg','#3390 A/1 5th main 2nd cross RPC layout Vijaynagar Bangalore ','0','Online',NULL,0,21,'active','2024-06-04 06:46:18',NULL,'1',NULL,'Employee','offline'),(32,'EMP-0031','saranya','1991-05-17','9739001516','2023-04-24','saranyaelangovan@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','FrontEnd Developer',0,'WhatsApp Image 2024-06-04 at 10.21.28.jpeg','#10 Anjanadhari layout Rachenahalli thanisandra Bengaluru- 560077','0','Online',NULL,0,0,'active','2024-06-04 06:52:02','86777','1',NULL,'Employee','offline'),(33,'EMP-0032','Meena Mani','1999-08-12','9751862387','2024-10-30','meena@mineit.tech','04227da7c059aac68cc1e17471aa0508','Employee','Project Manager',0,'WhatsApp Image 2024-05-15 at 1.13.12 PM.jpeg','Kotagiri, Nilgiris - 643217','0','Offline',NULL,0,0,'active','2024-06-04 07:06:44',NULL,'1',NULL,'Employee','offline'),(34,'EMP-0033','Sunil Gowda S','2000-06-21','9945212556','2023-08-21','sunil@mineit.tech','c5aafd632a50d6cc450f8601a48bae5e','Employee','FrontEnd Developer',0,'WhatsApp Image 2024-05-07 at 3.43.43 PM.jpeg','Seegehalli Whitefield bengaluru 560067','0','Online',NULL,0,33,'active','2024-06-04 07:15:09','78312','1',NULL,'Employee','offline'),(35,'EMP-0034','Ashwini Satti','2002-06-03','7204343744','2023-12-01','ashwini@mineit.tech','202cb962ac59075b964b07152d234b70','Employee','sales_executive',12,'IMG-20231118-WA0047.jpg','                                                                                                                                                                                                Bedarahatti,Ta:athani,Dist: belgaum, Karnataka                                                                                                                                                                                                 ','15000','Online',NULL,0,0,'active','2024-06-04 07:18:46',NULL,'1','64197051588','Employee','offline'),(36,'EMP-0035','Santhosh M','2001-01-03','9789516159','2024-06-03','santhosh@mineit.tech','7917490ade79c2b277e14298d14a85dc','Employee','Testing Engineer',0,'Linkedin Profile Pic.jpeg','81-A, MM Street, Kodaikanal, Tamil Nadu','0','Online',NULL,0,0,'deactive','2024-06-07 10:43:51',NULL,'1',NULL,'Employee','offline'),(37,'EMP-0036','Dhiwakaran M','2001-04-23','0','2023-09-04','dhiwakaran@mineit.tech','f93c8e585ffd0822ac885c0db977bd2b','Employee','Designer',0,'Green Gradient Minimalist Simple Instagram Profile Picture.png','                                                                                                                                Hosur                                                                                                                                 ','0','Online',NULL,0,0,'active','2024-06-07 10:53:51',NULL,'1','923010048364765','Employee','offline'),(38,'EMP-0037','sharathchandra B R','2000-06-25','8296595546','2023-11-02','sharath@mineit.tech','d09b0b8e999b1ed96b125652b89d8185','Employee','FrontEnd Developer',0,'WhatsApp Image 2024-05-16 at 6.23.23 PM.jpeg','Bangalore','0','Online',NULL,0,0,'active','2024-06-07 10:58:29',NULL,'1',NULL,'Employee','offline'),(39,'EMP-0038','Harish R','2002-10-01','8792680188','2023-11-01','harish.ramakrishna1@gmail.com','17ae4741e0c8be5fa97a87bc0bb79535','Employee','FrontEnd Developer',0,'Harish_R.jpg','#24 Best country 1main road near sumbhram institution of technology vidyaranyapura Bangalore 560097','0','Online',NULL,0,0,'deactive','2024-06-07 11:00:05',NULL,'1',NULL,'Employee','offline'),(40,'EMP-0039','Paranthaman G','1997-12-24','9445409521','2024-06-03','paranthaman@mineit.tech','16cbf7880d723910a1ceec73532965a3','Employee','UI/UX',0,'IMG_20240225_201116.jpg','                                                                                                                                3/52 chidambaram nagar,kamaraj street,mangadu,chennai-600122                                                                                                                                ','0','Online',NULL,0,0,'active','2024-06-07 11:11:10',NULL,'1','924010027740684','Employee','offline'),(41,'EMP-0040','SHAIK JAVED','2001-10-09','7997665161','2024-04-08','shaikjaved.mine@gmail.com','b02331e23a5d2e2890c58d3f3925ed5a','Employee','Digital Marketing Executive',0,'JAVED PASSPHOTO.JPG','4/156 Badullavari Street, Kanigir, Andhrapradesh  523230','0','Online',NULL,0,0,'active','2024-06-07 12:07:20',NULL,'1',NULL,'Employee','offline'),(42,'EMP-0041','Rahul Sahoo','2001-03-23','07835850829','2024-03-04','rahuls@mineit.tech','e183eae2879d9b25e1614fae33b2d489','Trainee','Defence and Security',0,'1000038874.jpg','#30, 5th main,\r\nKR puram, ayyapa nagar ','0','Online',NULL,0,44,'active','2024-06-07 12:07:49',NULL,'1',NULL,'Employee','offline'),(43,'EMP-0042','Manaswita Goswami','1999-05-23','7086043838','2024-05-02','manaswitagoswami@mineit.tech','c762e029e1f5ea7eba9baab3b06354ea','Employee','Content Writer',0,'Passport Photo.jpg','160, 4th Cross Rd, RMV 2nd Stage, Sachidananda Nagar, Raj Mahal Vilas 2nd Stage, Sanjayanagara, Bengaluru, Karnataka 560094','0',NULL,NULL,0,0,'deactive','2024-06-07 12:08:33',NULL,'1',NULL,'Employee','offline'),(44,'EMP-0043','NEELKAMAL PATEL','2000-12-23','9285454214','2024-03-06','neelkamal@mineit.tech','faa7c960194b1ebef2d078b163af0127','Trainee','Defence and Security',0,'IMG_0285 _Neel.jpeg','BENGALURU','0','Offline',NULL,0,0,'active','2024-06-07 12:13:02','14922','1',NULL,'Employee','offline'),(45,'EMP-0044','Kishore N ','1999-07-17','9606255977','2024-03-09','kishorekn0056@gmail.com','9ea3131b1d9a8a346d28ed19561524b5','Trainee','Defence and Security',0,'1000051764.jpg','Nandini layout, Bangalore ','0','Online',NULL,0,0,'active','2024-06-07 12:13:15',NULL,'1',NULL,'Employee','offline'),(46,'EMP-0045','Chandan Kumar V K ','2000-09-18','8151037033','2024-06-06','ck18vk@gmail.com','bd35027b12b39ecfc0a8daae907715c4','Trainee','Defence and Security',0,'IMG_20220713_172858_copy_911x1191.jpg','Yelanka,Banglore ','0','Online',NULL,0,0,'active','2024-06-07 12:15:06',NULL,'1',NULL,'Employee','offline'),(47,'EMP-0046','SaiSabarish','2003-12-03','9659395553','2024-03-06','saisabarish@mineit.tech','49bb558128e6423e75108c97dd3e4e25','Trainee','Defence and Security',0,'WhatsApp Image 2024-06-06 at 3.55.41 PM.jpeg','422/1,v.s.illam,kamarjar 2nd street,b.b.kulam,madurai','0','Online',NULL,0,0,'active','2024-06-07 15:26:01',NULL,'1',NULL,'Employee','offline'),(48,'EMP-0047','M.S.Purnima','2000-12-04','+91 9652836098','2024-06-06','purnima@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Trainee','Testing Engineer',0,'WhatsApp Image 2024-06-10 at 2.33.29 PM.jpeg','K.R. Puram Bangalore','0','Online',NULL,0,0,'active','2024-06-10 11:11:32','92917','1',NULL,'Employee','offline'),(49,'EMP-0048','Bipin Chavan','1999-05-13','805571827','2024-06-06','bipinchavan@mineit.tech','45a2a8b13e2846a5ecf5a5c4bc29aafe','Trainee','Testing Engineer',0,'WhatsApp Image 2024-06-10 at 2.41.41 PM.jpeg','SLN Gents PG, Rajagopal Road, Sanjaya Nagar,Bangalore','0','Online',NULL,0,0,'active','2024-06-10 11:12:30',NULL,'1',NULL,'Employee','offline'),(50,'EMP-0049','Turab Hussain','2001-10-16','7204449351','2024-02-01','hussain@mineit.tech','1c643fd3907f92f9076ad81ba4836016','Employee','FrontEnd Developer',0,'WhatsApp Image 2024-06-10 at 22.00.31_e1f01a8f.jpg','RT Nagar,Bangalore-560032                                                             ','0','Online',NULL,0,26,'active','2024-06-10 15:01:02',NULL,'1','0000000000000','Employee','offline'),(51,'EMP-0050','Rahul hosmani','2000-04-18','7760682155','2024-06-06','rahulh@mineit.tech','9e535fee0d340ad904152749df1cb3e0','Trainee','Backend Developer',0,'Screenshot 2024-06-11 155846.png','                                                                                                                                BANGLORE                                                                                                                                ','0','Online',NULL,0,0,'active','2024-06-11 12:12:40','66954','1','123','Employee','offline'),(52,'EMP-0051','Ashutosh Prajapati ','2001-07-17','7338537351','2024-03-04','ashutosh@mineit.tech','c442e808532f2e5053cad0916edb9f45','Trainee','FrontEnd Developer',0,'IMG-20240506-WA0110.jpg','Vibuthipura mutta road Marathahalli ','0','Online',NULL,0,12,'active','2024-06-11 13:37:44',NULL,'1',NULL,'Employee','offline'),(53,'EMP-0052','Ashwinkumar','2001-06-20','8870230720','2024-04-01','ashwinponnusamy20@gmail.com','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Graphic/UI',0,'WhatsApp Image 2024-04-22 at 17.00.00_85b77df9.jpg','salem\r\nchinnasalem','0','Online',NULL,0,0,'active','2024-06-12 12:03:47',NULL,'1',NULL,'Employee','offline'),(54,'EMP-0053','prasanth','2003-08-08','0978909600','2024-02-12','prasanthb.mine@gmail.com','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Graphic/UI',0,'my.jpg','                                                                                                                                                                                                                                                                                                                                madurai                                                                                                                                                                                                                                                                                                                                ','0','Online',NULL,0,41,'active','2024-06-18 07:00:24',NULL,'1','9789096005','Employee','offline'),(55,'EMP-0054','CHANDAN YADAV K S','2002-10-21','7022591217','2024-03-04','chandan@mineit.tech','9b574fbb149516fa80638510c1f77026','Trainee','FrontEnd Developer',0,'PICTURE CONVACATION.jpg','Near post office Karahalli Village,Bangarpet (t),Kolar(d)','0','Online',NULL,0,0,'active','2024-06-18 07:33:56',NULL,'1',NULL,'Employee','offline'),(56,'EMP-0055','Hema B','2003-12-13','0','2024-06-06','hhemaaa013@gmail.com','5ba9abfbe1cb7c478ffb9777d11e0845','Trainee','Backend Developer',0,'IMG_5025.jpeg','                                                                                                                                                                                                                                                                                                                                Saish Living Spaces, New bels road. Bengaluru.                                                                                                                                                                                                                                                                                                                                 ','0','Online',NULL,0,0,'active','2024-06-18 10:42:58',NULL,'1','89789','Employee','offline'),(57,'EMP-0056','Raghu raj pratap singh','2002-08-29','06206099589','2024-05-22','raghurajpratapsingh6165@gmail.com','9ac9249ebe7a7923a7e214fd39695253','Trainee','Defence and Security',0,'WhatsApp Image 2024-06-19 at 09.59.15_22295cac.jpg','K.R. Puram bangalore','0','Online',NULL,0,0,'active','2024-06-19 06:31:58',NULL,'1',NULL,'Employee','offline'),(58,'EMP-0057','Daniel C','1986-06-24','6382341074','2021-10-27','cdaniel.mine@gmail.com','13d469fdf44444b621d19f23ecb891d4','Employee','CTO',0,'WhatsApp Image 2024-04-22 at 17.00.00_85b77df9.jpg','# 87, Kandal Main Road Ooty. - 643006.','0','Online',NULL,0,7,'active','2024-06-19 07:00:17',NULL,'1',NULL,'Employee','offline'),(59,'EMP-0058','Anand T','1979-08-21','8220333544','2012-08-19','anand@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Management',0,'WhatsApp Image 2024-04-22 at 17.00.00_85b77df9.jpg','           Bangalore                                                                                                                                                                                                ','0','Offline',NULL,0,0,'active','2024-06-19 07:07:51',NULL,'1','bug','Employee','offline'),(60,'EMP-0059','Latika Pandit','1998-12-29','7989556983','2024-06-06','latika@mineit.tech','b903a1887e911d2153b6728f8f771103','Trainee','UI/UX',0,'Profile picture_latika pandit .JPG','Sri sai luxurious ladies pg, 4th cross, Sanjay Nagar, Hebbal, Karnataka, 560094','0','Online',NULL,0,0,'active','2024-06-19 07:08:22',NULL,'1',NULL,'Employee','offline'),(61,'EMP-0060','Jai Ranpara','2004-01-21','8657432101','2024-06-06','rjai@mineit.tech','c406cf676fd92219a1c6bf7a6c4279d1','Trainee','Backend Developer',0,'Jai.JPG','B 1501 Eternia Hiranandani Gardens Powai Mumbai 400076','0','Online',NULL,0,0,'active','2024-06-20 12:54:06',NULL,'1',NULL,'Employee','offline'),(62,'EMP-001','Yeshna Jerold Masih','1999-08-27','8770917677','2024-03-13','hr@ghate.solutions','17ae4741e0c8be5fa97a87bc0bb79535','Employee','admin',0,'WhatsApp Image 2024-06-21 at 2.56.22 PM.jpeg','bengaluru','0','Online',NULL,0,0,'active','2024-06-21 11:26:32',NULL,'2',NULL,'Employee','offline'),(64,'EMP-0002','Tarun Dubey','1999-11-08','9755559901','2024-05-01','tarunkumardubey@swifterz.co','dc2580c1f34db92149637493704e109e','Employee','HR Exceutive',10,'IMG_4928.jpeg','Kalyan Nagar Bengaluru','0','Online',NULL,0,0,'active','2024-06-25 07:45:30',NULL,'2','922010032273353','Admin','offline'),(65,'EMP-0002','Tangevva Satti','2000-06-03','7625017522','2023-06-03','tangevva.swifterz@gmail.com','1a9100a2ceb0d616ba414851cbc31c40','Employee','HR Exceutive',10,'WhatsApp Image 2024-06-25 at 11.23.57 AM.jpeg','Bengluru','0','Online',NULL,0,0,'active','2024-06-25 07:54:36','17211','2','923010048363775','Admin','offline'),(66,'EMP-0002','SaiSabarish','2003-12-03','9659395553','2024-06-01','saisabarish@ghate.solutions','b2e03cb45bbfa9e57f351b54ef9a7a56','Employee','System Administration',0,'WhatsApp Image 2024-06-06 at 3.55.41 PM.jpeg','Bangalore,India','0',NULL,NULL,0,0,'active','2024-06-25 11:49:31',NULL,'2',NULL,'Employee','offline'),(67,'EMP-0062','Dr Karthikeyan Saminathan','1989-05-16','9791306877','2024-05-06','director.development@mineit.tech','f7876f0bc281ac72a2e4931438657287','Employee','Project Manager',1,'Dr.Karthikeyan.jpg','                                                                1/5-68E , Annai Ganga Naayar Township,\r\nAnna Nagar, Neelambur,Coimbatore-062                                                                ','175000','Offline',NULL,0,7,'active','2024-06-25 14:38:37',NULL,'1','922010040242633','Management,Accounts,Sales,Admin,Project Manager,Employee,Client,All','offline'),(68,'EMP-0063','Punitha.S','1991-03-11','6374559883','2022-04-12','punitha.ghate@gmail.com','b2e03cb45bbfa9e57f351b54ef9a7a56','Employee','Management',0,'20240614_145921.jpg','24,Allurinilayam, Amarjyothi Layout, Sanjaynagar,Bangalore 560094','0',NULL,NULL,0,0,'active','2024-06-26 07:19:54',NULL,'1',NULL,'Employee','offline'),(69,'EMP-0064','Hamsavani','1986-04-17','7708022116','2022-02-02','hamsavani.ghate@gmail.com','e700abbe22ebc14f26ba5cfbe5c40da6','Employee','Accountent',3,'hamsa photo.jpg','18c Rajaji st, om sakthi nagar ambatturch 53','0',NULL,NULL,0,0,'active','2024-06-26 14:02:26',NULL,'1','12345678','Accounts,Employee','offline'),(70,'EMP-0065','Ajith N','2001-08-05','8248373129','2024-07-01','ajith.n@mineit.tech','c3ca08c36c5e4251ad1f41126ba024ad','Employee','Defence and Security',0,'1000067001.jpg','                                                                                                                                                                                                                                                                Bangalore ind                                                                                                                                                                                                                                                                ','0','Online',NULL,0,0,'active','2024-07-02 09:36:35','4083','1','8248373129','Employee','offline'),(71,'EMP-0066','Maheen N','1999-10-10','8220333514','2022-03-05','maheen@swifterz.co','dc2580c1f34db92149637493704e109e','Employee','',14,'WhatsApp Image 2024-06-24 at 4.51.49 PM (1).jpeg','Bangalore','30000','Online',NULL,0,0,'active','2024-07-10 06:35:18',NULL,'5','1152500102712101','Admin','offline'),(72,'EMP-0002','Yashaswini  P G','1999-05-03','8618490736','2024-03-25','yashaswini.mineit@gmail.com','ed084cf21620c0440250487c8c8fbb50','Trainee','HR Exceutive',10,'WhatsApp Image 2024-07-11 at 4.39.10 PM (1).jpeg','Bengaluru','0','Online',NULL,0,0,'active','2024-07-11 13:11:06','30996','2','39556169005','Admin','offline'),(73,'EMP-0067','Nagindrarao','1973-08-01','8892145203','2024-06-10','nmalkhed73@gmail.com','1278910e60db273ed8e618c54e7d6da9','Employee','Vice President Projects',0,'Screenshot_20240627_231612.jpg','126NE nisarga layout bannerghatta road bengaluru 560083','0','Online',NULL,0,97,'active','2024-07-18 07:41:03',NULL,'5',NULL,'Employee','offline'),(74,'EMP-0068','Vandana. S','1999-07-08','9148758724','2024-05-13','vandanas@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'IMG-20240513-WA0003.jpg','                                                                Rg layout 2nd cross kolar 563101                                                                ','0','Offline',NULL,0,0,'active','2024-07-18 09:48:34','46360','5','4242500103812601','Employee','offline'),(75,'EMP-0069','Guru charan R shetty ','1997-03-30','8660245294','2024-05-06','gurucharan.r.shetty@swifterz.co','dc2580c1f34db92149637493704e109e','Employee','Tekla Modeler',0,'IMG_20200918_092745~2.jpg','Muthyala Nagar, BNS Layout, Mathikere, Bengaluru, Karnataka 560054','0',NULL,NULL,0,0,'active','2024-07-19 06:04:26',NULL,'5',NULL,'Employee','offline'),(76,'EMP-0070','Anshu Amar','1995-02-02','9811139713','2024-06-20','anshuamar@swifterz.co','15265f06957af1415821ec0b902c4f75','Employee','Project Manager',0,'BIM.PNG','SriVinayak PG','0','Online',NULL,0,0,'active','2024-07-19 09:06:48','10116','5',NULL,'Employee','offline'),(77,'EMP-0071','Vishal ','1994-04-16','8296783569','2024-02-05','vishalitagi@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler- MEP',0,'Vishal Whie Backround.jpg','                                                                Bazar road hire bagewadi BELAGAVI 591109                                                                ','0','Offline',NULL,0,0,'active','2024-07-19 10:24:16',NULL,'5','8296783569','Employee','offline'),(78,'EMP-0072','Dharani M K','2001-07-22','07338273473','2024-05-13','dharanimk.swifterz@gmail.com','9b9b28b6fed2f044608b648bfef7e79a','Employee','BIM Modeler',0,'IMG_20240719_135717.jpg','                                                                                                                                Bengaluru                                                                                                                              ','0','Online',NULL,0,0,'active','2024-07-19 10:27:44',NULL,'5','4456','Employee','offline'),(79,'EMP-0073','Padmavati H Budihal','2001-07-23','9353722624','2024-02-19','padmavati@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'20231030_000001.jpg','Bangalore ','0','Online',NULL,0,0,'active','2024-07-19 11:00:17',NULL,'5',NULL,'Employee','offline'),(80,'EMP-0074','Shaikh Shahebaz','1995-10-07','7847837944','2024-05-13','shahebaz.s@swifterz.co','17ae4741e0c8be5fa97a87bc0bb79535','Employee','BIM Modeler',0,'IMG_20240713_154103_793.jpg','Bangalore','0',NULL,NULL,0,0,'deactive','2024-07-19 11:11:03',NULL,'5',NULL,'Employee','offline'),(81,'EMP-0075','Yogesh S','2001-08-12','8310837308','2024-04-01','yogesh@swifterz.co','f2258de99689f272ac7bd62b17db61bb','Employee','BIM Modeler',0,'IMG_20240408_175036.jpg','T Dasarahalli,Bangaluru','0','Online',NULL,0,0,'active','2024-07-19 12:44:26',NULL,'5',NULL,'Employee','offline'),(82,'EMP-0076','Mohammed Samir V','2001-09-21','8943440841','2024-02-05','samir@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler- MEP',0,'IMG-20230905-WA0041.jpg','Mathikere,star pg','0','Online',NULL,0,0,'active','2024-07-19 12:46:39',NULL,'5',NULL,'Employee','offline'),(83,'EMP-0077','Netravati','2001-05-20','9353609178','2024-02-19','netravati@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'IMG_20220413_192753.jpg','Banglore','0','Online',NULL,0,0,'active','2024-07-19 12:59:10',NULL,'5',NULL,'Employee','offline'),(84,'EMP-0078','Manoj ','1997-08-02','7338571279','2024-04-01','manoj@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'IMG_20230107_213351_573.jpg','                                                                                                                                Manoj s/o Mahadevegowda Hullahalli, Agasanapura post, Malavalli tq, Mandya di, Karnataka 571340                                                                                                                                ','0','Online',NULL,0,0,'active','2024-07-19 18:40:04','55714','5','39979456440','Employee','offline'),(85,'EMP-0079','Chandrasekar H','1998-12-27','6381176377','2024-02-05','chandrasekarh@swifterz.co','7dd391766f27794781249bf0c843e906','Employee','BIM Modeler',0,'IMG_20240410_104027.jpg','2nd stage,2nd cross Street,KR garden,Jeevanahalli,Cox Town, Bangalore 560005','0','Offline',NULL,0,0,'active','2024-07-20 05:52:54','34451','5',NULL,'Employee','offline'),(86,'EMP-0080','Vishwa J Y','2000-01-20','9916130141','2024-02-05','vishwa@swifterz.co','58542b4fe783f4d0d805315f25d36a79','Employee','BIM Modeler',0,'IMG_20240720_092322.jpg','BTM 1st stage, Bangaluru','0','Offline',NULL,0,0,'active','2024-07-20 05:54:08',NULL,'5',NULL,'Employee','offline'),(87,'EMP-0081','Sanjay B R ','2001-02-11','63615 43671','2024-04-01','sanjaybr.swifterz15@gmail.com','6c90bce104e555ef5acc46b0e162dd76','Employee','BIM Modeler',0,'IMG_20240720_093727.jpg','Yelchanahalli, Bengaluru ','0','Online',NULL,0,0,'active','2024-07-20 06:11:26',NULL,'5',NULL,'Employee','offline'),(88,'EMP-0082','Ravikiran','2000-02-05','09538383652','2024-05-06','ravikirantalwar@swifterz.co','0784d2702d4fc2e5c8c51584c66beed5','Employee','BIM Modeler',0,'Screenshot_20240425-101156.jpg','Bangalore\r\nBangalore','0','Online',NULL,0,0,'active','2024-07-20 06:30:56','25372','5',NULL,'Employee','offline'),(89,'EMP-0083','Karthigeyan B','1997-11-17','+918610046560','2024-07-01','bkarthigeyan1@gmail.com','f882cbb2484f527fb5332288652812d4','Employee','BIM Architect Lead',0,'IMG_20230122_221626_812.jpg','MIN NAGAR PALLAVAN SALAI Kancheepuram\r\nKanchipuram','0','Online',NULL,0,0,'active','2024-07-20 06:33:35',NULL,'5',NULL,'Employee','offline'),(90,'EMP-0084','PURRU GIRI SAI PRASAD ','2002-03-21','7075215225','2024-02-05','purrugirisaiprasad@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'1000029299.jpg','Nagashettihalli ','0','Online',NULL,0,0,'active','2024-07-22 18:26:22',NULL,'5',NULL,'Employee','offline'),(91,'EMP-0085','Deepan mohanraj','1998-03-18','8248438214','2024-02-05','deepanmohanraj@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'DSC_8779.JPG','Bangalore ','0','Online',NULL,0,0,'active','2024-07-23 06:35:52',NULL,'5',NULL,'Employee','offline'),(92,'EMP-0086','SaiSabarish','2003-12-03','9659395553','2024-03-06','saran@swifterz.co','49bb558128e6423e75108c97dd3e4e25','Employee','BIM Modeler- MEP',0,'WhatsApp Image 2024-06-06 at 3.55.41 PM.jpeg','Bangalore','0','Online',NULL,0,0,'active','2024-07-24 11:07:06',NULL,'5',NULL,'Employee','offline'),(93,'EMP-0087','Tanu satti','2000-06-03','7892416823','2023-04-17','tangevvasatti@aecearth.in','57fdd29e54d828758e62c84751326096','Employee','Business Development Manager',0,'WhatsApp Image 2024-07-30 at 12.02.41 PM.jpeg','Banglore','0',NULL,NULL,0,0,'active','2024-08-05 12:59:14','80113','5',NULL,'Employee','offline'),(94,'EMP-0066','Punitha.S','1991-03-11','6374559883','2022-04-05','punitha@ghate.solutions','a37d4a0a3b53e12d98b066866f592ab0','Employee','Management',3,'WhatsApp Image 2024-08-08 at 9.28.48 AM.jpeg','Sanjayanagar , Bangalore','10000','Offline',NULL,0,0,'active','2024-08-08 06:15:03',NULL,'6','12345678','Employee,All','offline'),(95,'EMP-0067','sateesh sreenivas','1962-01-18','9880564152','2024-08-08','sateesh.s1@assetsociety.org','e72eb9b334aa00cef141d621aeb4930d','Employee','CEO',0,'IMG-20200212-WA0030.jpg','2777,14t A main ,8th E cross ,near Attiguppe,Vijaynagar 2nd stage ,Bangalore -560040','0','Online',NULL,0,0,'active','2024-08-08 09:32:06',NULL,'6',NULL,'Employee','offline'),(96,'EMP-0068','Maheen N','1999-10-10','8220333514','2022-03-05','maheen@aecearth.in','68568fa322905a2528a8f311b1faaa32','Employee','Admin',0,'WhatsApp Image 2024-06-24 at 4.51.49 PM (1).jpeg','Bangalore','0',NULL,NULL,0,0,'active','2024-08-08 11:32:28',NULL,'6',NULL,'Employee','offline'),(97,'EMP-0088','Manoj Kumar','1980-02-07','9845590739','2024-06-10','manojkumar@swifterz.co','d737533dae15c83068e9cbbcb7272ecf','Employee','Business Development Manager',0,'WhatsApp Image 2024-08-08 at 4.53.30 PM.jpeg','!02, A-4 , Ghataprabha block, NGV ,Kormangala bangalore -47','0','Online',NULL,0,98,'active','2024-08-08 13:24:06',NULL,'5',NULL,'Employee','offline'),(98,'EMP-0089','G Gopal krishna','1984-02-03','8095530760','2023-11-01','gopal@swifterz.co','57919265d0b52f06fd5af2588612d527','Employee','Technical Director',0,'5437dfc2-4f56-477b-a975-8b54f0eb5254.jfif','#F15,second floor ,pyramid watsonia appartment,jakkur,Yalanka','0','Online',NULL,0,0,'active','2024-08-08 13:25:00',NULL,'5',NULL,'Employee','offline'),(99,'EMP-0090','NAGINDRARAO MALKHED','1973-08-01','8892145203','2024-06-10','nagendra@swifterz.co','1278910e60db273ed8e618c54e7d6da9','Employee','Vice President Projects',0,'IMG20161210133551.jpg','126NE NISARGA LAYOUT JIGANI HOBALI ','0','Online',NULL,0,0,'active','2024-08-08 13:47:49',NULL,'5',NULL,'Employee','offline'),(100,'EMP-0069','Abhishek','2024-02-12','9611734459','2024-02-12','Abhishek.aecearth@gmail.com','569506e51e1eb311a26f93e27bf46502','Employee','BDM',17,'Sales.jpg','bangalore','0',NULL,NULL,0,0,'active','2024-08-09 12:53:49',NULL,'6','ooo2','Employee','offline'),(101,'EMP-0070','Dilraj','1989-01-01','9606051007','2024-03-27','dilrajkv.aecearth@gmail.com','569506e51e1eb311a26f93e27bf46502','Employee','Sales  ',20,'Sales.jpg','Bangalore','0',NULL,NULL,0,0,'active','2024-08-09 13:07:53',NULL,'6',NULL,'Employee','offline'),(102,'EMP-0091','Tanu Satti','2000-06-03','Tanu Satti','2022-04-17','thanusatti@gmail.com','1a9100a2ceb0d616ba414851cbc31c40','Employee','sales_executive',12,'WhatsApp Image 2024-08-05 at 4.17.54 PM (2).jpeg','Benglore','0','Online',NULL,0,0,'inactive','2024-08-12 06:23:31',NULL,'5',NULL,'Employee','offline'),(103,'EMP-0092','Joud','2000-01-01','07397718590','2018-03-01','joud@swifterz.ae','2c04e409ff11c1861c534dd27d4a93a8','Employee','Project Manager',0,'joud.jpeg','No. 24, Second floor, Corner Woods, D. Rajgopal Road, Sanjay Nagar, BangaloreÂ 560094.','0','Offline',NULL,0,0,'active','2024-08-12 08:15:36','53124','5','0','Employee','offline'),(104,'EMP-0093','Bharath H.J ','2002-01-17','6364053247','2024-08-01','bharathhj@swifterz.co','a4a8c0e264f61051280a84c0f222c8c1','Employee','BIM Modeler',0,'IMG_20230627_223718_482.jpg','                                                                                                                                Haravu, Pandavapura(tq), Mandya(district), Karnataka.                                                                                                                                ','0','Online',NULL,0,0,'active','2024-08-12 09:52:53','16801','5','6364053247','Employee','offline'),(105,'EMP-0066','shanker','1980-09-09','9894055835','2023-01-12','shankkerkumar@swifterz.co','5cf52ad626168727663e25e93868a78a','Employee','Project Manager',4,'WhatsApp Image 2024-06-22 at 12.06.10 PM (2).jpeg','bangalore','0',NULL,NULL,0,0,'active','2024-08-12 13:41:46',NULL,'1',NULL,'Employee','offline'),(106,'EMP-0094','Pavan Kumar N ','2000-07-05','8431688648','2024-08-01','pavankumarn@swifterz.co','bed96579f1d7246d3e4e093c2fe5ee06','Employee','BIM Modeler',0,'IMG_20230908_052443_326.jpg','                                                                                                                                Yelahanka,pallanahalli ,Banglore                                                                                                                                 ','0','Offline',NULL,0,0,'active','2024-08-12 13:58:33',NULL,'5','8431688648','Employee','offline'),(107,'EMP-0095','Shankker Kumar','2024-07-31','8220333514','2024-08-13','sk.swifterz@gmail.com','dc2580c1f34db92149637493704e109e','Employee','CEO',14,'Swifterz TM Crop (1).jpg','Bangalore','0','Online',NULL,0,0,'active','2024-08-13 09:00:11',NULL,'5','nnnkm','All','offline'),(108,'EMP-0096','Tarun Debey','2024-08-06','8220333514','2024-08-30','tarundubey.swifterz@gmail.com','dc2580c1f34db92149637493704e109e','Employee','HR Executive',14,'Swifterz TM Crop (1).jpg','Bangalore','0',NULL,NULL,0,0,'active','2024-08-13 09:48:15',NULL,'5',NULL,'Employee','offline'),(109,'EMP-0097','Ashwin Kumar','2024-08-05','8220333514','2024-08-20','ashwingd.mine@gmail.com','dc2580c1f34db92149637493704e109e','Employee','Graphic Designer',29,'Swifterz TM Crop (1).jpg','Bangalore','0','Online',NULL,0,0,'active','2024-08-13 10:01:21',NULL,'5','sdfsd','Employee','offline'),(110,'EMP-0098','Sharath Kumar H N ','2000-01-07','9480202919','2024-08-05','sharath7swifterz@gmail.com','d79c373da2c20c0fe580bd48f8398ca1','Employee','BIM Modeler',0,'1000082661.jpg','Mandya ','0','Offline',NULL,0,0,'active','2024-08-16 13:22:10','63471','5',NULL,'Employee','offline'),(111,'EMP-0099','Anjana Aj','1998-08-06','8147847648','2024-07-01','anjana@swiifterz.co','6d573f70af9736c6b5a7f727254908e9','Employee','BIM Modeler',0,'Screenshot_20240628-134447_Gallery.jpg','Babusapalya Sk Clothes General store MmM garden hennur karnataka Bengaluru 560043','0',NULL,NULL,0,0,'active','2024-08-19 08:00:45','14960','5',NULL,'Employee','offline'),(112,'EMP-0100','Shyamala MP','2000-09-14','7022892860','2024-08-01','mpshyamala14@gmail.com','dc2580c1f34db92149637493704e109e','Employee','BIM Modeler',0,'Document from SHYAMALA   M.P','Madihalli, Tiptur taluk , Tumkur district, Karnataka ','0','Online',NULL,0,0,'active','2024-08-20 06:25:56','69440','5',NULL,'Employee','offline'),(113,'EMP-0101','Anand Thayalaguru','1984-08-19','8220333544','2012-08-12','anand.swifterz@gmail.com','1b3a574fd6d96614502593d18474e24e','Employee','Management',14,'Swifterz TM Crop (1).jpg','Bangalore','0','Offline',NULL,0,0,'active','2024-08-20 14:14:34','30405','5','5656','Management','offline'),(114,'EMP-0102','NAVEENRAJ KS','1997-02-25','9791823173','2024-08-01','naveen@swifterz.co','8b5c6ebe47a577a84047ab223ee9d628','Employee','BIM Modeler',0,'WhatsApp Image 2024-10-24 at 3.00.02 PM.jpeg','                                                                Indiranagar, tamilnadu                                                                 ','0','Offline',NULL,0,0,'active','2024-08-21 07:03:13',NULL,'5','112233445566','Employee','offline'),(115,'EMP-0103','Sharath Kumar H N','2000-01-07','9480202919','2024-08-05','sharathkumarhn@swifterz.co','d79c373da2c20c0fe580bd48f8398ca1','Employee','BIM Modeler',0,'1000082661.jpg','Mandya','0','Online',NULL,0,0,'active','2024-08-21 07:38:11','21486','5',NULL,'Employee','offline'),(116,'EMP-0104','Sumanth Kumar','2024-09-10','9876543210','2024-09-10','sumanthk.mine@gmail.com','d00f5d5217896fb7fd601412cb890830','Employee','Project Manager',0,'swift_jiffy_favicon.jpeg','#53, 1st Main Road, Maruthi Layout, RMV 2nd Stage, Sanjay Nagar, Bangalore.','0','Offline',NULL,0,0,'active','2024-09-10 15:43:01',NULL,'5',NULL,'Employee','offline'),(117,'EMP-0105','Ajith Kumar','2024-09-10','1234567890','2024-09-10','ajithkumars.mine@gmail.com','d00f5d5217896fb7fd601412cb890830','Employee','Employee',0,'swifterz_logo.jpeg','#53, 1st Main Road, Maruthi Layout, RMV 2nd Stage, Sanjay Nagar, Bangalore.','0','Offline',NULL,0,0,'active','2024-09-10 15:54:17',NULL,'5',NULL,'Employee','offline'),(118,'EMP-0106','maheen','1999-10-10','8786543244','2021-07-15','maheen@gmail.com','8f1af81921368cd18bbf0f314550b72f','Employee','BIM Architect',12,'Screenshot_20230216_133639.jpg','koiugfdreaedfh','0',NULL,NULL,0,0,'active','2024-09-19 11:37:14',NULL,'5',NULL,'Employee','offline'),(119,'EMP-0107','Ajith','2024-09-23','6382712217','2024-09-23','sumanth.mine@gmail.com','d00f5d5217896fb7fd601412cb890830','Employee','Tekla Modeler',16,'17078693240 (1).jpg','bengaluru','0',NULL,NULL,0,0,'active','2024-09-23 09:02:35',NULL,'5',NULL,'Employee','offline'),(120,'EMP-0108','sunil','2024-10-01','8786543244','2024-09-24','divya@gmail.com','f4e53b4867ab3c6b65ff370597f3e745','Employee','Project Manager',15,'Screenshot_20230216_133639.jpg','qwsdfgh','0',NULL,NULL,0,0,'active','2024-09-24 07:56:32',NULL,'5',NULL,'Employee','offline'),(121,'EMP-0109','jyo','2024-10-03','9491215409','2024-10-20','jyothsna.mettupalli@gmail.com','d00f5d5217896fb7fd601412cb890830','Employee','BIM Project Manager',14,'17078698003 (1).jpg','fghjk','0',NULL,NULL,0,0,'active','2024-10-03 08:33:22',NULL,'5',NULL,'Employee','offline'),(122,'EMP-0110','V L LOKESH','2002-01-23','8431628978','2024-10-01','lokesh.swifterz@gmail.com','1278910e60db273ed8e618c54e7d6da9','Employee','BIM Modeler',12,'swifterz_logo-B0Sy6MUs.png','159 TD Lane, Cottonpet, Bangalore, 560053','0','Online',NULL,0,0,'active','2024-10-23 08:28:58',NULL,'5',NULL,'Employee','offline'),(123,'EMP-0111','DHANUSHREE B J','2003-05-19','8867001556','2024-09-01','dhanushreebj.swifterz@gmail.com','651e7b8d146ec157c9b81a79bb23852c','Employee','BIM Modeler',12,'swifterz_logo-B0Sy6MUs.png','D/o Jayashankar, Salagame Hobli, Ballenahalli, Hassan Karnataka-573219','0','Online',NULL,0,0,'active','2024-10-23 08:45:17',NULL,'5',NULL,'Employee','offline'),(124,'EMP-0112','Chinmayi K R','2001-05-29','6362950938','2024-01-10','chinmayikr.swifterz@gmail.com','65af98594cfff43e2ebfad422375fd85','Employee','BIM Modeler',12,'swifterz_logo-B0Sy6MUs (2).jpg','Kolagatta, Turuvekere (t), Tumkur (D)','0',NULL,NULL,0,0,'active','2024-10-24 07:59:21',NULL,'5',NULL,'Employee','offline');
+INSERT INTO `employee` VALUES (1,'EMP-0001','Nisha C R','2001-02-21','7397718515','2022-03-05','nishar.mine@gmail.com','17ae4741e0c8be5fa97a87bc0bb79535','Employee','admin',1,'WhatsApp Image 2024-06-24 at 3.15.30 PM.jpeg','                                                                bangalore                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ','0','Online',NULL,0,476,'active','2023-11-27 11:57:25',NULL,'1','123456784','Admin','offline'),(2,'EMP-0002','Anusiya M ','2001-10-15','8754891839','2023-06-19','anusiyam@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','FrontEnd Developer',1,'anu.jpg','Tamil Nadu                                                                                                                                ','25000','Online',NULL,0,7,'deactive','2024-05-28 12:01:17',NULL,'1','12345678','Employee','offline'),(3,'EMP-0003','Nithin MA','2002-02-06','8105445466','2024-03-06','nithin@mineit.tech','81b2dd9387fae32865a9773f0b443d45','Trainee','Backend Developer',0,'pasportpic.jpg','                                      TRVH Hostel                          No.130,Veerapillai Street, Shivajinagar                                                                ','0','Online',NULL,0,0,'deactive','2024-05-28 12:21:10','36908','1','0622500103428701','Employee','offline'),(4,'EMP-0004','SANJANA H NADIG','2002-05-30','7899725664','2024-03-06','sanjana@mineit.tech','a31d254b7558a05009491a60b47d0103','Trainee','FrontEnd Developer',0,'pic.jpg','santhrupti lig 66 khb colony chitradurga','0',NULL,NULL,0,0,'active','2024-05-28 12:25:22','32692','1',NULL,'Employee','offline'),(5,'EMP-0005','L PAVITHRA','1999-12-13','9380283947','2024-03-04','pavithra@mineit.tech','69ea35d46fcfe61630876d88659dac5f','Trainee','FrontEnd Developer',0,'20221212_160218.jpg','#62, RBI COLONY MAIN ROAD PAPPANNA BLOCK GANGANAGAR BENGALURU-24','0',NULL,NULL,0,0,'active','2024-05-28 12:27:02',NULL,'1',NULL,'Employee','offline'),(6,'EMP-0006','suman kumar jha','2003-09-15','8789648459','2024-03-04','jhasuman.1503@gmail.com','90ef5e044f3377bce9dd77306e2c4e8a','Trainee','Backend Developer',0,'suman photo.jpg','chalapathi raju layout ,Bethal nagar\r\nKR puram, Bangalore -560049','0','Online',NULL,0,0,'active','2024-05-28 12:30:46','35072','1',NULL,'Employee','offline'),(7,'EMP-0007','Jayamani M','2001-02-21','6385855002','2023-06-19','jayamani@mineit.tech','4abec234eba4ef1f3e636a65833f4465','Employee','Project Manager',1,'jayamani.jpg','                                                                                                                                                                                                                                            447 , chinnasalem,                                                                                                                                                                                                                                                                                                                                 ','40000','Online',NULL,0,26,'active','2024-05-28 12:34:19',NULL,'1','123456784','All','offline'),(8,'EMP-0008','RUTHALA AVINASH','2000-05-07','6302498946','2024-03-06','Avinash@mineit.tech','559cf726753328daedf67c82f92e6e3e','Trainee','FrontEnd Developer',0,'IMG-20231210-WA0025.jpg','                                                                Sairam PG,near presidency College,Hebbal,kempapura, Bangalore                                                                 ','0','Online',NULL,0,0,'active','2024-05-28 12:44:20','62115','1','6060247817881','Employee','offline'),(9,'EMP-0009','Chandan yadav ks','2002-10-21','7022591217','2024-03-04','chandanyadavks1217@gmail.com','9b574fbb149516fa80638510c1f77026','Trainee','FrontEnd Developer',0,'1000209050.jpg','karahalli village,bangarpet (t),kolar(d)\r\nkarahalli village,bangarpet (t),kolar(d)','0',NULL,NULL,0,0,'active','2024-05-28 12:44:56',NULL,'1',NULL,'Employee','offline'),(10,'EMP-0010','Prateek Choudhary ','2024-03-25',' 6363450742 ','2024-03-04','prateek@mineit.tech','a6662d732518a5107c88418168e6cf25','Trainee','FrontEnd Developer',0,'My Image.jpg','                                                                #5,Gowthampura,Ulsoor, Bangalore-08                                                                 ','0','Online',NULL,0,0,'active','2024-05-28 13:07:59',NULL,'1','561156518989','Employee','offline'),(11,'EMP-0011','Shabaz Pasha ','2003-05-31','93531 14993','2024-03-04','shabazsahza.mine@gmail.com','84836b4d0cec166b071419f0a3634019','Trainee','FrontEnd Developer',0,'1000088698.jpg','#321 Near Ayesha Masjid Madeena Nagar Mangammanapalya Bommanahalli Bangalore ','0','Online',NULL,0,0,'active','2024-05-28 13:09:06','87112','1',NULL,'Employee','offline'),(12,'EMP-0012','Ayush Kumar ','2003-09-04','+91 78926 82726','2024-03-04','ayushkumar8511@gmail.com','0746e65cbb84329869fed007803caaa4','Trainee','FrontEnd Developer',0,'1000155256.jpg','No. 16 Durga maheswari Nilaya and cross, manjunatha Layout Near Amar Jyothi Public school, Devasandra, K.R Pura, Bangalore-560036.','0','Online',NULL,0,0,'active','2024-05-28 13:11:01',NULL,'1',NULL,'Employee','offline'),(13,'EMP-0013','Kailash Prasad ','2001-07-25','8957902281','2024-03-04','kp350722@gmail.com','715da37a9ec01ced13fd49bde24fc373','Trainee','FrontEnd Developer',0,'SAVE_20240409_154934.jpg','Kr puram Baswanapura Main road Gayatri layout 15 cross ','0','Online',NULL,0,0,'active','2024-05-28 13:12:00',NULL,'1',NULL,'Employee','offline'),(15,'EMP-0014','Divya MN','2001-09-08','9108292351','2023-11-02','divya@mineit.tech','6aa5141a7609a5d9fe3f5db8413bf50d','Employee','sales_executive',0,'1000153420.jpg','Bangalore','0','Offline',NULL,0,0,'active','2024-05-28 13:33:38',NULL,'1',NULL,'Employee','offline'),(16,'EMP-0015','Sabari Raj S R','2001-05-19','9789469166','2023-11-16','sabariraj@mineit.tech','6aa5141a7609a5d9fe3f5db8413bf50d','Employee','sales_manager',0,'sabariraj.jpg','No .11/85 Thadagam Road,\r\nKovilmedu Privu, Near Kiruba Hospital , Velandipalayam Post, Coimbatore -641025','0','Offline',NULL,0,0,'active','2024-05-28 13:34:16','14187','1',NULL,'Employee','online'),(17,'EMP-0016','Vijay M','2001-04-26','6360611485','2024-03-06','vijay@mineit.tech','23590df197efc8beb7f6078ffb84a4e9','Trainee','Backend Developer',0,'WhatsApp Image 2024-05-22 at 9.42.30 AM.jpeg','JC Nagar','0','Online',NULL,0,0,'active','2024-05-28 13:43:19',NULL,'1',NULL,'Employee','offline'),(18,'EMP-0017','Deepthi S','2000-11-01','8317339167','2024-03-06','deepthi@mineit.tech','b59cd9608154255fc88b32d53930795c','Trainee','Backend Developer',0,'phototcs.jpeg','8th main,basaveshwaranagar bangalore','0',NULL,NULL,0,0,'active','2024-05-28 13:49:52',NULL,'1',NULL,'Employee','offline'),(19,'EMP-0018','Nayana Motagi ','2000-09-05','9945516910','2024-03-08','nayanamotagi24@gmail.com','ae9993fa41002253c6eb8744500eb8bc','Trainee','FrontEnd Developer',0,'IMG_20240418_095747.png','Kempapura hebbal Bangalore ','0','Online',NULL,0,0,'active','2024-05-28 15:00:05',NULL,'1',NULL,'Employee','offline'),(20,'EMP-0019','Jeethu Pathak','2002-04-02','7760320371','2024-03-04','jeethu@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Trainee','FrontEnd Developer',0,'Jeethu Pathak.jpg','Seetharama palya,Mahadeva pura post,Bangalore-560048','0','Online',NULL,0,0,'active','2024-05-28 19:49:37','62569','1',NULL,'Employee','offline'),(21,'EMP-0020','Vaibhavi Khiranand Dhadde','2002-12-14','2147483647','2024-05-01','vaibhavi@mineit.tech','252ce5808b0e032921a3bd50830f0cc8','Employee','Testing Engineer',0,'img.png.jpg',' 53, 1st Main Road, Maruthi layout, RMV 2nd Stage, Sanjay Nagar, Bangalore - 560094, Karnataka, India     ','12000','Online',NULL,0,0,'active','2024-05-29 06:24:31','39276','1','234516','Employee','offline'),(22,'EMP-0021','Shashi Bhavan C K','2002-01-19','7483984655','2023-11-02','shashibhavan@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Backend Developer',0,'1000041860.jpg','K R puram, Bangalore - 560036','0','Offline',NULL,0,0,'active','2024-05-29 08:32:26',NULL,'1',NULL,'Employee','offline'),(24,'EMP-0023','Dilip P','1999-03-06','9743591277','2023-11-01','dilip@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Backend Developer',0,'WhatsApp Image 2023-12-22 at 12.41.42 PM.jpeg','                                                                                                                                                                                                Nagashettyhalli Bangalore                                                                                                                                                                                                 ','0','Offline',NULL,0,0,'deactive','2024-06-04 05:51:19',NULL,'1','0','Employee','offline'),(25,'EMP-0024','Jyothsna ','2001-04-15','94912 15409','2023-12-01','jyothsna@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','FrontEnd Developer',0,'IMG_20240516_182232.jpg','                                                                Banglore                                                                 ','0','Online',NULL,0,7,'active','2024-06-04 06:01:44',NULL,'1','923010050685409','Employee','offline'),(26,'EMP-0025','Ajith Kumar','2001-04-30','6382712217','2024-01-08','ajith@mineit.tech','89b644724244532adc17d74afc18b9c0','Employee','FrontEnd Developer',1,'AEC_logo.png','                                                                                                                                                                                                2/147 A, Mela street, Thiranipalayam, Lalgudi (tk), Trichy - 621 109                                                                                                                                                                                                ','15000','Online',NULL,0,7,'active','2024-06-04 06:28:01',NULL,'1','923010050640956','Employee','offline'),(27,'EMP-0026','BHAVYA SREE M','2002-05-29','9491207140','2023-12-01','bhavyasreem@mineit.tech','202cb962ac59075b964b07152d234b70','Employee','sales_executive',12,'1000004705.jpg','                                                                                                                                                                                                Bangalore                                                                                                                                                                                                 ','15000','Online',NULL,0,0,'active','2024-06-04 06:33:21',NULL,'1','923010048327601','Employee','offline'),(28,'EMP-0027','Abdul Ahad','2001-10-03','9113979679','2024-02-14','abdulahad@mineit.tech','13d469fdf44444b621d19f23ecb891d4','Employee','FrontEnd Developer',1,'Abdul Ahad Photo.jpg','                                                                Bangalore                                                                ','0','Online',NULL,0,0,'deactive','2024-06-04 06:39:48',NULL,'1','12345678','Sales,Employee','offline'),(29,'EMP-0028','K SUMANTH KUMAR RAJU','2001-10-21','9100896317','2023-11-02','sumanth@mineit.tech','470e9b1c51fa4cb3bda3557fb7e9d749','Employee','sales_executive',0,'photo.jpg','Kshatriya Nagar 1st cross, Tirupati, Andhra Pradesh.','0','Offline',NULL,0,20,'active','2024-06-04 06:42:08',NULL,'1','923010050618164','Employee','online'),(30,'EMP-0029','Bhanuprasadyadav P ','2001-06-24','0','2023-11-02','bhanuprasad@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Backend Developer',0,'bhanuprasad.jpg','                                                                                                                                                                                                                                                                                                                                Bengaluru                                                                                                                                                                                                                                                                                                                                 ','0','Online',NULL,0,38,'active','2024-06-04 06:43:38',NULL,'1','0','Employee','offline'),(31,'EMP-0030','Nithyashree N Bannur ','1999-07-23','7337703618','2023-11-06','nithyashree@mineit.tech','a3e37db79e07bece99ae5d36999b7618','Employee','Backend Developer',0,'1000038910.jpg','#3390 A/1 5th main 2nd cross RPC layout Vijaynagar Bangalore ','0','Online',NULL,0,21,'active','2024-06-04 06:46:18',NULL,'1',NULL,'Employee','offline'),(32,'EMP-0031','saranya','1991-05-17','9739001516','2023-04-24','saranyaelangovan@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','FrontEnd Developer',0,'WhatsApp Image 2024-06-04 at 10.21.28.jpeg','#10 Anjanadhari layout Rachenahalli thanisandra Bengaluru- 560077','0','Online',NULL,0,0,'active','2024-06-04 06:52:02','86777','1',NULL,'Employee','offline'),(33,'EMP-0032','Meena Mani','1999-08-12','9751862387','2024-10-30','meena@mineit.tech','04227da7c059aac68cc1e17471aa0508','Employee','Project Manager',0,'WhatsApp Image 2024-05-15 at 1.13.12 PM.jpeg','Kotagiri, Nilgiris - 643217','0','Offline',NULL,0,0,'active','2024-06-04 07:06:44',NULL,'1',NULL,'Employee','offline'),(34,'EMP-0033','Sunil Gowda S','2000-06-21','9945212556','2023-08-21','sunil@mineit.tech','c5aafd632a50d6cc450f8601a48bae5e','Employee','FrontEnd Developer',0,'WhatsApp Image 2024-05-07 at 3.43.43 PM.jpeg','Seegehalli Whitefield bengaluru 560067','0','Online',NULL,0,33,'active','2024-06-04 07:15:09','78312','1',NULL,'Employee','offline'),(35,'EMP-0034','Ashwini Satti','2002-06-03','7204343744','2023-12-01','ashwini@mineit.tech','202cb962ac59075b964b07152d234b70','Employee','sales_executive',12,'IMG-20231118-WA0047.jpg','                                                                                                                                                                                                Bedarahatti,Ta:athani,Dist: belgaum, Karnataka                                                                                                                                                                                                 ','15000','Online',NULL,0,0,'active','2024-06-04 07:18:46',NULL,'1','64197051588','Employee','offline'),(36,'EMP-0035','Santhosh M','2001-01-03','9789516159','2024-06-03','santhosh@mineit.tech','7917490ade79c2b277e14298d14a85dc','Employee','Testing Engineer',0,'Linkedin Profile Pic.jpeg','81-A, MM Street, Kodaikanal, Tamil Nadu','0','Online',NULL,0,0,'deactive','2024-06-07 10:43:51',NULL,'1',NULL,'Employee','offline'),(37,'EMP-0036','Dhiwakaran M','2001-04-23','0','2023-09-04','dhiwakaran@mineit.tech','f93c8e585ffd0822ac885c0db977bd2b','Employee','Designer',0,'Green Gradient Minimalist Simple Instagram Profile Picture.png','                                                                                                                                Hosur                                                                                                                                 ','0','Online',NULL,0,0,'active','2024-06-07 10:53:51',NULL,'1','923010048364765','Employee','offline'),(38,'EMP-0037','sharathchandra B R','2000-06-25','8296595546','2023-11-02','sharath@mineit.tech','d09b0b8e999b1ed96b125652b89d8185','Employee','FrontEnd Developer',0,'WhatsApp Image 2024-05-16 at 6.23.23 PM.jpeg','Bangalore','0','Online',NULL,0,0,'active','2024-06-07 10:58:29',NULL,'1',NULL,'Employee','offline'),(39,'EMP-0038','Harish R','2002-10-01','8792680188','2023-11-01','harish.ramakrishna1@gmail.com','17ae4741e0c8be5fa97a87bc0bb79535','Employee','FrontEnd Developer',0,'Harish_R.jpg','#24 Best country 1main road near sumbhram institution of technology vidyaranyapura Bangalore 560097','0','Online',NULL,0,0,'deactive','2024-06-07 11:00:05',NULL,'1',NULL,'Employee','offline'),(40,'EMP-0039','Paranthaman G','1997-12-24','9445409521','2024-06-03','paranthaman@mineit.tech','16cbf7880d723910a1ceec73532965a3','Employee','UI/UX',0,'IMG_20240225_201116.jpg','                                                                                                                                3/52 chidambaram nagar,kamaraj street,mangadu,chennai-600122                                                                                                                                ','0','Online',NULL,0,0,'active','2024-06-07 11:11:10',NULL,'1','924010027740684','Employee','offline'),(41,'EMP-0040','SHAIK JAVED','2001-10-09','7997665161','2024-04-08','shaikjaved.mine@gmail.com','b02331e23a5d2e2890c58d3f3925ed5a','Employee','Digital Marketing Executive',0,'JAVED PASSPHOTO.JPG','4/156 Badullavari Street, Kanigir, Andhrapradesh  523230','0','Online',NULL,0,0,'active','2024-06-07 12:07:20',NULL,'1',NULL,'Employee','offline'),(42,'EMP-0041','Rahul Sahoo','2001-03-23','07835850829','2024-03-04','rahuls@mineit.tech','e183eae2879d9b25e1614fae33b2d489','Trainee','Defence and Security',0,'1000038874.jpg','#30, 5th main,\r\nKR puram, ayyapa nagar ','0','Online',NULL,0,44,'active','2024-06-07 12:07:49',NULL,'1',NULL,'Employee','offline'),(43,'EMP-0042','Manaswita Goswami','1999-05-23','7086043838','2024-05-02','manaswitagoswami@mineit.tech','c762e029e1f5ea7eba9baab3b06354ea','Employee','Content Writer',0,'Passport Photo.jpg','160, 4th Cross Rd, RMV 2nd Stage, Sachidananda Nagar, Raj Mahal Vilas 2nd Stage, Sanjayanagara, Bengaluru, Karnataka 560094','0',NULL,NULL,0,0,'deactive','2024-06-07 12:08:33',NULL,'1',NULL,'Employee','offline'),(44,'EMP-0043','NEELKAMAL PATEL','2000-12-23','9285454214','2024-03-06','neelkamal@mineit.tech','faa7c960194b1ebef2d078b163af0127','Trainee','Defence and Security',0,'IMG_0285 _Neel.jpeg','BENGALURU','0','Offline',NULL,0,0,'active','2024-06-07 12:13:02','14922','1',NULL,'Employee','offline'),(45,'EMP-0044','Kishore N ','1999-07-17','9606255977','2024-03-09','kishorekn0056@gmail.com','9ea3131b1d9a8a346d28ed19561524b5','Trainee','Defence and Security',0,'1000051764.jpg','Nandini layout, Bangalore ','0','Online',NULL,0,0,'active','2024-06-07 12:13:15',NULL,'1',NULL,'Employee','offline'),(46,'EMP-0045','Chandan Kumar V K ','2000-09-18','8151037033','2024-06-06','ck18vk@gmail.com','bd35027b12b39ecfc0a8daae907715c4','Trainee','Defence and Security',0,'IMG_20220713_172858_copy_911x1191.jpg','Yelanka,Banglore ','0','Online',NULL,0,0,'active','2024-06-07 12:15:06',NULL,'1',NULL,'Employee','offline'),(47,'EMP-0046','SaiSabarish','2003-12-03','9659395553','2024-03-06','saisabarish@mineit.tech','49bb558128e6423e75108c97dd3e4e25','Trainee','Defence and Security',0,'WhatsApp Image 2024-06-06 at 3.55.41 PM.jpeg','422/1,v.s.illam,kamarjar 2nd street,b.b.kulam,madurai','0','Online',NULL,0,0,'active','2024-06-07 15:26:01',NULL,'1',NULL,'Employee','offline'),(48,'EMP-0047','M.S.Purnima','2000-12-04','+91 9652836098','2024-06-06','purnima@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Trainee','Testing Engineer',0,'WhatsApp Image 2024-06-10 at 2.33.29 PM.jpeg','K.R. Puram Bangalore','0','Online',NULL,0,0,'active','2024-06-10 11:11:32','92917','1',NULL,'Employee','offline'),(49,'EMP-0048','Bipin Chavan','1999-05-13','805571827','2024-06-06','bipinchavan@mineit.tech','45a2a8b13e2846a5ecf5a5c4bc29aafe','Trainee','Testing Engineer',0,'WhatsApp Image 2024-06-10 at 2.41.41 PM.jpeg','SLN Gents PG, Rajagopal Road, Sanjaya Nagar,Bangalore','0','Online',NULL,0,0,'active','2024-06-10 11:12:30',NULL,'1',NULL,'Employee','offline'),(50,'EMP-0049','Turab Hussain','2001-10-16','7204449351','2024-02-01','hussain@mineit.tech','1c643fd3907f92f9076ad81ba4836016','Employee','FrontEnd Developer',0,'WhatsApp Image 2024-06-10 at 22.00.31_e1f01a8f.jpg','RT Nagar,Bangalore-560032                                                             ','0','Online',NULL,0,26,'active','2024-06-10 15:01:02',NULL,'1','0000000000000','Employee','offline'),(51,'EMP-0050','Rahul hosmani','2000-04-18','7760682155','2024-06-06','rahulh@mineit.tech','9e535fee0d340ad904152749df1cb3e0','Trainee','Backend Developer',0,'Screenshot 2024-06-11 155846.png','                                                                                                                                BANGLORE                                                                                                                                ','0','Online',NULL,0,0,'active','2024-06-11 12:12:40','66954','1','123','Employee','offline'),(52,'EMP-0051','Ashutosh Prajapati ','2001-07-17','7338537351','2024-03-04','ashutosh@mineit.tech','c442e808532f2e5053cad0916edb9f45','Trainee','FrontEnd Developer',0,'IMG-20240506-WA0110.jpg','Vibuthipura mutta road Marathahalli ','0','Online',NULL,0,12,'active','2024-06-11 13:37:44',NULL,'1',NULL,'Employee','offline'),(53,'EMP-0052','Ashwinkumar','2001-06-20','8870230720','2024-04-01','ashwinponnusamy20@gmail.com','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Graphic/UI',0,'WhatsApp Image 2024-04-22 at 17.00.00_85b77df9.jpg','salem\r\nchinnasalem','0','Online',NULL,0,0,'active','2024-06-12 12:03:47',NULL,'1',NULL,'Employee','offline'),(54,'EMP-0053','prasanth','2003-08-08','0978909600','2024-02-12','prasanthb.mine@gmail.com','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Graphic/UI',0,'my.jpg','                                                                                                                                                                                                                                                                                                                                madurai                                                                                                                                                                                                                                                                                                                                ','0','Online',NULL,0,41,'active','2024-06-18 07:00:24',NULL,'1','9789096005','Employee','offline'),(55,'EMP-0054','CHANDAN YADAV K S','2002-10-21','7022591217','2024-03-04','chandan@mineit.tech','9b574fbb149516fa80638510c1f77026','Trainee','FrontEnd Developer',0,'PICTURE CONVACATION.jpg','Near post office Karahalli Village,Bangarpet (t),Kolar(d)','0','Online',NULL,0,0,'active','2024-06-18 07:33:56',NULL,'1',NULL,'Employee','offline'),(56,'EMP-0055','Hema B','2003-12-13','0','2024-06-06','hhemaaa013@gmail.com','5ba9abfbe1cb7c478ffb9777d11e0845','Trainee','Backend Developer',0,'IMG_5025.jpeg','                                                                                                                                                                                                                                                                                                                                Saish Living Spaces, New bels road. Bengaluru.                                                                                                                                                                                                                                                                                                                                 ','0','Online',NULL,0,0,'active','2024-06-18 10:42:58',NULL,'1','89789','Employee','offline'),(57,'EMP-0056','Raghu raj pratap singh','2002-08-29','06206099589','2024-05-22','raghurajpratapsingh6165@gmail.com','9ac9249ebe7a7923a7e214fd39695253','Trainee','Defence and Security',0,'WhatsApp Image 2024-06-19 at 09.59.15_22295cac.jpg','K.R. Puram bangalore','0','Online',NULL,0,0,'active','2024-06-19 06:31:58',NULL,'1',NULL,'Employee','offline'),(58,'EMP-0057','Daniel C','1986-06-24','6382341074','2021-10-27','cdaniel.mine@gmail.com','13d469fdf44444b621d19f23ecb891d4','Employee','CTO',0,'WhatsApp Image 2024-04-22 at 17.00.00_85b77df9.jpg','# 87, Kandal Main Road Ooty. - 643006.','0','Online',NULL,0,7,'active','2024-06-19 07:00:17',NULL,'1',NULL,'Employee','offline'),(59,'EMP-0058','Anand T','1979-08-21','8220333544','2012-08-19','anand@mineit.tech','17ae4741e0c8be5fa97a87bc0bb79535','Employee','Management',0,'WhatsApp Image 2024-04-22 at 17.00.00_85b77df9.jpg','           Bangalore                                                                                                                                                                                                ','0','Offline',NULL,0,0,'active','2024-06-19 07:07:51',NULL,'1','bug','Employee','offline'),(60,'EMP-0059','Latika Pandit','1998-12-29','7989556983','2024-06-06','latika@mineit.tech','b903a1887e911d2153b6728f8f771103','Trainee','UI/UX',0,'Profile picture_latika pandit .JPG','Sri sai luxurious ladies pg, 4th cross, Sanjay Nagar, Hebbal, Karnataka, 560094','0','Online',NULL,0,0,'active','2024-06-19 07:08:22',NULL,'1',NULL,'Employee','offline'),(61,'EMP-0060','Jai Ranpara','2004-01-21','8657432101','2024-06-06','rjai@mineit.tech','c406cf676fd92219a1c6bf7a6c4279d1','Trainee','Backend Developer',0,'Jai.JPG','B 1501 Eternia Hiranandani Gardens Powai Mumbai 400076','0','Online',NULL,0,0,'active','2024-06-20 12:54:06',NULL,'1',NULL,'Employee','offline'),(62,'EMP-001','Yeshna Jerold Masih','1999-08-27','8770917677','2024-03-13','hr@ghate.solutions','17ae4741e0c8be5fa97a87bc0bb79535','Employee','admin',0,'WhatsApp Image 2024-06-21 at 2.56.22 PM.jpeg','bengaluru','0','Online',NULL,0,0,'active','2024-06-21 11:26:32',NULL,'2',NULL,'Employee','offline'),(64,'EMP-0002','Tarun Dubey','1999-11-08','9755559901','2024-05-01','tarunkumardubey@swifterz.co','dc2580c1f34db92149637493704e109e','Employee','HR Exceutive',10,'IMG_4928.jpeg','Kalyan Nagar Bengaluru','0','Online',NULL,0,0,'active','2024-06-25 07:45:30',NULL,'2','922010032273353','Admin','offline'),(65,'EMP-0002','Tangevva Satti','2000-06-03','7625017522','2023-06-03','tangevva.swifterz@gmail.com','1a9100a2ceb0d616ba414851cbc31c40','Employee','HR Exceutive',10,'WhatsApp Image 2024-06-25 at 11.23.57 AM.jpeg','Bengluru','0','Online',NULL,0,0,'active','2024-06-25 07:54:36','17211','2','923010048363775','Admin','offline'),(66,'EMP-0002','SaiSabarish','2003-12-03','9659395553','2024-06-01','saisabarish@ghate.solutions','b2e03cb45bbfa9e57f351b54ef9a7a56','Employee','System Administration',0,'WhatsApp Image 2024-06-06 at 3.55.41 PM.jpeg','Bangalore,India','0',NULL,NULL,0,0,'active','2024-06-25 11:49:31',NULL,'2',NULL,'Employee','offline'),(67,'EMP-0062','Dr Karthikeyan Saminathan','1989-05-16','9791306877','2024-05-06','director.development@mineit.tech','f7876f0bc281ac72a2e4931438657287','Employee','Project Manager',1,'Dr.Karthikeyan.jpg','                                                                1/5-68E , Annai Ganga Naayar Township,\r\nAnna Nagar, Neelambur,Coimbatore-062                                                                ','175000','Offline',NULL,0,7,'active','2024-06-25 14:38:37',NULL,'1','922010040242633','Management,Accounts,Sales,Admin,Project Manager,Employee,Client,All','offline'),(68,'EMP-0063','Punitha.S','1991-03-11','6374559883','2022-04-12','punitha.ghate@gmail.com','b2e03cb45bbfa9e57f351b54ef9a7a56','Employee','Management',0,'20240614_145921.jpg','24,Allurinilayam, Amarjyothi Layout, Sanjaynagar,Bangalore 560094','0',NULL,NULL,0,0,'active','2024-06-26 07:19:54',NULL,'1',NULL,'Employee','offline'),(69,'EMP-0064','Hamsavani','1986-04-17','7708022116','2022-02-02','hamsavani.ghate@gmail.com','e700abbe22ebc14f26ba5cfbe5c40da6','Employee','Accountent',3,'hamsa photo.jpg','18c Rajaji st, om sakthi nagar ambatturch 53','0',NULL,NULL,0,0,'active','2024-06-26 14:02:26',NULL,'1','12345678','Accounts,Employee','offline'),(70,'EMP-0065','Ajith N','2001-08-05','8248373129','2024-07-01','ajith.n@mineit.tech','c3ca08c36c5e4251ad1f41126ba024ad','Employee','Defence and Security',0,'1000067001.jpg','                                                                                                                                                                                                                                                                Bangalore ind                                                                                                                                                                                                                                                                ','0','Online',NULL,0,0,'active','2024-07-02 09:36:35','4083','1','8248373129','Employee','offline'),(71,'EMP-0066','Maheen N','1999-10-10','8220333514','2022-03-05','maheen@swifterz.co','dc2580c1f34db92149637493704e109e','Employee','',14,'WhatsApp Image 2024-06-24 at 4.51.49 PM (1).jpeg','Bangalore','30000','Online',NULL,0,0,'active','2024-07-10 06:35:18',NULL,'5','1152500102712101','Admin','offline'),(72,'EMP-0002','Yashaswini  P G','1999-05-03','8618490736','2024-03-25','yashaswini.mineit@gmail.com','ed084cf21620c0440250487c8c8fbb50','Trainee','HR Exceutive',10,'WhatsApp Image 2024-07-11 at 4.39.10 PM (1).jpeg','Bengaluru','0','Online',NULL,0,0,'active','2024-07-11 13:11:06','30996','2','39556169005','Admin','offline'),(73,'EMP-0067','Nagindrarao','1973-08-01','8892145203','2024-06-10','nmalkhed73@gmail.com','1278910e60db273ed8e618c54e7d6da9','Employee','Vice President Projects',0,'Screenshot_20240627_231612.jpg','126NE nisarga layout bannerghatta road bengaluru 560083','0','Online',NULL,0,97,'active','2024-07-18 07:41:03',NULL,'5',NULL,'Employee','offline'),(74,'EMP-0068','Vandana. S','1999-07-08','9148758724','2024-05-13','vandanas@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'IMG-20240513-WA0003.jpg','                                                                Rg layout 2nd cross kolar 563101                                                                ','0','Offline',NULL,0,0,'active','2024-07-18 09:48:34','46360','5','4242500103812601','Employee','offline'),(75,'EMP-0069','Guru charan R shetty ','1997-03-30','8660245294','2024-05-06','gurucharan.r.shetty@swifterz.co','dc2580c1f34db92149637493704e109e','Employee','Tekla Modeler',0,'IMG_20200918_092745~2.jpg','Muthyala Nagar, BNS Layout, Mathikere, Bengaluru, Karnataka 560054','0',NULL,NULL,0,0,'active','2024-07-19 06:04:26',NULL,'5',NULL,'Employee','offline'),(76,'EMP-0070','Anshu Amar','1995-02-02','9811139713','2024-06-20','anshuamar@swifterz.co','15265f06957af1415821ec0b902c4f75','Employee','Project Manager',0,'BIM.PNG','SriVinayak PG','0','Online',NULL,0,0,'active','2024-07-19 09:06:48','10116','5',NULL,'Employee','offline'),(77,'EMP-0071','Vishal ','1994-04-16','8296783569','2024-02-05','vishalitagi@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler- MEP',0,'Vishal Whie Backround.jpg','                                                                Bazar road hire bagewadi BELAGAVI 591109                                                                ','0','Offline',NULL,0,0,'active','2024-07-19 10:24:16',NULL,'5','8296783569','Employee','offline'),(78,'EMP-0072','Dharani M K','2001-07-22','07338273473','2024-05-13','dharanimk.swifterz@gmail.com','9b9b28b6fed2f044608b648bfef7e79a','Employee','BIM Modeler',0,'IMG_20240719_135717.jpg','                                                                                                                                Bengaluru                                                                                                                              ','0','Online',NULL,0,0,'active','2024-07-19 10:27:44',NULL,'5','4456','Employee','offline'),(79,'EMP-0073','Padmavati H Budihal','2001-07-23','9353722624','2024-02-19','padmavati@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'20231030_000001.jpg','Bangalore ','0','Online',NULL,0,0,'active','2024-07-19 11:00:17',NULL,'5',NULL,'Employee','offline'),(80,'EMP-0074','Shaikh Shahebaz','1995-10-07','7847837944','2024-05-13','shahebaz.s@swifterz.co','17ae4741e0c8be5fa97a87bc0bb79535','Employee','BIM Modeler',0,'IMG_20240713_154103_793.jpg','Bangalore','0',NULL,NULL,0,0,'deactive','2024-07-19 11:11:03',NULL,'5',NULL,'Employee','offline'),(81,'EMP-0075','Yogesh S','2001-08-12','8310837308','2024-04-01','yogesh@swifterz.co','f2258de99689f272ac7bd62b17db61bb','Employee','BIM Modeler',0,'IMG_20240408_175036.jpg','T Dasarahalli,Bangaluru','0','Online',NULL,0,0,'active','2024-07-19 12:44:26',NULL,'5',NULL,'Employee','offline'),(82,'EMP-0076','Mohammed Samir V','2001-09-21','8943440841','2024-02-05','samir@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler- MEP',0,'IMG-20230905-WA0041.jpg','Mathikere,star pg','0','Online',NULL,0,0,'active','2024-07-19 12:46:39',NULL,'5',NULL,'Employee','offline'),(83,'EMP-0077','Netravati','2001-05-20','9353609178','2024-02-19','netravati@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'IMG_20220413_192753.jpg','Banglore','0','Online',NULL,0,0,'active','2024-07-19 12:59:10',NULL,'5',NULL,'Employee','offline'),(84,'EMP-0078','Manoj ','1997-08-02','7338571279','2024-04-01','manoj@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'IMG_20230107_213351_573.jpg','                                                                                                                                Manoj s/o Mahadevegowda Hullahalli, Agasanapura post, Malavalli tq, Mandya di, Karnataka 571340                                                                                                                                ','0','Online',NULL,0,0,'active','2024-07-19 18:40:04','55714','5','39979456440','Employee','offline'),(85,'EMP-0079','Chandrasekar H','1998-12-27','6381176377','2024-02-05','chandrasekarh@swifterz.co','7dd391766f27794781249bf0c843e906','Employee','BIM Modeler',0,'IMG_20240410_104027.jpg','2nd stage,2nd cross Street,KR garden,Jeevanahalli,Cox Town, Bangalore 560005','0','Offline',NULL,0,0,'active','2024-07-20 05:52:54','34451','5',NULL,'Employee','offline'),(86,'EMP-0080','Vishwa J Y','2000-01-20','9916130141','2024-02-05','vishwa@swifterz.co','58542b4fe783f4d0d805315f25d36a79','Employee','BIM Modeler',0,'IMG_20240720_092322.jpg','BTM 1st stage, Bangaluru','0','Offline',NULL,0,0,'active','2024-07-20 05:54:08',NULL,'5',NULL,'Employee','offline'),(87,'EMP-0081','Sanjay B R ','2001-02-11','63615 43671','2024-04-01','sanjaybr.swifterz15@gmail.com','6c90bce104e555ef5acc46b0e162dd76','Employee','BIM Modeler',0,'IMG_20240720_093727.jpg','Yelchanahalli, Bengaluru ','0','Online',NULL,0,0,'active','2024-07-20 06:11:26',NULL,'5',NULL,'Employee','offline'),(88,'EMP-0082','Ravikiran','2000-02-05','09538383652','2024-05-06','ravikirantalwar@swifterz.co','0784d2702d4fc2e5c8c51584c66beed5','Employee','BIM Modeler',0,'Screenshot_20240425-101156.jpg','Bangalore\r\nBangalore','0','Online',NULL,0,0,'active','2024-07-20 06:30:56','25372','5',NULL,'Employee','offline'),(89,'EMP-0083','Karthigeyan B','1997-11-17','+918610046560','2024-07-01','bkarthigeyan1@gmail.com','f882cbb2484f527fb5332288652812d4','Employee','BIM Architect Lead',0,'IMG_20230122_221626_812.jpg','MIN NAGAR PALLAVAN SALAI Kancheepuram\r\nKanchipuram','0','Online',NULL,0,0,'active','2024-07-20 06:33:35',NULL,'5',NULL,'Employee','offline'),(90,'EMP-0084','PURRU GIRI SAI PRASAD ','2002-03-21','7075215225','2024-02-05','purrugirisaiprasad@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'1000029299.jpg','Nagashettihalli ','0','Online',NULL,0,0,'active','2024-07-22 18:26:22',NULL,'5',NULL,'Employee','offline'),(91,'EMP-0085','Deepan mohanraj','1998-03-18','8248438214','2024-02-05','deepanmohanraj@swifterz.co','e612dc8483abe31609c245d2f7b91485','Employee','BIM Modeler',0,'DSC_8779.JPG','Bangalore ','0','Online',NULL,0,0,'active','2024-07-23 06:35:52',NULL,'5',NULL,'Employee','offline'),(92,'EMP-0086','SaiSabarish','2003-12-03','9659395553','2024-03-06','saran@swifterz.co','49bb558128e6423e75108c97dd3e4e25','Employee','BIM Modeler- MEP',0,'WhatsApp Image 2024-06-06 at 3.55.41 PM.jpeg','Bangalore','0','Online',NULL,0,0,'active','2024-07-24 11:07:06',NULL,'5',NULL,'Employee','offline'),(93,'EMP-0087','Tanu satti','2000-06-03','7892416823','2023-04-17','tangevvasatti@aecearth.in','57fdd29e54d828758e62c84751326096','Employee','Business Development Manager',0,'WhatsApp Image 2024-07-30 at 12.02.41 PM.jpeg','Banglore','0',NULL,NULL,0,0,'active','2024-08-05 12:59:14','80113','5',NULL,'Employee','offline'),(94,'EMP-0066','Punitha.S','1991-03-11','6374559883','2022-04-05','punitha@ghate.solutions','a37d4a0a3b53e12d98b066866f592ab0','Employee','Management',3,'WhatsApp Image 2024-08-08 at 9.28.48 AM.jpeg','Sanjayanagar , Bangalore','10000','Offline',NULL,0,0,'active','2024-08-08 06:15:03',NULL,'6','12345678','Employee,All','offline'),(95,'EMP-0067','sateesh sreenivas','1962-01-18','9880564152','2024-08-08','sateesh.s1@assetsociety.org','e72eb9b334aa00cef141d621aeb4930d','Employee','CEO',0,'IMG-20200212-WA0030.jpg','2777,14t A main ,8th E cross ,near Attiguppe,Vijaynagar 2nd stage ,Bangalore -560040','0','Online',NULL,0,0,'active','2024-08-08 09:32:06',NULL,'6',NULL,'Employee','offline'),(96,'EMP-0068','Maheen N','1999-10-10','8220333514','2022-03-05','maheen@aecearth.in','68568fa322905a2528a8f311b1faaa32','Employee','Admin',0,'WhatsApp Image 2024-06-24 at 4.51.49 PM (1).jpeg','Bangalore','0',NULL,NULL,0,0,'active','2024-08-08 11:32:28',NULL,'6',NULL,'Employee','offline'),(97,'EMP-0088','Manoj Kumar','1980-02-07','9845590739','2024-06-10','manojkumar@swifterz.co','d737533dae15c83068e9cbbcb7272ecf','Employee','Business Development Manager',0,'WhatsApp Image 2024-08-08 at 4.53.30 PM.jpeg','!02, A-4 , Ghataprabha block, NGV ,Kormangala bangalore -47','0','Online',NULL,0,98,'active','2024-08-08 13:24:06',NULL,'5',NULL,'Employee','offline'),(98,'EMP-0089','G Gopal krishna','1984-02-03','8095530760','2023-11-01','gopal@swifterz.co','57919265d0b52f06fd5af2588612d527','Employee','Technical Director',0,'5437dfc2-4f56-477b-a975-8b54f0eb5254.jfif','#F15,second floor ,pyramid watsonia appartment,jakkur,Yalanka','0','Online',NULL,0,0,'active','2024-08-08 13:25:00',NULL,'5',NULL,'Employee','offline'),(99,'EMP-0090','NAGINDRARAO MALKHED','1973-08-01','8892145203','2024-06-10','nagendra@swifterz.co','1278910e60db273ed8e618c54e7d6da9','Employee','Vice President Projects',0,'IMG20161210133551.jpg','126NE NISARGA LAYOUT JIGANI HOBALI ','0','Online',NULL,0,0,'active','2024-08-08 13:47:49',NULL,'5',NULL,'Employee','offline'),(100,'EMP-0069','Abhishek','2024-02-12','9611734459','2024-02-12','Abhishek.aecearth@gmail.com','569506e51e1eb311a26f93e27bf46502','Employee','BDM',17,'Sales.jpg','bangalore','0',NULL,NULL,0,0,'active','2024-08-09 12:53:49',NULL,'6','ooo2','Employee','offline'),(101,'EMP-0070','Dilraj','1989-01-01','9606051007','2024-03-27','dilrajkv.aecearth@gmail.com','569506e51e1eb311a26f93e27bf46502','Employee','Sales  ',20,'Sales.jpg','Bangalore','0',NULL,NULL,0,0,'active','2024-08-09 13:07:53',NULL,'6',NULL,'Employee','offline'),(102,'EMP-0091','Tanu Satti','2000-06-03','Tanu Satti','2022-04-17','thanusatti@gmail.com','1a9100a2ceb0d616ba414851cbc31c40','Employee','sales_executive',12,'WhatsApp Image 2024-08-05 at 4.17.54 PM (2).jpeg','Benglore','0','Online',NULL,0,0,'inactive','2024-08-12 06:23:31',NULL,'5',NULL,'Employee','offline'),(103,'EMP-0092','Joud','2000-01-01','07397718590','2018-03-01','joud@swifterz.ae','2c04e409ff11c1861c534dd27d4a93a8','Employee','Project Manager',0,'joud.jpeg','No. 24, Second floor, Corner Woods, D. Rajgopal Road, Sanjay Nagar, BangaloreÂ 560094.','0','Offline',NULL,0,0,'active','2024-08-12 08:15:36','53124','5','0','Employee','offline'),(104,'EMP-0093','Bharath H.J ','2002-01-17','6364053247','2024-08-01','bharathhj@swifterz.co','a4a8c0e264f61051280a84c0f222c8c1','Employee','BIM Modeler',0,'IMG_20230627_223718_482.jpg','                                                                                                                                Haravu, Pandavapura(tq), Mandya(district), Karnataka.                                                                                                                                ','0','Online',NULL,0,0,'active','2024-08-12 09:52:53','16801','5','6364053247','Employee','offline'),(105,'EMP-0066','shanker','1980-09-09','9894055835','2023-01-12','shankkerkumar@swifterz.co','5cf52ad626168727663e25e93868a78a','Employee','Project Manager',4,'WhatsApp Image 2024-06-22 at 12.06.10 PM (2).jpeg','bangalore','0',NULL,NULL,0,0,'active','2024-08-12 13:41:46',NULL,'1',NULL,'Employee','offline'),(106,'EMP-0094','Pavan Kumar N ','2000-07-05','8431688648','2024-08-01','pavankumarn@swifterz.co','bed96579f1d7246d3e4e093c2fe5ee06','Employee','BIM Modeler',0,'IMG_20230908_052443_326.jpg','                                                                                                                                Yelahanka,pallanahalli ,Banglore                                                                                                                                 ','0','Offline',NULL,0,0,'active','2024-08-12 13:58:33',NULL,'5','8431688648','Employee','offline'),(107,'EMP-0095','Shankker Kumar','2024-07-31','8220333514','2024-08-13','sk.swifterz@gmail.com','dc2580c1f34db92149637493704e109e','Employee','CEO',14,'Swifterz TM Crop (1).jpg','Bangalore','0','Online',NULL,0,0,'active','2024-08-13 09:00:11',NULL,'5','nnnkm','All','offline'),(108,'EMP-0096','Tarun Debey','2024-08-06','8220333514','2024-08-30','tarundubey.swifterz@gmail.com','dc2580c1f34db92149637493704e109e','Employee','HR Executive',14,'Swifterz TM Crop (1).jpg','Bangalore','0',NULL,NULL,0,0,'active','2024-08-13 09:48:15',NULL,'5',NULL,'Employee','offline'),(109,'EMP-0097','Ashwin Kumar','2024-08-05','8220333514','2024-08-20','ashwingd.mine@gmail.com','dc2580c1f34db92149637493704e109e','Employee','Graphic Designer',29,'Swifterz TM Crop (1).jpg','Bangalore','0','Online',NULL,0,0,'active','2024-08-13 10:01:21',NULL,'5','sdfsd','Employee','offline'),(110,'EMP-0098','Sharath Kumar H N ','2000-01-07','9480202919','2024-08-05','sharath7swifterz@gmail.com','d79c373da2c20c0fe580bd48f8398ca1','Employee','BIM Modeler',0,'1000082661.jpg','Mandya ','0','Offline',NULL,0,0,'active','2024-08-16 13:22:10','63471','5',NULL,'Employee','offline'),(111,'EMP-0099','Anjana Aj','1998-08-06','8147847648','2024-07-01','anjana@swiifterz.co','6d573f70af9736c6b5a7f727254908e9','Employee','BIM Modeler',0,'Screenshot_20240628-134447_Gallery.jpg','Babusapalya Sk Clothes General store MmM garden hennur karnataka Bengaluru 560043','0',NULL,NULL,0,0,'active','2024-08-19 08:00:45','14960','5',NULL,'Employee','offline'),(112,'EMP-0100','Shyamala MP','2000-09-14','7022892860','2024-08-01','mpshyamala14@gmail.com','dc2580c1f34db92149637493704e109e','Employee','BIM Modeler',0,'Document from SHYAMALA   M.P','Madihalli, Tiptur taluk , Tumkur district, Karnataka ','0','Online',NULL,0,0,'active','2024-08-20 06:25:56','69440','5',NULL,'Employee','offline'),(113,'EMP-0101','Anand Thayalaguru','1984-08-19','8220333544','2012-08-12','anand.swifterz@gmail.com','1b3a574fd6d96614502593d18474e24e','Employee','Management',14,'Swifterz TM Crop (1).jpg','Bangalore','0','Offline',NULL,0,0,'active','2024-08-20 14:14:34','30405','5','5656','Management','offline'),(114,'EMP-0102','NAVEENRAJ KS','1997-02-25','9791823173','2024-08-01','naveen@swifterz.co','8b5c6ebe47a577a84047ab223ee9d628','Employee','BIM Modeler',0,'WhatsApp Image 2024-10-24 at 3.00.02 PM.jpeg','                                                                Indiranagar, tamilnadu                                                                 ','0','Offline',NULL,0,0,'active','2024-08-21 07:03:13',NULL,'5','112233445566','Employee','offline'),(115,'EMP-0103','Sharath Kumar H N','2000-01-07','9480202919','2024-08-05','sharathkumarhn@swifterz.co','d79c373da2c20c0fe580bd48f8398ca1','Employee','BIM Modeler',0,'1000082661.jpg','Mandya','0','Online',NULL,0,0,'active','2024-08-21 07:38:11','21486','5',NULL,'Employee','offline'),(116,'EMP-0104','Sumanth Kumar','2024-09-10','9876543210','2024-09-10','sumanthk.mine@gmail.com','d00f5d5217896fb7fd601412cb890830','Employee','Project Manager',0,'swift_jiffy_favicon.jpeg','#53, 1st Main Road, Maruthi Layout, RMV 2nd Stage, Sanjay Nagar, Bangalore.','0','Offline',NULL,0,0,'active','2024-09-10 15:43:01',NULL,'5',NULL,'Employee','offline'),(117,'EMP-0105','Ajith Kumar','2024-09-10','1234567890','2024-09-10','ajithkumars.mine@gmail.com','d00f5d5217896fb7fd601412cb890830','Employee','Employee',0,'swifterz_logo.jpeg','#53, 1st Main Road, Maruthi Layout, RMV 2nd Stage, Sanjay Nagar, Bangalore.','0','Offline',NULL,0,0,'active','2024-09-10 15:54:17',NULL,'5',NULL,'Employee','offline'),(118,'EMP-0106','maheen','1999-10-10','8786543244','2021-07-15','maheen@gmail.com','8f1af81921368cd18bbf0f314550b72f','Employee','BIM Architect',12,'Screenshot_20230216_133639.jpg','koiugfdreaedfh','0',NULL,NULL,0,0,'active','2024-09-19 11:37:14',NULL,'5',NULL,'Employee','offline'),(119,'EMP-0107','Ajith','2024-09-23','6382712217','2024-09-23','sumanth.mine@gmail.com','d00f5d5217896fb7fd601412cb890830','Employee','Tekla Modeler',16,'17078693240 (1).jpg','bengaluru','0',NULL,NULL,0,0,'active','2024-09-23 09:02:35',NULL,'5',NULL,'Employee','offline'),(120,'EMP-0108','sunil','2024-10-01','8786543244','2024-09-24','divya@gmail.com','f4e53b4867ab3c6b65ff370597f3e745','Employee','Project Manager',15,'Screenshot_20230216_133639.jpg','qwsdfgh','0',NULL,NULL,0,0,'active','2024-09-24 07:56:32',NULL,'5',NULL,'Employee','offline'),(121,'EMP-0109','jyo','2024-10-03','9491215409','2024-10-20','jyothsna.mettupalli@gmail.com','d00f5d5217896fb7fd601412cb890830','Employee','BIM Project Manager',14,'17078698003 (1).jpg','fghjk','0',NULL,NULL,0,0,'active','2024-10-03 08:33:22',NULL,'5',NULL,'Employee','offline'),(122,'EMP-0110','V L LOKESH','2002-01-23','8431628978','2024-10-01','lokesh.swifterz@gmail.com','1278910e60db273ed8e618c54e7d6da9','Employee','BIM Modeler',12,'swifterz_logo-B0Sy6MUs.png','159 TD Lane, Cottonpet, Bangalore, 560053','0','Online',NULL,0,0,'active','2024-10-23 08:28:58',NULL,'5',NULL,'Employee','offline'),(123,'EMP-0111','DHANUSHREE B J','2003-05-19','8867001556','2024-09-01','dhanushreebj.swifterz@gmail.com','651e7b8d146ec157c9b81a79bb23852c','Employee','BIM Modeler',12,'swifterz_logo-B0Sy6MUs.png','D/o Jayashankar, Salagame Hobli, Ballenahalli, Hassan Karnataka-573219','0','Online',NULL,0,0,'active','2024-10-23 08:45:17',NULL,'5',NULL,'Employee','offline'),(124,'EMP-0112','Chinmayi K R','2001-05-29','6362950938','2024-01-10','chinmayikr.swifterz@gmail.com','65af98594cfff43e2ebfad422375fd85','Employee','BIM Modeler',12,'swifterz_logo-B0Sy6MUs (2).jpg','Kolagatta, Turuvekere (t), Tumkur (D)','0',NULL,NULL,0,0,'active','2024-10-24 07:59:21',NULL,'5',NULL,'Employee','offline'),(125,'EMP-1000','Joud','1993-01-23','+971 55 591 1392','2025-07-23','joud@gmail.com','202cb962ac59075b964b07152d234b70','Employee','sales_executive',12,NULL,'dubai','54000','active',NULL,0,0,'active','2025-07-23 17:10:37',NULL,NULL,NULL,'Employee','online');
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1374,6 +1945,32 @@ CREATE TABLE `objectives` (
 LOCK TABLES `objectives` WRITE;
 /*!40000 ALTER TABLE `objectives` DISABLE KEYS */;
 /*!40000 ALTER TABLE `objectives` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `password_reset_otps`
+--
+
+DROP TABLE IF EXISTS `password_reset_otps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `password_reset_otps` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `otp` varchar(10) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `password_reset_otps`
+--
+
+LOCK TABLES `password_reset_otps` WRITE;
+/*!40000 ALTER TABLE `password_reset_otps` DISABLE KEYS */;
+INSERT INTO `password_reset_otps` VALUES (1,'sumanth@mineit.tech','147626','2025-07-24 12:09:29'),(2,'sumanth@mineit.tech','917625','2025-07-24 12:09:40'),(3,'sumanth@mineit.tech','287439','2025-07-24 16:33:19');
+/*!40000 ALTER TABLE `password_reset_otps` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2058,4 +2655,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-21 18:06:19
+-- Dump completed on 2025-07-24 16:59:15
