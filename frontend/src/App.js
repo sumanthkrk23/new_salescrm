@@ -16,6 +16,7 @@ import CallManagement from "./components/CallManagement";
 import Reports from "./components/Reports";
 import Navbar from "./components/Navbar";
 import Category from "./components/Category";
+import ForgotPassword from "./components/ForgotPassword";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -47,6 +48,7 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route
               path="/dashboard"
               element={

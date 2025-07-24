@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Edit, Trash2, Save, X } from "lucide-react";
 
@@ -11,6 +11,9 @@ const Category = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [editValue, setEditValue] = useState("");
   const [editDate, setEditDate] = useState("");
+  const tableWrapperRef = useRef(null);
+  const [showScrollRight, setShowScrollRight] = useState(false);
+  const [showScrollLeft, setShowScrollLeft] = useState(false);
 
   const fetchCategories = async () => {
     try {
@@ -19,7 +22,7 @@ const Category = () => {
       setCategories(res.data.categories || []);
     } catch (err) {
       setError("Failed to fetch categories");
-    } finally { 
+    } finally {
       setLoading(false);
     }
   };
@@ -36,6 +39,27 @@ const Category = () => {
       return () => clearTimeout(timer);
     }
   }, [success]);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      if (tableWrapperRef.current) {
+        const el = tableWrapperRef.current;
+        setShowScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+        setShowScrollLeft(el.scrollLeft > 0);
+      }
+    };
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    if (tableWrapperRef.current) {
+      tableWrapperRef.current.addEventListener("scroll", checkScroll);
+    }
+    return () => {
+      window.removeEventListener("resize", checkScroll);
+      if (tableWrapperRef.current) {
+        tableWrapperRef.current.removeEventListener("scroll", checkScroll);
+      }
+    };
+  }, [categories]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,9 +98,9 @@ const Category = () => {
       return;
     }
     try {
-      await axios.put(`/api/category/${categoryId}`, { 
+      await axios.put(`/api/category/${categoryId}`, {
         category: editValue,
-        created_date: editDate 
+        created_date: editDate
       });
       setEditingCategory(null);
       setEditValue("");
@@ -128,26 +152,26 @@ const Category = () => {
             <h2 className="text-lg font-semibold text-gray-900">Add New Category</h2>
           </div>
           <div className="p-6">
-            <form onSubmit={handleSubmit} className="flex gap-4 items-end">
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+            <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-stretch md:items-end">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Category Name
-          </label>
-          <input
-            type="text"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+                </label>
+                <input
+                  type="text"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter category name"
-          />
-        </div>
-              <button 
-                type="submit" 
+                  placeholder="Enter category name"
+                />
+              </div>
+              <button
+                type="submit"
                 className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
               >
                 Add Category
-        </button>
-      </form>
+              </button>
+            </form>
           </div>
         </div>
 
@@ -166,7 +190,7 @@ const Category = () => {
             </div>
           </div>
         )}
-        
+
         {success && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
             <div className="flex">
@@ -187,137 +211,130 @@ const Category = () => {
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">All Categories</h2>
           </div>
-          <div className="overflow-hidden">
-        {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600">Loading categories...</span>
-              </div>
-        ) : categories.length === 0 ? (
-              <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No categories</h3>
-                <p className="mt-1 text-sm text-gray-500">Get started by creating a new category.</p>
-              </div>
-        ) : (
-              <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {/*
+          <div className="overflow-x-auto relative pb-8" ref={tableWrapperRef}>
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {/*
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ID
                 </th>
 */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created Date
-                </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-                    {categories.map((cat, index) => (
-                      <tr key={cat.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                        {/*
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Created Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {categories.map((cat, index) => (
+                  <tr key={cat.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    {/*
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           #{cat.id}
                         </td>
 */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                          {editingCategory === cat.id ? (
-                            <input
-                              type="text"
-                              value={editValue}
-                              onChange={(e) => setEditValue(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                  handleUpdate(cat.id);
-                                }
-                              }}
-                            />
-                          ) : (
-                            <span className="text-sm text-gray-900 font-medium">{cat.category}</span>
-                          )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                          {editingCategory === cat.id ? (
-                            <input
-                              type="date"
-                              value={editDate}
-                              onChange={(e) => setEditDate(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                          ) : (
-                            <span className="text-sm text-gray-500">{cat.created_date}</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          {editingCategory === cat.id ? (
-                            <div className="flex space-x-2">
-                              <div className="relative group">
-                                <button
-                                  onClick={() => handleUpdate(cat.id)}
-                                  className="p-2 text-green-600 hover:text-green-800 hover:bg-green-100 rounded-md transition-colors duration-200"
-                                >
-                                  <Save size={18} />
-                                </button>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                                  Save
-                                </div>
-                              </div>
-                              <div className="relative group">
-                                <button
-                                  onClick={cancelEdit}
-                                  className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-200"
-                                >
-                                  <X size={18} />
-                                </button>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                                  Close
-                                </div>
-                              </div>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {editingCategory === cat.id ? (
+                        <input
+                          type="text"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter") {
+                              handleUpdate(cat.id);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="text-sm text-gray-900 font-medium">{cat.category}</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {editingCategory === cat.id ? (
+                        <input
+                          type="date"
+                          value={editDate}
+                          onChange={(e) => setEditDate(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      ) : (
+                        <span className="text-sm text-gray-500">{cat.created_date}</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      {editingCategory === cat.id ? (
+                        <div className="flex space-x-2">
+                          <div className="relative group">
+                            <button
+                              onClick={() => handleUpdate(cat.id)}
+                              className="p-2 text-green-600 hover:text-green-800 hover:bg-green-100 rounded-md transition-colors duration-200"
+                            >
+                              <Save size={18} />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                              Save
                             </div>
-                          ) : (
-                            <div className="flex space-x-2">
-                              <div className="relative group">
-                                <button
-                                  onClick={() => handleEdit(cat)}
-                                  className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors duration-200"
-                                >
-                                  <Edit size={18} />
-                                </button>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                                  Edit
-                                </div>
-                              </div>
-                              <div className="relative group">
-                                <button
-                                  onClick={() => handleDelete(cat.id)}
-                                  className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors duration-200"
-                                >
-                                  <Trash2 size={18} />
-                                </button>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                                  Delete
-                                </div>
-                              </div>
+                          </div>
+                          <div className="relative group">
+                            <button
+                              onClick={cancelEdit}
+                              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors duration-200"
+                            >
+                              <X size={18} />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                              Close
                             </div>
-                          )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex space-x-2">
+                          <div className="relative group">
+                            <button
+                              onClick={() => handleEdit(cat)}
+                              className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors duration-200"
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                              Edit
+                            </div>
+                          </div>
+                          <div className="relative group">
+                            <button
+                              onClick={() => handleDelete(cat.id)}
+                              className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md transition-colors duration-200"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                              Delete
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {showScrollRight && (
+              <div className="sticky float-right right-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
+                Scroll →
               </div>
-        )}
+            )}
+            {showScrollLeft && !showScrollRight && (
+              <div className="sticky float-left left-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
+                ← Scroll
+              </div>
+            )}
           </div>
         </div>
       </div>

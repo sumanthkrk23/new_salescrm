@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
   Home,
@@ -21,6 +21,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userDropdown, setUserDropdown] = useState(false);
   const userMenuRef = useRef(null);
+  const location = useLocation();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -52,6 +53,9 @@ const Navbar = () => {
 
   const isAdmin = user?.user_role === "sales_manager";
 
+  // Helper to check if a path is active
+  const isActive = (path) => location.pathname === path;
+
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
@@ -66,34 +70,34 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-3 sm:space-x-4">
             <Link
               to="/dashboard"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className={`${isActive("/dashboard") ? "text-primary-700" : "text-gray-700 hover:text-primary-600"} px-2 md:px-2 lg:px-3 py-2 rounded-md text-xs sm:text-sm md:text-base font-medium transition-colors`}
             >
               Dashboard
             </Link>
             <Link
               to="/calls"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className={`${isActive("/calls") ? "text-primary-700" : "text-gray-700 hover:text-primary-600"} px-2 md:px-2 lg:px-3 py-2 rounded-md text-xs sm:text-sm md:text-base font-medium transition-colors`}
             >
               Calls
             </Link>
             <Link
               to="/databases"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className={`${isActive("/databases") ? "text-primary-700" : "text-gray-700 hover:text-primary-600"} px-2 md:px-2 lg:px-3 py-2 rounded-md text-xs sm:text-sm md:text-base font-medium transition-colors`}
             >
               Databases
             </Link>
             <Link
               to="/employees"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className={`${isActive("/employees") ? "text-primary-700" : "text-gray-700 hover:text-primary-600"} px-2 md:px-2 lg:px-3 py-2 rounded-md text-xs sm:text-sm md:text-base font-medium transition-colors`}
             >
               Employees
             </Link>
             <Link
               to="/reports"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className={`${isActive("/reports") ? "text-primary-700" : "text-gray-700 hover:text-primary-600"} px-2 md:px-2 lg:px-3 py-2 rounded-md text-xs sm:text-sm md:text-base font-medium transition-colors`}
             >
               Reports
             </Link>
@@ -101,7 +105,7 @@ const Navbar = () => {
             {user?.user_role === "sales_manager" && (
               <Link
                 to="/category"
-                className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className={`${isActive("/category") ? "text-primary-700" : "text-gray-700 hover:text-primary-600"} px-2 md:px-2 lg:px-3 py-2 rounded-md text-xs sm:text-sm md:text-base font-medium transition-colors`}
               >
                 Category
               </Link>
@@ -110,7 +114,7 @@ const Navbar = () => {
 
           {/* User Menu Dropdown */}
           <div
-            className="hidden md:flex items-center space-x-4"
+            className="hidden lg:flex items-center space-x-4"
             ref={userMenuRef}
           >
             <button
@@ -154,7 +158,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-700 hover:text-primary-600 p-2 rounded-md"
@@ -171,50 +175,52 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200 flex flex-col">
             <Link
               to="/dashboard"
-              className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium"
+              className={`${isActive("/dashboard") ? "text-primary-700 bg-primary-50" : "text-gray-700 hover:text-primary-600"} block px-3 py-2 rounded-md text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               Dashboard
             </Link>
             <Link
               to="/calls"
-              className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium"
+              className={`${isActive("/calls") ? "text-primary-700 bg-primary-50" : "text-gray-700 hover:text-primary-600"} block px-3 py-2 rounded-md text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               Calls
             </Link>
             <Link
               to="/databases"
-              className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium"
+              className={`${isActive("/databases") ? "text-primary-700 bg-primary-50" : "text-gray-700 hover:text-primary-600"} block px-3 py-2 rounded-md text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               Databases
             </Link>
             <Link
               to="/employees"
-              className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium"
+              className={`${isActive("/employees") ? "text-primary-700 bg-primary-50" : "text-gray-700 hover:text-primary-600"} block px-3 py-2 rounded-md text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               Employees
             </Link>
             <Link
               to="/reports"
-              className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium"
+              className={`${isActive("/reports") ? "text-primary-700 bg-primary-50" : "text-gray-700 hover:text-primary-600"} block px-3 py-2 rounded-md text-base font-medium`}
               onClick={() => setIsMenuOpen(false)}
             >
               Reports
             </Link>
-            <Link
-              to="/category"
-              className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Category
-            </Link>
+            {user?.user_role === "sales_manager" && (
+              <Link
+                to="/category"
+                className={`${isActive("/category") ? "text-primary-700 bg-primary-50" : "text-gray-700 hover:text-primary-600"} block px-3 py-2 rounded-md text-base font-medium`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Category
+              </Link>
+            )}
             <div className="border-t border-gray-200 pt-4 mt-4">
               <div className="flex items-center space-x-2 px-3 py-2">
                 <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
@@ -224,17 +230,22 @@ const Navbar = () => {
                   <p className="font-medium text-gray-900">
                     {user?.full_name || user?.email}
                   </p>
+                  
                   <p className="text-gray-500 capitalize">
                     {user?.user_role?.replace("_", " ")}
                   </p>
                 </div>
+                <span className={`text-sm px-2 py-0.5 rounded-full inline-block font-medium flex-shrink-0 ${(user.online_status || '').toLowerCase() === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {(user.online_status || '').toLowerCase() === 'online' ? 'Online' : 'Offline'}
+                    </span>
               </div>
               <button
-                onClick={handleLogout}
-                className="text-gray-700 hover:text-red-600 block w-full text-left px-3 py-2 rounded-md text-base font-medium"
-              >
-                <LogOut className="w-4 h-4 mr-2 inline" /> Logout
-              </button>
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-2 px-4 py-1 mt-1 text-base font-semibold text-red-500 bg-gray-100 hover:bg-gray-200 rounded-lg shadow-sm transition-colors duration-150"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Logout
+                </button>
             </div>
           </div>
         </div>

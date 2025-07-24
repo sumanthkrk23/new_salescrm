@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import {
@@ -51,9 +51,33 @@ const Dashboard = () => {
     notInterestedCalls: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [barSize, setBarSize] = useState(24);
+  const [barGap, setBarGap] = useState(30);
+  const [axisFontSize, setAxisFontSize] = useState(18); // Responsive font size for axes
 
   useEffect(() => {
     fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 375) {
+        setBarSize(32);
+        setBarGap(60);
+        setAxisFontSize(12); // small screens
+      } else if (window.innerWidth <= 640) {
+        setBarSize(28);
+        setBarGap(40);
+        setAxisFontSize(14); // medium screens
+      } else {
+        setBarSize(24);
+        setBarGap(30);
+        setAxisFontSize(18); // large screens
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const fetchStats = async () => {
@@ -359,7 +383,7 @@ const Dashboard = () => {
         </div>
         {/* Bar Chart Card */}
         <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-10">
             Call Stats
           </h3>
           <ResponsiveContainer width="100%" height={260} style={{ outline: 'none' }}>
@@ -370,13 +394,31 @@ const Dashboard = () => {
                 { name: 'Converted', value: stats.joinedConvertedCalls },
                 { name: 'Closure', value: stats.closureCalls },
               ]}
-              margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
-              barCategoryGap={30}
+              margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
+              barCategoryGap={barGap}
+              barSize={barSize}
               activeBar={false}
               style={{ outline: 'none' }}
             >
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis allowDecimals={false} />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: axisFontSize, dy: 2, angle: 0, wordBreak: 'break-all', whiteSpace: 'normal' }}
+                interval={0}
+                minTickGap={0}
+                tickMargin={8}
+                height={32}
+                padding={{ left: 0, right: 0 }}
+                allowDataOverflow={false}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: axisFontSize, dx: -2 }}
+                domain={[0, 'dataMax']}
+                axisLine={{ stroke: '#d1d5db', strokeWidth: 1 }}
+                tickLine={{ stroke: '#d1d5db', strokeWidth: 1 }}
+                width={28}
+                padding={{ top: 0, bottom: 0 }}
+              />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
               <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]} />
             </BarChart>

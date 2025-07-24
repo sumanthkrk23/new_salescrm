@@ -81,12 +81,13 @@ const EmployeeList = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
-          <p className="text-gray-600 mt-1">Manage your team members</p>
+          <p className="text-gray-600 mt-1 mb-4 sm:mb-0">Manage your team members</p>
         </div>
         {isAdmin && (
           <Link
             to="/employees/add"
-            className="btn-primary flex items-center space-x-2"
+            className="btn-primary flex items-center space-x-2 text-base px-4 py-2 sm:text-base sm:px-6 sm:py-2 w-full sm:w-auto"
+            style={{ maxWidth: '220px' }}
           >
             <span>+ Add Employee</span>
           </Link>
@@ -191,11 +192,10 @@ const EmployeeList = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Status</span>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    (employee.online_status || '').toLowerCase() === 'online'
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${(employee.online_status || '').toLowerCase() === 'online'
                       ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
-                  }`}
+                    }`}
                 >
                   {(employee.online_status || '').toLowerCase() === 'online' ? 'Online' : 'Offline'}
                 </span>

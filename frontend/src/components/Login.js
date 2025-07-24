@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
 
@@ -33,8 +33,8 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Sales CRM</h2>
-          <p className="text-gray-600">Sign in to your account</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Sales CRM</h2>
+          <p className="text-sm md:text-base text-gray-600">Sign in to your account</p>
         </div>
 
         <div className="card">
@@ -104,6 +104,12 @@ const Login = () => {
               </div>
             </div>
 
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-sm text-primary-600 hover:underline">
+                Forgot Password?
+              </Link>
+            </div>
+
             <div className="space-y-4">
               <button
                 type="submit"
@@ -117,7 +123,7 @@ const Login = () => {
                 )}
               </button>
 
-              <div className="text-center text-sm text-gray-600">
+              {/* <div className="text-center text-sm text-gray-600">
                 <p className="mb-2">Demo Credentials:</p>
                 <div className="space-y-1 text-xs">
                   <p>
@@ -127,7 +133,7 @@ const Login = () => {
                     <strong>User:</strong> divya@mineit.tech | sabari@123
                   </p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </form>
         </div>

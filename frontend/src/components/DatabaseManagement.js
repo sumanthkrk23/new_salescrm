@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import {
   Upload,
@@ -32,6 +32,25 @@ const DatabaseManagement = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const detailsRef = useRef(null);
+  const tableWrapperRef1 = useRef(null);
+  const tableWrapperRef2 = useRef(null);
+  const [showScrollRight1, setShowScrollRight1] = useState(false);
+  const [showScrollLeft1, setShowScrollLeft1] = useState(false);
+  const [showScrollRight2, setShowScrollRight2] = useState(false);
+  const [showScrollLeft2, setShowScrollLeft2] = useState(false);
+
+  // Move filteredCalls here so it is available for useEffect dependencies
+  const filteredCalls = databaseCalls.filter((call) => {
+    return (
+      (!filters.department ||
+        call.department?.toLowerCase().includes(filters.department.toLowerCase())) &&
+      (!filters.city ||
+        call.city?.toLowerCase().includes(filters.city.toLowerCase())) &&
+      (!filters.institution ||
+        call.institution_name?.toLowerCase().includes(filters.institution.toLowerCase()))
+    );
+  });
 
   useEffect(() => {
     fetchDatabases();
@@ -49,6 +68,48 @@ const DatabaseManagement = () => {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showEmployeeDropdown]);
+
+  useEffect(() => {
+    const checkScroll1 = () => {
+      if (tableWrapperRef1.current) {
+        const el = tableWrapperRef1.current;
+        setShowScrollRight1(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+        setShowScrollLeft1(el.scrollLeft > 0);
+      }
+    };
+    checkScroll1();
+    window.addEventListener("resize", checkScroll1);
+    if (tableWrapperRef1.current) {
+      tableWrapperRef1.current.addEventListener("scroll", checkScroll1);
+    }
+    return () => {
+      window.removeEventListener("resize", checkScroll1);
+      if (tableWrapperRef1.current) {
+        tableWrapperRef1.current.removeEventListener("scroll", checkScroll1);
+      }
+    };
+  }, [databases]);
+
+  useEffect(() => {
+    const checkScroll2 = () => {
+      if (tableWrapperRef2.current) {
+        const el = tableWrapperRef2.current;
+        setShowScrollRight2(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+        setShowScrollLeft2(el.scrollLeft > 0);
+      }
+    };
+    checkScroll2();
+    window.addEventListener("resize", checkScroll2);
+    if (tableWrapperRef2.current) {
+      tableWrapperRef2.current.addEventListener("scroll", checkScroll2);
+    }
+    return () => {
+      window.removeEventListener("resize", checkScroll2);
+      if (tableWrapperRef2.current) {
+        tableWrapperRef2.current.removeEventListener("scroll", checkScroll2);
+      }
+    };
+  }, [filteredCalls]);
 
   const fetchDatabases = async () => {
     try {
@@ -79,6 +140,12 @@ const DatabaseManagement = () => {
       const response = await axios.get(`/api/databases/${dbId}/calls`);
       setDatabaseCalls(response.data.calls);
       setSelectedDatabase(dbId);
+      // Scroll to details after data is set (with a slight delay to ensure render)
+      setTimeout(() => {
+        if (detailsRef.current) {
+          detailsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
     } catch (error) {
       console.error("Error fetching database calls:", error);
     }
@@ -152,25 +219,10 @@ const DatabaseManagement = () => {
     } catch (error) {
       alert(
         "Error deleting database: " +
-          (error.response?.data?.error || error.message)
+        (error.response?.data?.error || error.message)
       );
     }
   };
-
-  const filteredCalls = databaseCalls.filter((call) => {
-    return (
-      (!filters.department ||
-        call.department
-          ?.toLowerCase()
-          .includes(filters.department.toLowerCase())) &&
-      (!filters.city ||
-        call.city?.toLowerCase().includes(filters.city.toLowerCase())) &&
-      (!filters.institution ||
-        call.institution_name
-          ?.toLowerCase()
-          .includes(filters.institution.toLowerCase()))
-    );
-  });
 
   const isAdmin = user?.user_role === "sales_manager";
 
@@ -179,8 +231,8 @@ const DatabaseManagement = () => {
     selectedDbObj?.type === "corporate"
       ? "B2B"
       : selectedDbObj?.type === "institution"
-      ? "B2C"
-      : "";
+        ? "B2C"
+        : "";
 
   if (loading) {
     return (
@@ -374,7 +426,7 @@ const DatabaseManagement = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Uploaded Databases
         </h3>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto relative pb-8" ref={tableWrapperRef1}>
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -407,17 +459,16 @@ const DatabaseManagement = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        db.type === "corporate"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-green-100 text-green-800"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${db.type === "corporate"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-green-100 text-green-800"
+                        }`}
                     >
                       {db.type === "corporate"
                         ? "B2B"
                         : db.type === "institution"
-                        ? "B2C"
-                        : db.type}
+                          ? "B2C"
+                          : db.type}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -456,12 +507,22 @@ const DatabaseManagement = () => {
               ))}
             </tbody>
           </table>
+          {showScrollRight1 && (
+            <div className="sticky float-right right-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
+              Scroll →
+            </div>
+          )}
+          {showScrollLeft1 && !showScrollRight1 && (
+            <div className="sticky float-left left-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
+              ← Scroll
+            </div>
+          )}
         </div>
       </div>
 
       {/* Database Calls */}
       {selectedDatabase && (
-        <div className="card">
+        <div className="card" ref={detailsRef}>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             {selectedDbObj?.name} - Database Calls
           </h3>
@@ -561,7 +622,7 @@ const DatabaseManagement = () => {
           )}
 
           {/* Calls Table */}
-          <div className="overflow-x-auto rounded-lg shadow border border-gray-200 bg-white">
+          <div className="overflow-x-auto rounded-lg shadow border border-gray-200 bg-white relative pb-8" ref={tableWrapperRef2}>
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
@@ -632,17 +693,16 @@ const DatabaseManagement = () => {
                         </td>
                         <td className="px-6 py-3 align-middle whitespace-nowrap">
                           <span
-                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                              call.status === "fresh"
-                                ? "bg-cyan-100 text-cyan-800"
-                                : call.status === "follow_up"
+                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${call.status === "fresh"
+                              ? "bg-cyan-100 text-cyan-800"
+                              : call.status === "follow_up"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : call.status === "closure"
-                                ? "bg-purple-100 text-purple-800"
-                                : call.status === "converted"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}
+                                  ? "bg-purple-100 text-purple-800"
+                                  : call.status === "converted"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-blue-100 text-blue-800"
+                              }`}
                           >
                             {call.status?.replace("_", " ")}
                           </span>
@@ -670,17 +730,16 @@ const DatabaseManagement = () => {
                         </td>
                         <td className="px-6 py-3 align-middle whitespace-nowrap">
                           <span
-                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                              call.status === "fresh"
-                                ? "bg-cyan-100 text-cyan-800"
-                                : call.status === "follow_up"
+                            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${call.status === "fresh"
+                              ? "bg-cyan-100 text-cyan-800"
+                              : call.status === "follow_up"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : call.status === "closure"
-                                ? "bg-purple-100 text-purple-800"
-                                : call.status === "converted"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}
+                                  ? "bg-purple-100 text-purple-800"
+                                  : call.status === "converted"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-blue-100 text-blue-800"
+                              }`}
                           >
                             {call.status?.replace("_", " ")}
                           </span>
@@ -691,6 +750,16 @@ const DatabaseManagement = () => {
                 ))}
               </tbody>
             </table>
+            {showScrollRight2 && (
+              <div className="sticky float-right right-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
+                Scroll to see more →
+              </div>
+            )}
+            {showScrollLeft2 && !showScrollRight2 && (
+              <div className="sticky float-left left-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
+                ← Scroll to see more
+              </div>
+            )}
           </div>
         </div>
       )}

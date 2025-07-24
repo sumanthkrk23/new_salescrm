@@ -25,6 +25,7 @@ const CircularProgress = ({ percent = 0, size = 48, stroke = 6, color = "#22c55e
         r={radius}
         cx={size / 2}
         cy={size / 2}
+        transform={`rotate(90 ${size / 2} ${size / 2})`}
       />
       <text
         x="50%"

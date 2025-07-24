@@ -216,8 +216,8 @@ const CallManagement = () => {
     <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Call Management</h1>
-        <p className="text-gray-600 mt-1">Manage your assigned calls</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Call Management</h1>
+        <p className="text-sm md:text-base text-gray-600 mt-1">Manage your assigned calls</p>
       </div>
 
       {/* Tabs */}
@@ -229,11 +229,10 @@ const CallManagement = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
-                  activeTab === tab.id
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+                className={`py-2 px-1 border-b-2 font-medium tex text-sm flex items-center ${activeTab === tab.id
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
               >
                 <Icon className="w-4 h-4 mr-2" />
                 {tab.name}
@@ -252,8 +251,7 @@ const CallManagement = () => {
           <select
             value={selectedExecutive}
             onChange={(e) => setSelectedExecutive(e.target.value)}
-            className="input-field"
-            style={{ minWidth: 120 }}
+            className="input-field h-10 w-32 text-base sm:h-12 sm:w-48 sm:text-lg"
           >
             <option value="">All</option>
             {employees.map((emp) => (
@@ -275,10 +273,10 @@ const CallManagement = () => {
                   <User className="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 text-lg break-words whitespace-normal">
+                  <h3 className="font-semibold text-gray-900 text-base sm:text-lg break-words whitespace-normal">
                     {call.client_name || call.contact_person || "-"}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500">
                     {call.phone_number || "-"}
                   </p>
                 </div>
@@ -286,13 +284,12 @@ const CallManagement = () => {
               <div className="flex flex-col items-end">
                 {/* B2B/B2C badge */}
                 <span
-                  className={`mb-1 px-2 py-1 rounded-full text-xs font-medium ${
-                    call.type === "B2B"
-                      ? "bg-blue-100 text-blue-800"
-                      : call.type === "B2C"
+                  className={`mb-1 px-2 py-1 rounded-full text-xs sm:text-sm font-medium ${call.type === "B2B"
+                    ? "bg-blue-100 text-blue-800"
+                    : call.type === "B2C"
                       ? "bg-green-100 text-green-800"
                       : "bg-gray-100 text-gray-800"
-                  }`}
+                    }`}
                 >
                   {call.type === "B2B" ? "B2B" : call.type === "B2C" ? "B2C" : call.type}
                 </span>
@@ -300,7 +297,7 @@ const CallManagement = () => {
             </div>
 
             <div className="space-y-2 mb-4">
-              <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
                 <span className="flex items-center text-gray-500 font-semibold uppercase tracking-wide">
                   <Mail className="w-4 h-4 mr-1" /> Email
                 </span>
@@ -309,7 +306,7 @@ const CallManagement = () => {
                 </span>
               </div>
               {/* Designation for B2B, Department for B2C */}
-              <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
                 <span className="flex items-center text-gray-500 font-semibold uppercase tracking-wide">
                   {call.type === "B2B" ? (
                     <>
@@ -328,7 +325,7 @@ const CallManagement = () => {
                 </span>
               </div>
               {/* Location for B2C, Company Name for B2B */}
-              <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
                 <span className="flex items-center text-gray-500 font-semibold uppercase tracking-wide">
                   {call.type === "B2B" ? (
                     <>
@@ -346,7 +343,7 @@ const CallManagement = () => {
                     : call.city || "-"}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
                 <span className="flex items-center text-gray-500 font-semibold uppercase tracking-wide">
                   <PhoneCall className="w-4 h-4 mr-1" /> Disposition Status
                 </span>
@@ -356,7 +353,7 @@ const CallManagement = () => {
               </div>
               {/* In the call card, make follow up date use the same color as other data */}
               {activeTab === "follow_up" && call.follow_up_date && (
-                <div className="flex items-center justify-between text-sm text-gray-600">
+                <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
                   <span className="flex items-center text-gray-500 font-semibold uppercase tracking-wide">
                     <Clock className="w-4 h-4 mr-1" /> Follow Up Date
                   </span>
@@ -371,7 +368,7 @@ const CallManagement = () => {
             {user?.user_role !== "sales_manager" && (
               <>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700">
                     Actions
                   </span>
                   {/* Hide Update Disposition for closure tab */}
@@ -384,7 +381,7 @@ const CallManagement = () => {
                         const counts = await fetchDispositionCounts(call.id);
                         setDispositionCounts(counts);
                       }}
-                      className="text-sm text-primary-600 hover:text-primary-800 font-medium"
+                      className="text-xs sm:text-sm text-primary-600 hover:text-primary-800 font-medium"
                     >
                       Update Disposition
                     </button>
@@ -393,14 +390,14 @@ const CallManagement = () => {
                 <div className="flex space-x-2">
                   <a
                     href={`tel:${call.phone_number}`}
-                    className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     <Phone className="w-4 h-4 mr-1" />
                     Call
                   </a>
                   <a
                     href={`mailto:${call.email}`}
-                    className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -409,7 +406,7 @@ const CallManagement = () => {
                   </a>
                   <a
                     href={`https://wa.me/${formatPhoneNumber(call.phone_number)}`}
-                    className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

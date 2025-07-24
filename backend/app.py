@@ -9,6 +9,9 @@ from datetime import datetime, timedelta
 import pandas as pd
 import jwt
 from functools import wraps
+import random
+import smtplib
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
@@ -156,6 +159,24 @@ def create_tables():
 # Create tables on startup
 with app.app_context():
     create_tables()
+
+# Add a table for password reset OTPs
+# (You should run this SQL in your DB as a migration or on startup)
+def create_password_reset_table():
+    cur = mysql.connection.cursor()
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS password_reset_otps (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL,
+            otp VARCHAR(10) NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    mysql.connection.commit()
+    cur.close()
+
+with app.app_context():
+    create_password_reset_table()
 
 # Helper: JWT encode
 def generate_jwt(user_data):
@@ -1326,6 +1347,71 @@ def delete_category(category_id):
         return jsonify({'success': True, 'message': 'Category deleted successfully'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT id FROM employee WHERE email = %s', (email,))
+    user = cur.fetchone()
+    if not user:
+        cur.close()
+        return jsonify({'error': 'No user found with this email'}), 404
+    # Generate OTP
+    otp = str(random.randint(100000, 999999))
+    # Store OTP
+    cur.execute('INSERT INTO password_reset_otps (email, otp) VALUES (%s, %s)', (email, otp))
+    mysql.connection.commit()
+    cur.close()
+    # Send OTP via email (simple SMTP example, replace with your SMTP config)
+    try:
+        msg = MIMEText(f'Your OTP for password reset is: {otp}')
+        msg['Subject'] = 'Sales CRM Password Reset OTP'
+        msg['From'] = 'anand@swifterz.ae'
+        msg['To'] = email
+        # Use Office365 SMTP
+        s = smtplib.SMTP('smtp.office365.com', 587)
+        s.starttls()
+        s.login('anand@swifterz.ae', 'qgztwmkgfdpnwxhb')
+        s.sendmail('anand@swifterz.ae', [email], msg.as_string())
+        s.quit()
+    except Exception as e:
+        return jsonify({'error': f'Failed to send email: {str(e)}'}), 500
+    return jsonify({'success': True, 'message': 'OTP sent to your email'})
+
+@app.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    email = data.get('email')
+    otp = data.get('otp')
+    new_password = data.get('new_password')
+    if not (email and otp and new_password):
+        return jsonify({'error': 'Email, OTP, and new password are required'}), 400
+    cur = mysql.connection.cursor()
+    # Check OTP (valid for 10 minutes)
+    cur.execute('''
+        SELECT id, created_at FROM password_reset_otps WHERE email = %s AND otp = %s ORDER BY created_at DESC LIMIT 1
+    ''', (email, otp))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        return jsonify({'error': 'Invalid OTP'}), 400
+    from datetime import datetime, timedelta
+    created_at = row[1]
+    if (datetime.utcnow() - created_at).total_seconds() > 600:
+        cur.close()
+        return jsonify({'error': 'OTP expired'}), 400
+    # Update password (MD5 hash)
+    hashed_password = md5_hash(new_password)
+    cur.execute('UPDATE employee SET password = %s WHERE email = %s', (hashed_password, email))
+    # Delete used OTP
+    cur.execute('DELETE FROM password_reset_otps WHERE id = %s', (row[0],))
+    mysql.connection.commit()
+    cur.close()
+    return jsonify({'success': True, 'message': 'Password reset successful'})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000) 

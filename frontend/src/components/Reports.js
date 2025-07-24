@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import {
   BarChart3,
@@ -86,11 +86,35 @@ const Reports = () => {
   });
   const [employees, setEmployees] = useState([]);
   const [databases, setDatabases] = useState([]);
+  const tableWrapperRef = useRef(null);
+  const [showScrollRight, setShowScrollRight] = useState(false);
+  const [showScrollLeft, setShowScrollLeft] = useState(false);
 
   useEffect(() => {
     fetchEmployees();
     fetchDatabases();
   }, []);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      if (tableWrapperRef.current) {
+        const el = tableWrapperRef.current;
+        setShowScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+        setShowScrollLeft(el.scrollLeft > 0);
+      }
+    };
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    if (tableWrapperRef.current) {
+      tableWrapperRef.current.addEventListener("scroll", checkScroll);
+    }
+    return () => {
+      window.removeEventListener("resize", checkScroll);
+      if (tableWrapperRef.current) {
+        tableWrapperRef.current.removeEventListener("scroll", checkScroll);
+      }
+    };
+  }, [reports]);
 
   const fetchEmployees = async () => {
     try {
@@ -259,11 +283,10 @@ const Reports = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${
-                  activeTab === tab.id
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center ${activeTab === tab.id
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
               >
                 <Icon className="w-4 h-4 mr-2" />
                 {tab.name}
@@ -314,8 +337,8 @@ const Reports = () => {
                   <option value="">All Executives</option>
                   {(user?.user_role === "sales_manager"
                     ? employees.filter(
-                        (emp) => emp.user_role === "sales_executive"
-                      )
+                      (emp) => emp.user_role === "sales_executive"
+                    )
                     : employees
                   ).map((emp) => (
                     <option key={emp.id} value={emp.full_name}>
@@ -434,8 +457,8 @@ const Reports = () => {
             {activeTab === "calls"
               ? "Call Report Results"
               : activeTab === "performance"
-              ? "Performance Report Results"
-              : "Communication Report Results"}
+                ? "Performance Report Results"
+                : "Communication Report Results"}
           </h3>
           <span className="text-sm text-gray-500">
             {reports.length} records found
@@ -443,7 +466,7 @@ const Reports = () => {
         </div>
 
         {getDedupedReports().length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto relative pb-8" ref={tableWrapperRef}>
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -472,11 +495,10 @@ const Reports = () => {
                           className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                         >
                           <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium text-center ${
-                            report.type === "B2B"
+                            className={`px-2 py-1 rounded-full text-xs font-medium text-center ${report.type === "B2B"
                               ? "bg-blue-100 text-blue-800"
                               : "bg-green-100 text-green-800"
-                            }`}
+                              }`}
                           >
                             {report.type === "B2B" ? "B2B" : "B2C"}
                           </span>
@@ -502,15 +524,14 @@ const Reports = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              report.status === "fresh"
-                                ? "bg-cyan-100 text-cyan-800"
-                                : report.status === "follow_up"
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${report.status === "fresh"
+                              ? "bg-cyan-100 text-cyan-800"
+                              : report.status === "follow_up"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : report.status === "closure"
-                                ? "bg-purple-100 text-purple-800"
-                                : "bg-green-100 text-green-800"
-                            }`}
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-green-100 text-green-800"
+                              }`}
                           >
                             {report.status?.replace("_", " ") || "N/A"}
                           </span>
@@ -566,6 +587,16 @@ const Reports = () => {
                 ))}
               </tbody>
             </table>
+            {showScrollRight && (
+              <div className="sticky float-right right-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
+                Scroll →
+              </div>
+            )}
+            {showScrollLeft && !showScrollRight && (
+              <div className="sticky float-left left-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
+                ← Scroll
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-12">
