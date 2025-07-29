@@ -94,6 +94,9 @@ const Dashboard = () => {
       let totalCalls = 0,
         freshCalls = 0,
         followUpCalls = 0,
+        demoCalls = 0,
+        proposalCalls = 0,
+        negotiationCalls = 0,
         convertedCalls = 0,
         closureCalls = 0;
       let interestedCalls = 0;
@@ -101,37 +104,49 @@ const Dashboard = () => {
       let notInterestedCalls = 0;
       if (user?.user_role === "sales_manager") {
         // Fetch all calls for each status
-        const [freshRes, followUpRes, closureRes, convertedRes] =
+        const [freshRes, followUpRes, demoRes, proposalRes, negotiationRes, closureRes, convertedRes] =
           await Promise.all([
             axios.get("/api/calls/fresh?all=1"),
             axios.get("/api/calls/follow-up?all=1"),
+            axios.get("/api/calls/demo?all=1"),
+            axios.get("/api/calls/proposal?all=1"),
+            axios.get("/api/calls/negotiation?all=1"),
             axios.get("/api/calls/closure?all=1"),
             axios.get("/api/calls/converted?all=1"),
           ]);
         freshCalls = freshRes.data.calls.length;
         followUpCalls = followUpRes.data.calls.length;
+        demoCalls = demoRes.data.calls.length;
+        proposalCalls = proposalRes.data.calls.length;
+        negotiationCalls = negotiationRes.data.calls.length;
         closureCalls = closureRes.data.calls.length;
         convertedCalls = convertedRes.data.calls.length;
-        totalCalls = freshCalls + followUpCalls + closureCalls + convertedCalls;
+        totalCalls = freshCalls + followUpCalls + demoCalls + proposalCalls + negotiationCalls + closureCalls + convertedCalls;
       } else {
         // Sales executive: fetch all their assigned calls for all statuses
-        const [freshRes, followUpRes, closureRes, convertedRes] =
+        const [freshRes, followUpRes, demoRes, proposalRes, negotiationRes, closureRes, convertedRes] =
           await Promise.all([
             axios.get("/api/calls/fresh"),
             axios.get("/api/calls/follow-up"),
+            axios.get("/api/calls/demo"),
+            axios.get("/api/calls/proposal"),
+            axios.get("/api/calls/negotiation"),
             axios.get("/api/calls/closure"),
             axios.get("/api/calls/converted"),
           ]);
         freshCalls = freshRes.data.calls.length;
         followUpCalls = followUpRes.data.calls.length;
+        demoCalls = demoRes.data.calls.length;
+        proposalCalls = proposalRes.data.calls.length;
+        negotiationCalls = negotiationRes.data.calls.length;
         closureCalls = closureRes.data.calls.length;
         convertedCalls = convertedRes.data.calls.length;
-        totalCalls = freshCalls + followUpCalls + closureCalls + convertedCalls;
+        totalCalls = freshCalls + followUpCalls + demoCalls + proposalCalls + negotiationCalls + closureCalls + convertedCalls;
       }
-      // Count interested and joined/converted calls from allCalls
-      interestedCalls = allCalls.filter(
-        (call) => call.disposition === "Interested"
-      ).length;
+      // Count interested calls as sum of follow_up, demo, proposal, and negotiation calls
+      interestedCalls = followUpCalls + demoCalls + proposalCalls + negotiationCalls;
+
+      // Count joined/converted and not interested calls from allCalls
       joinedConvertedCalls = allCalls.filter(
         (call) => call.disposition === "Joined / Converted"
       ).length;

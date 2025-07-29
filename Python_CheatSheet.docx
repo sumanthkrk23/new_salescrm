@@ -1,0 +1,97 @@
+from docx import Document
+from docx.shared import Pt
+from docx.oxml.ns import qn
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+
+# Create a new Document
+cheatsheet = Document()
+
+# Title
+cheatsheet.add_heading('Python Cheat Sheet', 0)
+
+# Section: Variables and Data Types
+cheatsheet.add_heading('1. Variables and Data Types', level=1)
+cheatsheet.add_paragraph('A variable is a name that refers to a value stored in memory. Python has dynamic typing — no need to declare the type explicitly.')
+cheatsheet.add_paragraph('Common Data Types:')
+datatypes = [
+    'int – Integer (e.g., 5)',
+    'float – Decimal numbers (e.g., 3.14)',
+    'str – Text (e.g., "Hello")',
+    'bool – Boolean (True/False)',
+    'list – Ordered, changeable',
+    'tuple – Ordered, unchangeable',
+    'dict – Key-value pairs',
+    'set – Unordered, no duplicates'
+]
+for dt in datatypes:
+    cheatsheet.add_paragraph(dt, style='List Bullet')
+cheatsheet.add_paragraph('Example:')
+cheatsheet.add_paragraph(
+    'age = 25  # Integer\n'
+    'height = 5.8  # Float\n'
+    'name = "Alice"  # String\n'
+    'is_student = True  # Boolean\n'
+    'fruits = ["apple", "banana", "cherry"]  # List\n'
+    'colors = ("red", "green", "blue")  # Tuple\n'
+    'unique_numbers = {1, 2, 3, 1, 2}  # Set\n'
+    'person = {"name": "Bob", "age": 30}  # Dictionary', style='Intense Quote')
+
+# Section: Operators
+cheatsheet.add_heading('2. Operators', level=1)
+cheatsheet.add_paragraph('Types of Operators:')
+cheatsheet.add_paragraph('Arithmetic Operators:', style='List Bullet')
+cheatsheet.add_paragraph(
+    'a = 10\nb = 3\n'
+    'print(a + b)  # Addition => 13\n'
+    'print(a - b)  # Subtraction => 7\n'
+    'print(a * b)  # Multiplication => 30\n'
+    'print(a / b)  # Division => 3.33\n'
+    'print(a % b)  # Modulus => 1', style='Intense Quote')
+cheatsheet.add_paragraph('Comparison Operators:', style='List Bullet')
+cheatsheet.add_paragraph(
+    'print(a == b)  # False\n'
+    'print(a != b)  # True\n'
+    'print(a > b)   # True', style='Intense Quote')
+cheatsheet.add_paragraph('Logical Operators:', style='List Bullet')
+cheatsheet.add_paragraph(
+    'x = True\ny = False\n'
+    'print(x and y)  # False\n'
+    'print(x or y)   # True\n'
+    'print(not x)    # False', style='Intense Quote')
+cheatsheet.add_paragraph('Assignment Operators:', style='List Bullet')
+cheatsheet.add_paragraph(
+    'x = 5\nx += 3  # x = x + 3 => 8\nx -= 1  # x = x - 1 => 7', style='Intense Quote')
+cheatsheet.add_paragraph('Bitwise Operators:', style='List Bullet')
+cheatsheet.add_paragraph(
+    'a = 5  # 101 in binary\nb = 3  # 011 in binary\n'
+    'print(a & b)  # AND => 1 (001)\n'
+    'print(a | b)  # OR => 7 (111)', style='Intense Quote')
+
+# Section: Control Structures
+cheatsheet.add_heading('3. Control Structures', level=1)
+cheatsheet.add_paragraph('if, elif, else:')
+cheatsheet.add_paragraph(
+    'score = 75\n'
+    'if score > 90:\n    print("Excellent")\nelif score >= 60:\n    print("Good")\nelse:\n    print("Try again")', style='Intense Quote')
+cheatsheet.add_paragraph('while loop:')
+cheatsheet.add_paragraph(
+    'count = 0\nwhile count < 3:\n    print("Count:", count)\n    count += 1', style='Intense Quote')
+cheatsheet.add_paragraph('for loop:')
+cheatsheet.add_paragraph(
+    'for fruit in ["apple", "banana", "cherry"]:\n    print(fruit)', style='Intense Quote')
+cheatsheet.add_paragraph('break, continue, pass:')
+cheatsheet.add_paragraph(
+    'for i in range(5):\n    if i == 3:\n        break  # Stops loop at 3\n    print(i)\n\nfor i in range(5):\n    if i == 2:\n        continue  # Skips 2\n    print(i)\n\ndef my_function():\n    pass  # Placeholder for future code', style='Intense Quote')
+
+# Section: Type Casting
+cheatsheet.add_heading('4. Type Casting', level=1)
+cheatsheet.add_paragraph(
+    'print(int(5.9))  # 5\n'
+    'print(float(5))  # 5.0\n'
+    'print(str(100))  # "100"\n'
+    'print(list("hello"))  # [\'h\', \'e\', \'l\', \'l\', \'o\']', style='Intense Quote')
+
+# ... Continue for all other sections as in the user message ...
+
+# Save the document
+cheatsheet.save('Python_CheatSheet.docx') 

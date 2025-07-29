@@ -52,6 +52,10 @@ const DatabaseManagement = () => {
     );
   });
 
+  // Check if any calls are already assigned
+  const hasAssignedCalls = filteredCalls.some(call => call.assigned_to !== null && call.assigned_to !== undefined && call.assigned_to !== '');
+  const assignedCallsCount = filteredCalls.filter(call => call.assigned_to !== null && call.assigned_to !== undefined && call.assigned_to !== '').length;
+
   useEffect(() => {
     fetchDatabases();
     fetchEmployees();
@@ -581,43 +585,66 @@ const DatabaseManagement = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Assign Calls
               </label>
-              <div className="flex items-center space-x-2">
-                <div className="relative employee-dropdown">
-                  <button
-                    type="button"
-                    className="input-field w-48 flex items-center justify-between"
-                    onClick={() =>
-                      setShowEmployeeDropdown(!showEmployeeDropdown)
-                    }
-                  >
-                    {selectedEmployees.length
-                      ? `${selectedEmployees.length} Selected`
-                      : "Select Employees"}
-                    <Users className="w-4 h-4 ml-2" />
-                  </button>
-                  {showEmployeeDropdown && (
-                    <div className="absolute z-10 bg-white border rounded shadow-md mt-1 w-48 max-h-60 overflow-y-auto">
-                      {employees.map((emp) => (
-                        <label
-                          key={emp.id}
-                          className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedEmployees.includes(emp.id)}
-                            onChange={() => handleEmployeeSelect(emp.id)}
-                            className="mr-2"
-                          />
-                          {emp.full_name}
-                        </label>
-                      ))}
+              {hasAssignedCalls ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
                     </div>
-                  )}
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-yellow-800">
+                        Assignment Restricted
+                      </h3>
+                      <div className="mt-2 text-sm text-yellow-700">
+                        <p>
+                          {assignedCallsCount} out of {filteredCalls.length} calls are already assigned to sales executives.
+                          Once calls are assigned, they cannot be reassigned to other sales executives.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <button className="btn-primary" onClick={handleAssignCalls}>
-                  Assign Selected Calls
-                </button>
-              </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <div className="relative employee-dropdown">
+                    <button
+                      type="button"
+                      className="input-field w-48 flex items-center justify-between"
+                      onClick={() =>
+                        setShowEmployeeDropdown(!showEmployeeDropdown)
+                      }
+                    >
+                      {selectedEmployees.length
+                        ? `${selectedEmployees.length} Selected`
+                        : "Select Employees"}
+                      <Users className="w-4 h-4 ml-2" />
+                    </button>
+                    {showEmployeeDropdown && (
+                      <div className="absolute z-10 bg-white border rounded shadow-md mt-1 w-48 max-h-60 overflow-y-auto">
+                        {employees.map((emp) => (
+                          <label
+                            key={emp.id}
+                            className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedEmployees.includes(emp.id)}
+                              onChange={() => handleEmployeeSelect(emp.id)}
+                              className="mr-2"
+                            />
+                            {emp.full_name}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button className="btn-primary" onClick={handleAssignCalls}>
+                    Assign Selected Calls
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -643,6 +670,9 @@ const DatabaseManagement = () => {
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider align-middle">
                         Status
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider align-middle">
+                        Assigned To
+                      </th>
                     </>
                   ) : selectedDbType === "B2C" ? (
                     <>
@@ -666,6 +696,9 @@ const DatabaseManagement = () => {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider align-middle">
                         Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider align-middle">
+                        Assigned To
                       </th>
                     </>
                   ) : null}
@@ -707,6 +740,17 @@ const DatabaseManagement = () => {
                             {call.status?.replace("_", " ")}
                           </span>
                         </td>
+                        <td className="px-6 py-3 align-middle whitespace-nowrap text-gray-700">
+                          {call.assigned_to_name && call.assigned_to_name !== 'None' && call.assigned_to_name !== 'null' ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold text-black">
+                              {call.assigned_to_name}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold text-black">
+                              Unassigned
+                            </span>
+                          )}
+                        </td>
                       </>
                     ) : selectedDbType === "B2C" ? (
                       <>
@@ -744,6 +788,17 @@ const DatabaseManagement = () => {
                             {call.status?.replace("_", " ")}
                           </span>
                         </td>
+                        <td className="px-6 py-3 align-middle whitespace-nowrap text-gray-700">
+                          {call.assigned_to_name && call.assigned_to_name !== 'None' && call.assigned_to_name !== 'null' ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium text-black">
+                              {call.assigned_to_name}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium text-black">
+                              Unassigned
+                            </span>
+                          )}
+                        </td>
                       </>
                     ) : null}
                   </tr>
@@ -752,12 +807,12 @@ const DatabaseManagement = () => {
             </table>
             {showScrollRight2 && (
               <div className="sticky float-right right-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
-                Scroll to see more →
+                Scroll →
               </div>
             )}
             {showScrollLeft2 && !showScrollRight2 && (
               <div className="sticky float-left left-0 bottom-2 z-20 text-xs text-gray-700 bg-white bg-opacity-90 px-3 py-1 rounded shadow-lg pointer-events-none" style={{ whiteSpace: 'nowrap' }}>
-                ← Scroll to see more
+                ← Scroll
               </div>
             )}
           </div>

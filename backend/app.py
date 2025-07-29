@@ -65,11 +65,14 @@ def create_tables():
             institution_name VARCHAR(255),
             database_id INT,
             assigned_to INT,
-            status ENUM('fresh', 'follow_up', 'closure', 'converted') DEFAULT 'fresh',
+            status ENUM('fresh', 'follow_up', 'demo', 'proposal', 'negotiation', 'closure', 'converted') DEFAULT 'fresh',
             disposition VARCHAR(100),
             notes TEXT,
             called_date DATETIME,
             follow_up_date DATETIME,
+            demo_date DATETIME,
+            proposal_date DATETIME,
+            negotiation_date DATETIME,
             created_date DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -219,7 +222,7 @@ def login():
         cur = mysql.connection.cursor()
         cur.execute("""
             SELECT id, empid, full_name, email, user_type, user_role, department, 
-                   profile_picture, status, active, Company_id
+                   profile_picture, status, active, Company_id, online_status
             FROM employee 
             WHERE email = %s AND password = %s AND active = 'active'
         """, (email, hashed_password))
@@ -228,20 +231,29 @@ def login():
             # Set online_status to 'online'
             cur.execute("UPDATE employee SET online_status = 'online' WHERE id = %s", (user[0],))
             mysql.connection.commit()
+            # Fetch updated user data with online_status
+            cur.execute("""
+                SELECT id, empid, full_name, email, user_type, user_role, department, 
+                       profile_picture, status, active, Company_id, online_status
+                FROM employee 
+                WHERE id = %s
+            """, (user[0],))
+            updated_user = cur.fetchone()
         cur.close()
         if user:
             user_data = {
-                'id': user[0],
-                'empid': user[1],
-                'full_name': user[2],
-                'email': user[3],
-                'user_type': user[4],
-                'user_role': user[5],
-                'department': user[6],
-                'profile_picture': user[7],
-                'status': user[8],
-                'active': user[9],
-                'company_id': user[10]
+                'id': updated_user[0],
+                'empid': updated_user[1],
+                'full_name': updated_user[2],
+                'email': updated_user[3],
+                'user_type': updated_user[4],
+                'user_role': updated_user[5],
+                'department': updated_user[6],
+                'profile_picture': updated_user[7],
+                'status': updated_user[8],
+                'active': updated_user[9],
+                'company_id': updated_user[10],
+                'online_status': updated_user[11] or 'online'
             }
             token = generate_jwt(user_data)
             return jsonify({
@@ -270,9 +282,38 @@ def logout():
 @jwt_required
 def check_auth():
     user = request.user
+    # Fetch latest user data including online_status
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT id, empid, full_name, email, user_type, user_role, department, 
+               profile_picture, status, active, Company_id, online_status
+        FROM employee 
+        WHERE id = %s
+    """, (user['id'],))
+    updated_user = cur.fetchone()
+    cur.close()
+    
+    if updated_user:
+        user_data = {
+            'id': updated_user[0],
+            'empid': updated_user[1],
+            'full_name': updated_user[2],
+            'email': updated_user[3],
+            'user_type': updated_user[4],
+            'user_role': updated_user[5],
+            'department': updated_user[6],
+            'profile_picture': updated_user[7],
+            'status': updated_user[8],
+            'active': updated_user[9],
+            'company_id': updated_user[10],
+            'online_status': updated_user[11] or 'online'
+        }
+    else:
+        user_data = user
+    
     return jsonify({
         'authenticated': True,
-        'user': user
+        'user': user_data
     })
 
 # Database Management APIs
@@ -450,28 +491,37 @@ def get_database_calls(db_id):
             """, (db_id, user['id']))
         calls = []
         for row in cur.fetchall():
+            # Get column names to map correctly
+            column_names = [desc[0] for desc in cur.description]
+            
+            # Create a dictionary mapping column names to values
+            row_dict = dict(zip(column_names, row))
+            
             calls.append({
-                'id': row[0],
-                'call_id': row[1],
-                'client_name': row[2],
-                'phone_number': row[3],
-                'email': row[4],
-                'department': row[5],
-                'city': row[6],
-                'institution_name': row[7],
-                'database_id': row[8],
-                'assigned_to': row[9],
-                'status': row[10],
-                'disposition': row[11],
-                'notes': row[12],
-                'called_date': row[13].strftime('%Y-%m-%d %H:%M:%S') if row[13] else None,
-                'follow_up_date': row[14].strftime('%Y-%m-%d %H:%M:%S') if row[14] else None,
-                'created_date': row[15].strftime('%Y-%m-%d %H:%M:%S'),
-                'type': row[16],
-                'company_name': row[17],
-                'contact_person': row[18],
-                'designation': row[19],
-                'assigned_to_name': row[20]
+                'id': row_dict['id'],
+                'call_id': row_dict['call_id'],
+                'client_name': row_dict['client_name'],
+                'phone_number': row_dict['phone_number'],
+                'email': row_dict['email'],
+                'department': row_dict['department'],
+                'city': row_dict['city'],
+                'institution_name': row_dict['institution_name'],
+                'database_id': row_dict['database_id'],
+                'assigned_to': row_dict['assigned_to'],
+                'status': row_dict['status'],
+                'disposition': row_dict['disposition'],
+                'notes': row_dict['notes'],
+                'called_date': row_dict['called_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['called_date'] else None,
+                'follow_up_date': row_dict['follow_up_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['follow_up_date'] else None,
+                'demo_date': row_dict['demo_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['demo_date'] else None,
+                'proposal_date': row_dict['proposal_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['proposal_date'] else None,
+                'negotiation_date': row_dict['negotiation_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['negotiation_date'] else None,
+                'created_date': row_dict['created_date'].strftime('%Y-%m-%d %H:%M:%S'),
+                'type': row_dict.get('type'),
+                'company_name': row_dict.get('company_name'),
+                'contact_person': row_dict.get('contact_person'),
+                'designation': row_dict.get('designation'),
+                'assigned_to_name': row_dict.get('assigned_to_name')
             })
         cur.close()
         return jsonify({'calls': calls})
@@ -722,6 +772,204 @@ def get_closure_calls():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/calls/demo', methods=['GET'])
+@jwt_required
+def get_demo_calls():
+    try:
+        user = get_user_from_request()
+        all_param = request.args.get('all')
+        assigned_to = request.args.get('assigned_to')
+        cur = mysql.connection.cursor()
+        if user['user_role'] == 'sales_manager' and all_param == '1':
+            if assigned_to:
+                cur.execute("""
+                    SELECT c.*, e.full_name as assigned_to_name
+                    FROM calls c
+                    LEFT JOIN employee e ON c.assigned_to = e.id
+                    WHERE c.status = 'demo' AND c.assigned_to = %s
+                    ORDER BY c.demo_date ASC
+                """, (assigned_to,))
+            else:
+                cur.execute("""
+                    SELECT c.*, e.full_name as assigned_to_name
+                    FROM calls c
+                    LEFT JOIN employee e ON c.assigned_to = e.id
+                    WHERE c.status = 'demo'
+                    ORDER BY c.demo_date ASC
+                """)
+        else:
+            cur.execute("""
+                SELECT c.*, e.full_name as assigned_to_name
+                FROM calls c
+                LEFT JOIN employee e ON c.assigned_to = e.id
+                WHERE c.assigned_to = %s AND c.status = 'demo'
+                ORDER BY c.demo_date ASC
+            """, (user['id'],))
+        calls = []
+        for row in cur.fetchall():
+            calls.append({
+                'id': row[0],
+                'call_id': row[1],
+                'client_name': row[2],
+                'phone_number': row[3],
+                'email': row[4],
+                'department': row[5],
+                'city': row[6],
+                'institution_name': row[7],
+                'database_id': row[8],
+                'assigned_to': row[9],
+                'status': row[10],
+                'disposition': row[11],
+                'notes': row[12],
+                'called_date': row[13].strftime('%Y-%m-%d %H:%M:%S') if row[13] else None,
+                'follow_up_date': row[14].strftime('%Y-%m-%d %H:%M:%S') if row[14] else None,
+                'created_date': row[15].strftime('%Y-%m-%d %H:%M:%S') if row[15] else None,
+                'type': row[16] if len(row) > 16 else None,
+                'company_name': row[17] if len(row) > 17 else None,
+                'contact_person': row[18] if len(row) > 18 else None,
+                'designation': row[19] if len(row) > 19 else None,
+                'demo_date': row[20].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 20 and row[20] else None,
+                'proposal_date': row[21].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 21 and row[21] else None,
+                'negotiation_date': row[22].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 22 and row[22] else None,
+                'assigned_to_name': row[23] if len(row) > 23 else None
+            })
+        cur.close()
+        return jsonify({'calls': calls})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/calls/proposal', methods=['GET'])
+@jwt_required
+def get_proposal_calls():
+    try:
+        user = get_user_from_request()
+        all_param = request.args.get('all')
+        assigned_to = request.args.get('assigned_to')
+        cur = mysql.connection.cursor()
+        if user['user_role'] == 'sales_manager' and all_param == '1':
+            if assigned_to:
+                cur.execute("""
+                    SELECT c.*, e.full_name as assigned_to_name
+                    FROM calls c
+                    LEFT JOIN employee e ON c.assigned_to = e.id
+                    WHERE c.status = 'proposal' AND c.assigned_to = %s
+                    ORDER BY c.proposal_date ASC
+                """, (assigned_to,))
+            else:
+                cur.execute("""
+                    SELECT c.*, e.full_name as assigned_to_name
+                    FROM calls c
+                    LEFT JOIN employee e ON c.assigned_to = e.id
+                    WHERE c.status = 'proposal'
+                    ORDER BY c.proposal_date ASC
+                """)
+        else:
+            cur.execute("""
+                SELECT c.*, e.full_name as assigned_to_name
+                FROM calls c
+                LEFT JOIN employee e ON c.assigned_to = e.id
+                WHERE c.assigned_to = %s AND c.status = 'proposal'
+                ORDER BY c.proposal_date ASC
+            """, (user['id'],))
+        calls = []
+        for row in cur.fetchall():
+            calls.append({
+                'id': row[0],
+                'call_id': row[1],
+                'client_name': row[2],
+                'phone_number': row[3],
+                'email': row[4],
+                'department': row[5],
+                'city': row[6],
+                'institution_name': row[7],
+                'database_id': row[8],
+                'assigned_to': row[9],
+                'status': row[10],
+                'disposition': row[11],
+                'notes': row[12],
+                'called_date': row[13].strftime('%Y-%m-%d %H:%M:%S') if row[13] else None,
+                'follow_up_date': row[14].strftime('%Y-%m-%d %H:%M:%S') if row[14] else None,
+                'created_date': row[15].strftime('%Y-%m-%d %H:%M:%S') if row[15] else None,
+                'type': row[16] if len(row) > 16 else None,
+                'company_name': row[17] if len(row) > 17 else None,
+                'contact_person': row[18] if len(row) > 18 else None,
+                'designation': row[19] if len(row) > 19 else None,
+                'demo_date': row[20].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 20 and row[20] else None,
+                'proposal_date': row[21].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 21 and row[21] else None,
+                'negotiation_date': row[22].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 22 and row[22] else None,
+                'assigned_to_name': row[23] if len(row) > 23 else None
+            })
+        cur.close()
+        return jsonify({'calls': calls})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/calls/negotiation', methods=['GET'])
+@jwt_required
+def get_negotiation_calls():
+    try:
+        user = get_user_from_request()
+        all_param = request.args.get('all')
+        assigned_to = request.args.get('assigned_to')
+        cur = mysql.connection.cursor()
+        if user['user_role'] == 'sales_manager' and all_param == '1':
+            if assigned_to:
+                cur.execute("""
+                    SELECT c.*, e.full_name as assigned_to_name
+                    FROM calls c
+                    LEFT JOIN employee e ON c.assigned_to = e.id
+                    WHERE c.status = 'negotiation' AND c.assigned_to = %s
+                    ORDER BY c.negotiation_date ASC
+                """, (assigned_to,))
+            else:
+                cur.execute("""
+                    SELECT c.*, e.full_name as assigned_to_name
+                    FROM calls c
+                    LEFT JOIN employee e ON c.assigned_to = e.id
+                    WHERE c.status = 'negotiation'
+                    ORDER BY c.negotiation_date ASC
+                """)
+        else:
+            cur.execute("""
+                SELECT c.*, e.full_name as assigned_to_name
+                FROM calls c
+                LEFT JOIN employee e ON c.assigned_to = e.id
+                WHERE c.assigned_to = %s AND c.status = 'negotiation'
+                ORDER BY c.negotiation_date ASC
+            """, (user['id'],))
+        calls = []
+        for row in cur.fetchall():
+            calls.append({
+                'id': row[0],
+                'call_id': row[1],
+                'client_name': row[2],
+                'phone_number': row[3],
+                'email': row[4],
+                'department': row[5],
+                'city': row[6],
+                'institution_name': row[7],
+                'database_id': row[8],
+                'assigned_to': row[9],
+                'status': row[10],
+                'disposition': row[11],
+                'notes': row[12],
+                'called_date': row[13].strftime('%Y-%m-%d %H:%M:%S') if row[13] else None,
+                'follow_up_date': row[14].strftime('%Y-%m-%d %H:%M:%S') if row[14] else None,
+                'created_date': row[15].strftime('%Y-%m-%d %H:%M:%S') if row[15] else None,
+                'type': row[16] if len(row) > 16 else None,
+                'company_name': row[17] if len(row) > 17 else None,
+                'contact_person': row[18] if len(row) > 18 else None,
+                'designation': row[19] if len(row) > 19 else None,
+                'demo_date': row[20].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 20 and row[20] else None,
+                'proposal_date': row[21].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 21 and row[21] else None,
+                'negotiation_date': row[22].strftime('%Y-%m-%d %H:%M:%S') if len(row) > 22 and row[22] else None,
+                'assigned_to_name': row[23] if len(row) > 23 else None
+            })
+        cur.close()
+        return jsonify({'calls': calls})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/calls/converted', methods=['GET'])
 @jwt_required
 def get_converted_calls():
@@ -792,16 +1040,69 @@ def update_disposition(call_id):
         user = get_user_from_request()
         cur = mysql.connection.cursor()
         data = request.get_json()
+        print(f"Received data: {data}")  # Debug log
         disposition = data.get('disposition')
         notes = data.get('notes', '')
         follow_up_date = data.get('follow_up_date')
-        if follow_up_date == "":
+        demo_date = data.get('demo_date')
+        proposal_date = data.get('proposal_date')
+        negotiation_date = data.get('negotiation_date')
+        
+        print(f"Raw date values:")
+        print(f"  follow_up_date: {follow_up_date}")
+        print(f"  demo_date: {demo_date}")
+        print(f"  proposal_date: {proposal_date}")
+        print(f"  negotiation_date: {negotiation_date}")
+        
+        # Convert datetime strings to datetime objects
+        if follow_up_date and follow_up_date != "":
+            try:
+                print(f"Converting follow_up_date: {follow_up_date}")
+                follow_up_date = datetime.fromisoformat(follow_up_date.replace('Z', '+00:00'))
+                print(f"Converted follow_up_date: {follow_up_date}")
+            except Exception as e:
+                print(f"Error converting follow_up_date: {e}")
+                follow_up_date = None
+        else:
             follow_up_date = None
+            
+        if demo_date and demo_date != "":
+            try:
+                print(f"Converting demo_date: {demo_date}")
+                demo_date = datetime.fromisoformat(demo_date.replace('Z', '+00:00'))
+                print(f"Converted demo_date: {demo_date}")
+            except Exception as e:
+                print(f"Error converting demo_date: {e}")
+                demo_date = None
+        else:
+            demo_date = None
+            
+        if proposal_date and proposal_date != "":
+            try:
+                print(f"Converting proposal_date: {proposal_date}")
+                proposal_date = datetime.fromisoformat(proposal_date.replace('Z', '+00:00'))
+                print(f"Converted proposal_date: {proposal_date}")
+            except Exception as e:
+                print(f"Error converting proposal_date: {e}")
+                proposal_date = None
+        else:
+            proposal_date = None
+            
+        if negotiation_date and negotiation_date != "":
+            try:
+                print(f"Converting negotiation_date: {negotiation_date}")
+                negotiation_date = datetime.fromisoformat(negotiation_date.replace('Z', '+00:00'))
+                print(f"Converted negotiation_date: {negotiation_date}")
+            except Exception as e:
+                print(f"Error converting negotiation_date: {e}")
+                negotiation_date = None
+        else:
+            negotiation_date = None
 
         ringing_dispositions = [
             'Ringing Number But No Response',
             'SwitchOff',
-            'Number Not a Use',
+            'Number Not in Use',
             'Line Busy'
         ]
 
@@ -810,13 +1111,17 @@ def update_disposition(call_id):
         current_status = row[0] if row else 'fresh'
 
         new_status = current_status
+        disposition_count = 0
+        will_delete_after = 0
+        deleted = False
+
         if current_status == 'fresh':
             if disposition == 'Interested':
                 new_status = 'follow_up'
             elif disposition in ['Joined / Converted', 'Not Interested']:
                 new_status = 'closure'
             elif disposition in ringing_dispositions:
-                # Count all ringing_dispositions as a group
+                # Count all ringing_dispositions as a group for fresh calls (6 attempts)
                 cur.execute("""
                     INSERT INTO disposition_counts (call_id, disposition, count)
                     VALUES (%s, 'ringing_group', 1)
@@ -825,17 +1130,20 @@ def update_disposition(call_id):
                 cur.execute("SELECT count FROM disposition_counts WHERE call_id = %s AND disposition = 'ringing_group'", (call_id,))
                 count_result = cur.fetchone()
                 disposition_count = count_result[0] if count_result else 1
-                if disposition_count >= 3:
+                if disposition_count >= 6:
                     new_status = 'closure'
                     disposition = 'Not Interested'
+                    deleted = True
                     cur.execute("DELETE FROM disposition_counts WHERE call_id = %s", (call_id,))
+                else:
+                    will_delete_after = 6 - disposition_count
         elif current_status == 'follow_up':
-            if disposition == 'Interested':
-                new_status = 'follow_up'
+            if disposition == 'Interested for Demo':
+                new_status = 'demo'
             elif disposition in ['Joined / Converted', 'Not Interested']:
                 new_status = 'closure'
             elif disposition in ringing_dispositions:
-                # Count all ringing_dispositions as a group
+                # Count all ringing_dispositions as a group for follow up calls (6 attempts)
                 cur.execute("""
                     INSERT INTO disposition_counts (call_id, disposition, count)
                     VALUES (%s, 'ringing_group', 1)
@@ -844,20 +1152,143 @@ def update_disposition(call_id):
                 cur.execute("SELECT count FROM disposition_counts WHERE call_id = %s AND disposition = 'ringing_group'", (call_id,))
                 count_result = cur.fetchone()
                 disposition_count = count_result[0] if count_result else 1
-                if disposition_count >= 3:
+                if disposition_count >= 6:
                     new_status = 'closure'
                     disposition = 'Not Interested'
+                    deleted = True
                     cur.execute("DELETE FROM disposition_counts WHERE call_id = %s", (call_id,))
+                else:
+                    will_delete_after = 6 - disposition_count
+        elif current_status == 'demo':
+            if disposition == 'Interested for Proposal':
+                new_status = 'proposal'
+            elif disposition in ['Joined / Converted', 'Not Interested']:
+                new_status = 'closure'
+            elif disposition in ringing_dispositions:
+                # Count all ringing_dispositions as a group for demo calls (6 attempts)
+                cur.execute("""
+                    INSERT INTO disposition_counts (call_id, disposition, count)
+                    VALUES (%s, 'ringing_group', 1)
+                    ON DUPLICATE KEY UPDATE count = count + 1
+                """, (call_id,))
+                cur.execute("SELECT count FROM disposition_counts WHERE call_id = %s AND disposition = 'ringing_group'", (call_id,))
+                count_result = cur.fetchone()
+                disposition_count = count_result[0] if count_result else 1
+                if disposition_count >= 6:
+                    new_status = 'closure'
+                    disposition = 'Not Interested'
+                    deleted = True
+                    cur.execute("DELETE FROM disposition_counts WHERE call_id = %s", (call_id,))
+                else:
+                    will_delete_after = 6 - disposition_count
+        elif current_status == 'proposal':
+            if disposition == 'Interested for Negotiation':
+                new_status = 'negotiation'
+            elif disposition in ['Joined / Converted', 'Not Interested']:
+                new_status = 'closure'
+            elif disposition in ringing_dispositions:
+                # Count all ringing_dispositions as a group for proposal calls (6 attempts)
+                cur.execute("""
+                    INSERT INTO disposition_counts (call_id, disposition, count)
+                    VALUES (%s, 'ringing_group', 1)
+                    ON DUPLICATE KEY UPDATE count = count + 1
+                """, (call_id,))
+                cur.execute("SELECT count FROM disposition_counts WHERE call_id = %s AND disposition = 'ringing_group'", (call_id,))
+                count_result = cur.fetchone()
+                disposition_count = count_result[0] if count_result else 1
+                if disposition_count >= 6:
+                    new_status = 'closure'
+                    disposition = 'Not Interested'
+                    deleted = True
+                    cur.execute("DELETE FROM disposition_counts WHERE call_id = %s", (call_id,))
+                else:
+                    will_delete_after = 6 - disposition_count
+        elif current_status == 'negotiation':
+            if disposition in ['Joined / Converted', 'Not Interested']:
+                new_status = 'closure'
+            elif disposition in ringing_dispositions:
+                # Count all ringing_dispositions as a group for negotiation calls (6 attempts)
+                cur.execute("""
+                    INSERT INTO disposition_counts (call_id, disposition, count)
+                    VALUES (%s, 'ringing_group', 1)
+                    ON DUPLICATE KEY UPDATE count = count + 1
+                """, (call_id,))
+                cur.execute("SELECT count FROM disposition_counts WHERE call_id = %s AND disposition = 'ringing_group'", (call_id,))
+                count_result = cur.fetchone()
+                disposition_count = count_result[0] if count_result else 1
+                if disposition_count >= 6:
+                    new_status = 'closure'
+                    disposition = 'Not Interested'
+                    deleted = True
+                    cur.execute("DELETE FROM disposition_counts WHERE call_id = %s", (call_id,))
+                else:
+                    will_delete_after = 6 - disposition_count
         elif current_status == 'closure':
             # Do not update disposition/status in closure
             cur.close()
             return jsonify({'success': True, 'message': 'No update allowed for closure calls'})
 
+        # Handle date fields based on status
+        # Note: demo_date, proposal_date, negotiation_date are already converted from the request data
+        # Only set to None if they weren't provided in the request
+        
+        # For follow-up calls, preserve the existing follow_up_date if not explicitly setting a new one
+        if current_status == 'follow_up' and not follow_up_date:
+            cur.execute("SELECT follow_up_date FROM calls WHERE id = %s", (call_id,))
+            existing_follow_up = cur.fetchone()
+            if existing_follow_up and existing_follow_up[0]:
+                follow_up_date = existing_follow_up[0]
+        
+        # Always use user-selected dates when provided, otherwise use current time for new stages
+        if new_status == 'demo':
+            # For demo stage - use provided demo_date or set current time if moving to demo
+            if not demo_date:
+                if current_status != 'demo':
+                    demo_date = datetime.now()
+                else:
+                    # Staying in demo stage - preserve existing date
+                    cur.execute("SELECT demo_date FROM calls WHERE id = %s", (call_id,))
+                    existing_demo = cur.fetchone()
+                    if existing_demo and existing_demo[0]:
+                        demo_date = existing_demo[0]
+        
+        if new_status == 'proposal':
+            # For proposal stage - use provided proposal_date or set current time if moving to proposal
+            if not proposal_date:
+                if current_status != 'proposal':
+                    proposal_date = datetime.now()
+                else:
+                    # Staying in proposal stage - preserve existing date
+                    cur.execute("SELECT proposal_date FROM calls WHERE id = %s", (call_id,))
+                    existing_proposal = cur.fetchone()
+                    if existing_proposal and existing_proposal[0]:
+                        proposal_date = existing_proposal[0]
+        
+        if new_status == 'negotiation':
+            # For negotiation stage - use provided negotiation_date or set current time if moving to negotiation
+            if not negotiation_date:
+                if current_status != 'negotiation':
+                    negotiation_date = datetime.now()
+                else:
+                    # Staying in negotiation stage - preserve existing date
+                    cur.execute("SELECT negotiation_date FROM calls WHERE id = %s", (call_id,))
+                    existing_negotiation = cur.fetchone()
+                    if existing_negotiation and existing_negotiation[0]:
+                        negotiation_date = existing_negotiation[0]
+            # If negotiation_date is provided (not None), use it regardless of stage transition
+
+        print(f"Final values being saved to database:")
+        print(f"  follow_up_date: {follow_up_date}")
+        print(f"  demo_date: {demo_date}")
+        print(f"  proposal_date: {proposal_date}")
+        print(f"  negotiation_date: {negotiation_date}")
+        
         cur.execute("""
             UPDATE calls 
-            SET disposition = %s, notes = %s, status = %s, called_date = NOW(), follow_up_date = %s
+            SET disposition = %s, notes = %s, status = %s, called_date = NOW(), 
+                follow_up_date = %s, demo_date = %s, proposal_date = %s, negotiation_date = %s
             WHERE id = %s
-        """, (disposition, notes, new_status, follow_up_date, call_id))
+        """, (disposition, notes, new_status, follow_up_date, demo_date, proposal_date, negotiation_date, call_id))
 
         cur.execute("""
             INSERT INTO call_history (call_id, user_id, disposition, notes)
@@ -866,7 +1297,20 @@ def update_disposition(call_id):
 
         mysql.connection.commit()
         cur.close()
-        return jsonify({'success': True, 'message': 'Disposition updated successfully'})
+        
+        if deleted:
+            return jsonify({
+                'success': True, 
+                'message': f'Call closed after {disposition_count} attempts. Status updated to: {disposition}',
+                'deleted': True
+            })
+        else:
+            return jsonify({
+                'success': True, 
+                'message': 'Disposition updated successfully',
+                'disposition_count': disposition_count,
+                'will_delete_after': will_delete_after
+            })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -876,6 +1320,14 @@ def get_disposition_count(call_id):
     try:
         user = get_user_from_request()
         cur = mysql.connection.cursor()
+        
+        # Get call status to determine count limit
+        cur.execute("SELECT status FROM calls WHERE id = %s", (call_id,))
+        status_result = cur.fetchone()
+        call_status = status_result[0] if status_result else 'fresh'
+        
+        # Set count limit based on call status
+        count_limit = 6  # Both fresh and follow_up calls have 6 attempts
         
         # Get disposition counts for this call
         cur.execute("""
@@ -889,7 +1341,11 @@ def get_disposition_count(call_id):
             counts[row[0]] = row[1]
         
         cur.close()
-        return jsonify({'counts': counts})
+        return jsonify({
+            'counts': counts,
+            'count_limit': count_limit,
+            'call_status': call_status
+        })
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -966,7 +1422,7 @@ def get_call_reports():
         status = request.args.get('status')
         cur = mysql.connection.cursor()
         query = """
-            SELECT c.*, e.full_name as agent_name, d.name as database_name
+            SELECT c.*, e.full_name as agent_name, d.name as database_name, d.type as database_type
             FROM calls c
             LEFT JOIN employee e ON c.assigned_to = e.id
             LEFT JOIN `databases` d ON c.database_id = d.id
@@ -996,29 +1452,39 @@ def get_call_reports():
         cur.execute(query, params)
         calls = []
         for row in cur.fetchall():
+            # Get column names to map correctly
+            column_names = [desc[0] for desc in cur.description]
+            
+            # Create a dictionary mapping column names to values
+            row_dict = dict(zip(column_names, row))
+            
             calls.append({
-                'id': row[0],
-                'call_id': row[1],
-                'client_name': row[2],
-                'phone_number': row[3],
-                'email': row[4],
-                'department': row[5],
-                'city': row[6],
-                'institution_name': row[7],
-                'database_id': row[8],
-                'assigned_to': row[9],
-                'status': row[10],
-                'disposition': row[11],
-                'notes': row[12],
-                'called_date': row[13].strftime('%Y-%m-%d %H:%M:%S') if row[13] else None,
-                'follow_up_date': row[14].strftime('%Y-%m-%d %H:%M:%S') if row[14] else None,
-                'created_date': row[15].strftime('%Y-%m-%d %H:%M:%S'),
-                'type': row[16],
-                'company_name': row[17],
-                'contact_person': row[18],
-                'designation': row[19],
-                'agent_name': row[20],
-                'database_name': row[21]
+                'id': row_dict['id'],
+                'call_id': row_dict['call_id'],
+                'client_name': row_dict['client_name'],
+                'phone_number': row_dict['phone_number'],
+                'email': row_dict['email'],
+                'department': row_dict['department'],
+                'city': row_dict['city'],
+                'institution_name': row_dict['institution_name'],
+                'database_id': row_dict['database_id'],
+                'assigned_to': row_dict['assigned_to'],
+                'status': row_dict['status'],
+                'disposition': row_dict['disposition'],
+                'notes': row_dict['notes'],
+                'called_date': row_dict['called_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['called_date'] else None,
+                'follow_up_date': row_dict['follow_up_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['follow_up_date'] else None,
+                'demo_date': row_dict['demo_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['demo_date'] else None,
+                'proposal_date': row_dict['proposal_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['proposal_date'] else None,
+                'negotiation_date': row_dict['negotiation_date'].strftime('%Y-%m-%d %H:%M:%S') if row_dict['negotiation_date'] else None,
+                'created_date': row_dict['created_date'].strftime('%Y-%m-%d %H:%M:%S'),
+                'type': row_dict.get('type'),
+                'company_name': row_dict.get('company_name'),
+                'contact_person': row_dict.get('contact_person'),
+                'designation': row_dict.get('designation'),
+                'agent_name': row_dict.get('agent_name'),
+                'database_name': row_dict.get('database_name'),
+                'database_type': row_dict.get('database_type')
             })
         cur.close()
         return jsonify({'calls': calls})

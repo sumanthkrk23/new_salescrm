@@ -139,8 +139,8 @@ const Navbar = () => {
                 <div className="mb-4">
                   <div className="font-bold text-lg text-gray-900 flex items-center gap-2">
                     <span className="truncate flex-1">{user.full_name}</span>
-                    <span className={`text-sm px-2 py-0.5 rounded-full inline-block font-medium flex-shrink-0 ${(user.online_status || '').toLowerCase() === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {(user.online_status || '').toLowerCase() === 'online' ? 'Online' : 'Offline'}
+                    <span className={`text-sm px-2 py-0.5 rounded-full inline-block font-medium flex-shrink-0 ${(user.online_status || 'online').toLowerCase() === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {(user.online_status || 'online').toLowerCase() === 'online' ? 'Online' : 'Offline'}
                     </span>
                   </div>
                   <div className="text-sm text-gray-500 truncate">{user.email}</div>
@@ -230,22 +230,22 @@ const Navbar = () => {
                   <p className="font-medium text-gray-900">
                     {user?.full_name || user?.email}
                   </p>
-                  
+
                   <p className="text-gray-500 capitalize">
                     {user?.user_role?.replace("_", " ")}
                   </p>
                 </div>
-                <span className={`text-sm px-2 py-0.5 rounded-full inline-block font-medium flex-shrink-0 ${(user.online_status || '').toLowerCase() === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {(user.online_status || '').toLowerCase() === 'online' ? 'Online' : 'Offline'}
-                    </span>
+                <span className={`text-sm px-2 py-0.5 rounded-full inline-block font-medium flex-shrink-0 ${(user.online_status || 'online').toLowerCase() === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {(user.online_status || 'online').toLowerCase() === 'online' ? 'Online' : 'Offline'}
+                </span>
               </div>
               <button
-                  onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 px-4 py-1 mt-1 text-base font-semibold text-red-500 bg-gray-100 hover:bg-gray-200 rounded-lg shadow-sm transition-colors duration-150"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Logout
-                </button>
+                onClick={handleLogout}
+                className="flex items-center justify-center gap-2 px-4 py-1 mt-1 text-base font-semibold text-red-500 bg-gray-100 hover:bg-gray-200 rounded-lg shadow-sm transition-colors duration-150"
+              >
+                <LogOut className="w-5 h-5" />
+                Logout
+              </button>
             </div>
           </div>
         </div>

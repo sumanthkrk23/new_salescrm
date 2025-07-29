@@ -84,6 +84,7 @@ const Reports = () => {
     client_name: "",
     communication_type: "all",
   });
+  const [searchTerm, setSearchTerm] = useState("");
   const [employees, setEmployees] = useState([]);
   const [databases, setDatabases] = useState([]);
   const tableWrapperRef = useRef(null);
@@ -187,11 +188,12 @@ const Reports = () => {
   ]);
 
   const handleExport = () => {
-    if (!reports || reports.length === 0) {
+    const dataToExport = activeTab === "performance" ? getDedupedReports() : getFilteredReports();
+    if (!dataToExport || dataToExport.length === 0) {
       alert("No data to export!");
       return;
     }
-    exportToCSV(reports, "report.csv", activeTab);
+    exportToCSV(dataToExport, "report.csv", activeTab);
   };
 
   const tabs = [
@@ -255,6 +257,31 @@ const Reports = () => {
     });
   };
 
+  // Filter reports based on search term
+  const getFilteredReports = () => {
+    let filteredReports = reports;
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      filteredReports = filteredReports.filter((report) => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          (report.database_name && report.database_name.toLowerCase().includes(searchLower)) ||
+          (report.agent_name && report.agent_name.toLowerCase().includes(searchLower)) ||
+          (report.company_name && report.company_name.toLowerCase().includes(searchLower)) ||
+          (report.client_name && report.client_name.toLowerCase().includes(searchLower)) ||
+          (report.contact_person && report.contact_person.toLowerCase().includes(searchLower)) ||
+          (report.phone_number && report.phone_number.includes(searchTerm)) ||
+          (report.email && report.email.toLowerCase().includes(searchLower)) ||
+          (report.status && report.status.toLowerCase().includes(searchLower)) ||
+          (report.notes && report.notes.toLowerCase().includes(searchLower))
+        );
+      });
+    }
+
+    return filteredReports;
+  };
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -301,6 +328,25 @@ const Reports = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Report Filters
         </h3>
+
+        {/* Search Bar */}
+        <div className="mb-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="Search reports by database name, agent name, company, client, phone, email, status, or notes..."
+            />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {activeTab === "calls" && (
             <>
@@ -323,30 +369,29 @@ const Reports = () => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sales Executive
-                </label>
-                <select
-                  value={filters.sales_agent}
-                  onChange={(e) =>
-                    setFilters({ ...filters, sales_agent: e.target.value })
-                  }
-                  className="input-field"
-                >
-                  <option value="">All Executives</option>
-                  {(user?.user_role === "sales_manager"
-                    ? employees.filter(
-                      (emp) => emp.user_role === "sales_executive"
-                    )
-                    : employees
-                  ).map((emp) => (
-                    <option key={emp.id} value={emp.full_name}>
-                      {emp.full_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {user?.user_role === "sales_manager" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sales Executive
+                  </label>
+                  <select
+                    value={filters.sales_agent}
+                    onChange={(e) =>
+                      setFilters({ ...filters, sales_agent: e.target.value })
+                    }
+                    className="input-field"
+                  >
+                    <option value="">All Executives</option>
+                    {employees
+                      .filter((emp) => emp.user_role === "sales_executive")
+                      .map((emp) => (
+                        <option key={emp.id} value={emp.full_name}>
+                          {emp.full_name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Status
@@ -414,22 +459,7 @@ const Reports = () => {
               className="input-field"
             />
           </div>
-          {activeTab === "calls" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Client Name
-              </label>
-              <input
-                type="text"
-                value={filters.client_name}
-                onChange={(e) =>
-                  setFilters({ ...filters, client_name: e.target.value })
-                }
-                className="input-field"
-                placeholder="Search by client name"
-              />
-            </div>
-          )}
+
         </div>
 
         <div className="mt-4">
@@ -461,12 +491,12 @@ const Reports = () => {
                 : "Communication Report Results"}
           </h3>
           <span className="text-sm text-gray-500">
-            {reports.length} records found
+            {getFilteredReports().length} records found
           </span>
         </div>
 
-        {getDedupedReports().length > 0 ? (
-          <div className="overflow-x-auto relative pb-8" ref={tableWrapperRef}>
+        {getFilteredReports().length > 0 ? (
+          <div className="overflow-x-auto relative pb-2" ref={tableWrapperRef}>
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -481,7 +511,7 @@ const Reports = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {getDedupedReports().map((report, index) => (
+                {getFilteredReports().map((report, index) => (
                   <tr key={index}>
                     {activeTab === "calls" ? (
                       <>
@@ -495,19 +525,19 @@ const Reports = () => {
                           className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                         >
                           <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium text-center ${report.type === "B2B"
+                            className={`px-2 py-1 rounded-full text-xs font-medium text-center ${report.database_type === "corporate"
                               ? "bg-blue-100 text-blue-800"
                               : "bg-green-100 text-green-800"
                               }`}
                           >
-                            {report.type === "B2B" ? "B2B" : "B2C"}
+                            {report.database_type === "corporate" ? "B2B" : "B2C"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {report.company_name || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {report.type === "B2B"
+                          {report.database_type === "corporate"
                             ? report.contact_person || "-"
                             : report.client_name || "-"}
                         </td>
@@ -528,9 +558,17 @@ const Reports = () => {
                               ? "bg-cyan-100 text-cyan-800"
                               : report.status === "follow_up"
                                 ? "bg-yellow-100 text-yellow-800"
-                                : report.status === "closure"
-                                  ? "bg-purple-100 text-purple-800"
-                                  : "bg-green-100 text-green-800"
+                                : report.status === "demo"
+                                  ? "bg-orange-100 text-orange-800"
+                                  : report.status === "proposal"
+                                    ? "bg-pink-100 text-pink-800"
+                                    : report.status === "negotiation"
+                                      ? "bg-gray-200 text-gray-800"
+                                      : report.status === "closure"
+                                        ? "bg-purple-100 text-purple-800"
+                                        : report.status === "converted"
+                                          ? "bg-green-100 text-green-800"
+                                          : "bg-gray-100 text-gray-800"
                               }`}
                           >
                             {report.status?.replace("_", " ") || "N/A"}
