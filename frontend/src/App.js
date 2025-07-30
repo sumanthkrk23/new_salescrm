@@ -6,6 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { Toaster } from "react-hot-toast";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import EmployeeList from "./components/EmployeeList";
@@ -140,6 +141,34 @@ function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+              borderRadius: '8px',
+              padding: '16px 20px',
+              fontSize: '14px',
+              fontWeight: '500',
+            },
+            success: {
+              duration: 2000,
+              iconTheme: {
+                primary: '#10B981',
+                secondary: '#fff',
+              },
+            },
+            error: {
+              duration: 4000,
+              iconTheme: {
+                primary: '#EF4444',
+                secondary: '#fff',
+              },
+            },
+          }}
+        />
       </Router>
     </AuthProvider>
   );

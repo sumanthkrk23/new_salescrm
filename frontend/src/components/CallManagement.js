@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { FaWhatsapp } from "react-icons/fa";
+import Modal from "./Modal";
+import toast from "react-hot-toast";
 
 const CallManagement = () => {
   const { user } = useAuth();
@@ -46,7 +48,9 @@ const CallManagement = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(9);
+  const [itemsPerPage] = useState(6);
+
+
 
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
@@ -229,12 +233,12 @@ const CallManagement = () => {
         negotiation_date: "",
       });
 
-      // Show simple success message
-      alert("Disposition added successfully");
+      // Show success message
+      toast.success("Disposition added successfully");
 
       fetchCalls();
     } catch (error) {
-      alert("Error updating disposition: " + error.response?.data?.error);
+      toast.error("Error updating disposition: " + error.response?.data?.error);
     }
   };
 
@@ -243,61 +247,92 @@ const CallManagement = () => {
 
     // Use selectedCall.status to show correct options based on the call's actual status
     const callStatus = selectedCall.status;
+    const callType = selectedCall.type;
 
-    if (callStatus === "fresh") {
-      return [
-        "Interested",
-        "Ringing Number But No Response",
-        "SwitchOff",
-        "Number Not in Use",
-        "Line Busy",
-        "Joined / Converted",
-        "Not Interested"
-      ];
-    } else if (callStatus === "follow_up") {
-      return [
-        "Interested for Demo",
-        "Ringing Number But No Response",
-        "SwitchOff",
-        "Number Not in Use",
-        "Line Busy",
-        "Joined / Converted",
-        "Not Interested"
-      ];
-    } else if (callStatus === "demo") {
-      return [
-        "Interested for Proposal",
-        "Ringing Number But No Response",
-        "SwitchOff",
-        "Number Not in Use",
-        "Line Busy",
-        "Joined / Converted",
-        "Not Interested"
-      ];
-    } else if (callStatus === "proposal") {
-      return [
-        "Interested for Negotiation",
-        "Ringing Number But No Response",
-        "SwitchOff",
-        "Number Not in Use",
-        "Line Busy",
-        "Joined / Converted",
-        "Not Interested"
-      ];
-    } else if (callStatus === "negotiation") {
-      return [
-        "Ringing Number But No Response",
-        "SwitchOff",
-        "Number Not in Use",
-        "Line Busy",
-        "Joined / Converted",
-        "Not Interested"
-      ];
-    } else if (callStatus === "closure") {
-      return [
-        "Joined / Converted",
-        "Not Interested"
-      ];
+    // B2C calls have different options - they can go directly to closure
+    if (callType === "B2C") {
+      if (callStatus === "fresh") {
+        return [
+          "Interested",
+          "Ringing Number But No Response",
+          "SwitchOff",
+          "Number Not in Use",
+          "Line Busy",
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      } else if (callStatus === "follow_up") {
+        return [
+          "Ringing Number But No Response",
+          "SwitchOff",
+          "Number Not in Use",
+          "Line Busy",
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      } else if (callStatus === "closure") {
+        return [
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      }
+    } else {
+      // B2B calls have the full workflow
+      if (callStatus === "fresh") {
+        return [
+          "Interested",
+          "Ringing Number But No Response",
+          "SwitchOff",
+          "Number Not in Use",
+          "Line Busy",
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      } else if (callStatus === "follow_up") {
+        return [
+          "Interested for Demo",
+          "Ringing Number But No Response",
+          "SwitchOff",
+          "Number Not in Use",
+          "Line Busy",
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      } else if (callStatus === "demo") {
+        return [
+          "Interested for Proposal",
+          "Ringing Number But No Response",
+          "SwitchOff",
+          "Number Not in Use",
+          "Line Busy",
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      } else if (callStatus === "proposal") {
+        return [
+          "Interested for Negotiation",
+          "Ringing Number But No Response",
+          "SwitchOff",
+          "Number Not in Use",
+          "Line Busy",
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      } else if (callStatus === "negotiation") {
+        return [
+          "Ringing Number But No Response",
+          "SwitchOff",
+          "Number Not in Use",
+          "Line Busy",
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      } else if (callStatus === "closure") {
+        return [
+          "Joined / Converted",
+          "Not Interested"
+        ];
+      }
     }
     return [];
   };
@@ -690,19 +725,44 @@ const CallManagement = () => {
       </div>
 
       {/* Pagination Controls */}
-      {calls.length > itemsPerPage && (
-        <div className="mt-8 flex items-center justify-center">
-          <div className="flex items-center space-x-2">
+      {calls.length > itemsPerPage ? (
+        <div className="mt-8 flex items-center justify-between px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+          <div className="flex items-center text-sm text-gray-700">
+            <span className="text-left">
+              {searchTerm ? (
+                <>
+                  <span className="hidden sm:inline">
+                    Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredCalls.length)} of {filteredCalls.length} filtered calls
+                    <span className="text-gray-500"> (from {calls.length} total)</span>
+                  </span>
+                  <span className="sm:hidden">
+                    {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredCalls.length)} of {filteredCalls.length}
+                    <span className="text-gray-500"> ({calls.length} total)</span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="hidden sm:inline">
+                    Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredCalls.length)} of {filteredCalls.length} calls
+                  </span>
+                  <span className="sm:hidden">
+                    {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredCalls.length)} of {filteredCalls.length}
+                  </span>
+                </>
+              )}
+            </span>
+          </div>
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md ${currentPage === 1
+              className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === 1
                 ? "text-gray-400 cursor-not-allowed"
                 : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                 }`}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
+              <span className="hidden sm:inline">Previous</span>
             </button>
 
             <div className="flex items-center space-x-1">
@@ -718,7 +778,7 @@ const CallManagement = () => {
                   // Show ellipsis if there's a gap
                   if (pageNumber === currentPage - 2 || pageNumber === currentPage + 2) {
                     return (
-                      <span key={`ellipsis-${pageNumber}`} className="px-2 py-1 text-gray-500">
+                      <span key={`ellipsis-${pageNumber}`} className="px-1 sm:px-2 py-1 text-gray-500">
                         ...
                       </span>
                     );
@@ -730,7 +790,7 @@ const CallManagement = () => {
                   <button
                     key={pageNumber}
                     onClick={() => setCurrentPage(pageNumber)}
-                    className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === pageNumber
+                    className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-md min-w-[32px] sm:min-w-[40px] ${currentPage === pageNumber
                       ? "bg-primary-600 text-white"
                       : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                       }`}
@@ -744,29 +804,43 @@ const CallManagement = () => {
             <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
+              className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
                 ? "text-gray-400 cursor-not-allowed"
                 : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                 }`}
             >
-              Next
+              <span className="hidden sm:inline">Next</span>
               <ChevronRight className="w-4 h-4 ml-1" />
             </button>
           </div>
         </div>
-      )}
-
-      {/* Results Info */}
-      {calls.length > 0 && (
-        <div className="mt-4 text-center text-sm text-gray-600">
-          {searchTerm ? (
-            <>
-              Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredCalls.length)} of {filteredCalls.length} filtered calls
-              <span className="text-gray-500"> (from {calls.length} total)</span>
-            </>
-          ) : (
-            `Showing ${indexOfFirstItem + 1} to ${Math.min(indexOfLastItem, filteredCalls.length)} of ${filteredCalls.length} calls`
-          )}
+      ) : calls.length > 0 && (
+        <div className="mt-8 flex items-center justify-center px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+          <div className="flex items-center text-sm text-gray-700">
+            <span className="text-center">
+              {searchTerm ? (
+                <>
+                  <span className="hidden sm:inline">
+                    Showing {filteredCalls.length} of {filteredCalls.length} filtered calls
+                    <span className="text-gray-500"> (from {calls.length} total)</span>
+                  </span>
+                  <span className="sm:hidden">
+                    {filteredCalls.length} of {filteredCalls.length}
+                    <span className="text-gray-500"> ({calls.length} total)</span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="hidden sm:inline">
+                    Showing {calls.length} of {calls.length} calls
+                  </span>
+                  <span className="sm:hidden">
+                    {calls.length} of {calls.length}
+                  </span>
+                </>
+              )}
+            </span>
+          </div>
         </div>
       )}
 
@@ -939,7 +1013,7 @@ const CallManagement = () => {
                     />
                   </div>
                 )}
-                {(dispositionForm.disposition === "Interested for Demo" && activeTab === "follow_up") && (
+                {(dispositionForm.disposition === "Interested for Demo" && activeTab === "follow_up" && selectedCall?.type === "B2B") && (
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                       Demo Date & Time
@@ -958,7 +1032,7 @@ const CallManagement = () => {
                     />
                   </div>
                 )}
-                {(dispositionForm.disposition === "Interested for Proposal" && activeTab === "demo") && (
+                {(dispositionForm.disposition === "Interested for Proposal" && activeTab === "demo" && selectedCall?.type === "B2B") && (
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                       Proposal Date & Time
@@ -977,7 +1051,7 @@ const CallManagement = () => {
                     />
                   </div>
                 )}
-                {(dispositionForm.disposition === "Interested for Negotiation" && activeTab === "proposal") && (
+                {(dispositionForm.disposition === "Interested for Negotiation" && activeTab === "proposal" && selectedCall?.type === "B2B") && (
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                       Negotiation Date & Time

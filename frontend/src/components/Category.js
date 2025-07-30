@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Edit, Trash2, Save, X } from "lucide-react";
+import { Edit, Trash2, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
+import Modal from "./Modal";
+import toast from "react-hot-toast";
 
 const Category = () => {
   const [category, setCategory] = useState("");
@@ -14,6 +16,14 @@ const Category = () => {
   const tableWrapperRef = useRef(null);
   const [showScrollRight, setShowScrollRight] = useState(false);
   const [showScrollLeft, setShowScrollLeft] = useState(false);
+
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteCategoryId, setDeleteCategoryId] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
 
   const fetchCategories = async () => {
     try {
@@ -66,15 +76,17 @@ const Category = () => {
     setError("");
     if (!category.trim()) {
       setError("Category is required");
+      toast.error("Category is required");
       return;
     }
     try {
       await axios.post("/api/category", { category });
       setCategory("");
-      setSuccess("Category added successfully!");
+      toast.success("Category added successfully!");
       fetchCategories();
     } catch (err) {
       setError(err.response?.data?.error || "Failed to add category");
+      toast.error(err.response?.data?.error || "Failed to add category");
     }
   };
 
@@ -91,10 +103,12 @@ const Category = () => {
     setError("");
     if (!editValue.trim()) {
       setError("Category is required");
+      toast.error("Category is required");
       return;
     }
     if (!editDate) {
       setError("Date is required");
+      toast.error("Date is required");
       return;
     }
     try {
@@ -105,22 +119,27 @@ const Category = () => {
       setEditingCategory(null);
       setEditValue("");
       setEditDate("");
-      setSuccess("Category updated successfully!");
+      toast.success("Category updated successfully!");
       fetchCategories();
     } catch (err) {
       setError(err.response?.data?.error || "Failed to update category");
+      toast.error(err.response?.data?.error || "Failed to update category");
     }
   };
 
   const handleDelete = async (categoryId) => {
-    if (window.confirm("Are you sure you want to delete this category?")) {
-      try {
-        await axios.delete(`/api/category/${categoryId}`);
-        setSuccess("Category deleted successfully!");
-        fetchCategories();
-      } catch (err) {
-        setError(err.response?.data?.error || "Failed to delete category");
-      }
+    setDeleteCategoryId(categoryId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteCategory = async () => {
+    try {
+      await axios.delete(`/api/category/${deleteCategoryId}`);
+      toast.success("Category deleted successfully!");
+      fetchCategories();
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to delete category");
+      toast.error(err.response?.data?.error || "Failed to delete category");
     }
   };
 
@@ -128,6 +147,21 @@ const Category = () => {
     setEditingCategory(null);
     setEditValue("");
     setEditDate("");
+  };
+
+  // Get paginated categories
+  const getPaginatedCategories = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return categories.slice(startIndex, endIndex);
+  };
+
+  // Calculate total pages
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -232,7 +266,7 @@ const Category = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {categories.map((cat, index) => (
+                {getPaginatedCategories().map((cat, index) => (
                   <tr key={cat.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     {/*
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -336,8 +370,112 @@ const Category = () => {
               </div>
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {categories.length > itemsPerPage ? (
+            <div className="mt-8 flex items-center justify-between px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+              <div className="flex items-center text-sm text-gray-700">
+                <span className="text-left">
+                  <span className="hidden sm:inline">
+                    Showing {((currentPage - 1) * itemsPerPage) + 1} to{" "}
+                    {Math.min(currentPage * itemsPerPage, categories.length)} of{" "}
+                    {categories.length} categories
+                  </span>
+                  <span className="sm:hidden">
+                    {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, categories.length)} of {categories.length}
+                  </span>
+                </span>
+              </div>
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
+
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: totalPages }, (_, index) => {
+                    const pageNumber = index + 1;
+                    // Show first page, last page, current page, and pages around current
+                    const shouldShow =
+                      pageNumber === 1 ||
+                      pageNumber === totalPages ||
+                      (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1);
+
+                    if (!shouldShow) {
+                      // Show ellipsis if there's a gap
+                      if (pageNumber === currentPage - 2 || pageNumber === currentPage + 2) {
+                        return (
+                          <span key={`ellipsis-${pageNumber}`} className="px-1 sm:px-2 py-1 text-gray-500">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-md min-w-[32px] sm:min-w-[40px] ${currentPage === pageNumber
+                          ? "bg-primary-600 text-white"
+                          : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                          }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </button>
+              </div>
+            </div>
+          ) : categories.length > 0 && (
+            <div className="mt-8 flex items-center justify-center px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+              <div className="flex items-center text-sm text-gray-700">
+                <span className="text-center">
+                  <span className="hidden sm:inline">
+                    Showing {categories.length} of {categories.length} categories
+                  </span>
+                  <span className="sm:hidden">
+                    {categories.length} of {categories.length}
+                  </span>
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? This action cannot be undone."
+        type="delete"
+        onConfirm={confirmDeleteCategory}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

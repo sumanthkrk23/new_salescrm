@@ -10,8 +10,12 @@ import {
   Mail,
   Phone,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import axios from "axios";
+import Modal from "./Modal";
+import toast from "react-hot-toast";
 
 const EmployeeList = () => {
   const { user } = useAuth();
@@ -19,6 +23,14 @@ const EmployeeList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
+
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEmployeeId, setDeleteEmployeeId] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
 
   useEffect(() => {
     fetchEmployees();
@@ -43,13 +55,18 @@ const EmployeeList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this employee?")) {
-      try {
-        await axios.delete(`/api/employees/${id}`);
-        fetchEmployees();
-      } catch (error) {
-        console.error("Error deleting employee:", error);
-      }
+    setDeleteEmployeeId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteEmployee = async () => {
+    try {
+      await axios.delete(`/api/employees/${deleteEmployeeId}`);
+      toast.success("Employee deleted successfully!");
+      fetchEmployees();
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+      toast.error("Error deleting employee: " + (error.response?.data?.error || error.message));
     }
   };
 
@@ -62,6 +79,21 @@ const EmployeeList = () => {
       filterRole === "all" || employee.user_role === filterRole;
     return matchesSearch && matchesRole;
   });
+
+  // Get paginated employees
+  const getPaginatedEmployees = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredEmployees.slice(startIndex, endIndex);
+  };
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   const isAdmin = user?.user_role === "sales_manager";
 
@@ -128,7 +160,7 @@ const EmployeeList = () => {
 
       {/* Employee Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredEmployees.map((employee) => (
+        {getPaginatedEmployees().map((employee) => (
           <div
             key={employee.id}
             className="card hover:shadow-lg transition-shadow"
@@ -193,8 +225,8 @@ const EmployeeList = () => {
                 <span className="text-sm text-gray-500">Status</span>
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${(employee.online_status || '').toLowerCase() === 'online'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
                     }`}
                 >
                   {(employee.online_status || '').toLowerCase() === 'online' ? 'Online' : 'Offline'}
@@ -204,6 +236,98 @@ const EmployeeList = () => {
           </div>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {filteredEmployees.length > itemsPerPage ? (
+        <div className="mt-8 flex items-center justify-between px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+          <div className="flex items-center text-sm text-gray-700">
+            <span className="text-left">
+              <span className="hidden sm:inline">
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to{" "}
+                {Math.min(currentPage * itemsPerPage, filteredEmployees.length)} of{" "}
+                {filteredEmployees.length} employees
+              </span>
+              <span className="sm:hidden">
+                {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, filteredEmployees.length)} of {filteredEmployees.length}
+              </span>
+            </span>
+          </div>
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === 1
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Previous</span>
+            </button>
+
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: totalPages }, (_, index) => {
+                const pageNumber = index + 1;
+                // Show first page, last page, current page, and pages around current
+                const shouldShow =
+                  pageNumber === 1 ||
+                  pageNumber === totalPages ||
+                  (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1);
+
+                if (!shouldShow) {
+                  // Show ellipsis if there's a gap
+                  if (pageNumber === currentPage - 2 || pageNumber === currentPage + 2) {
+                    return (
+                      <span key={`ellipsis-${pageNumber}`} className="px-1 sm:px-2 py-1 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                }
+
+                return (
+                  <button
+                    key={pageNumber}
+                    onClick={() => handlePageChange(pageNumber)}
+                    className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-md min-w-[32px] sm:min-w-[40px] ${currentPage === pageNumber
+                      ? "bg-primary-600 text-white"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+            >
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+      ) : filteredEmployees.length > 0 && (
+        <div className="mt-8 flex items-center justify-center px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+          <div className="flex items-center text-sm text-gray-700">
+            <span className="text-center">
+              <span className="hidden sm:inline">
+                Showing {filteredEmployees.length} of {filteredEmployees.length} employees
+              </span>
+              <span className="sm:hidden">
+                {filteredEmployees.length} of {filteredEmployees.length}
+              </span>
+            </span>
+          </div>
+        </div>
+      )}
 
       {filteredEmployees.length === 0 && (
         <div className="text-center py-12">
@@ -218,6 +342,18 @@ const EmployeeList = () => {
           </p>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Employee"
+        message="Are you sure you want to delete this employee? This action cannot be undone."
+        type="delete"
+        onConfirm={confirmDeleteEmployee}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

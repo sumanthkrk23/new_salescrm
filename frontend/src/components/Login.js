@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,6 +25,7 @@ const Login = () => {
       navigate("/dashboard");
     } else {
       setError(result.error);
+      toast.error(result.error);
     }
 
     setLoading(false);

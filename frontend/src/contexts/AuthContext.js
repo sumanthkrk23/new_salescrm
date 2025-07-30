@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
@@ -44,6 +45,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.setItem("token", response.data.token);
         setAxiosAuthToken(response.data.token);
+        toast.success(`Welcome back, ${response.data.user.full_name}!`);
         return { success: true };
       }
     } catch (error) {
@@ -55,10 +57,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    const userName = user?.full_name || "User";
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setAxiosAuthToken(null);
+    toast.success(`Goodbye, ${userName}! You have been logged out successfully.`);
   };
 
   const checkAuth = async () => {

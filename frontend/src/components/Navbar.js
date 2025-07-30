@@ -13,6 +13,7 @@ import {
   Phone,
   BarChart3,
   ChevronDown,
+  AlertTriangle,
 } from "lucide-react";
 
 const Navbar = () => {
@@ -20,6 +21,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userDropdown, setUserDropdown] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const userMenuRef = useRef(null);
   const location = useLocation();
 
@@ -40,6 +42,11 @@ const Navbar = () => {
   }, [userDropdown]);
 
   const handleLogout = async () => {
+    setShowLogoutConfirm(true);
+    setUserDropdown(false);
+  };
+
+  const confirmLogout = async () => {
     await logout();
     navigate("/login");
   };
@@ -244,6 +251,39 @@ const Navbar = () => {
                 className="flex items-center justify-center gap-2 px-4 py-1 mt-1 text-base font-semibold text-red-500 bg-gray-100 hover:bg-gray-200 rounded-lg shadow-sm transition-colors duration-150"
               >
                 <LogOut className="w-5 h-5" />
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mt-6 bg-red-100 rounded-full">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
+            <div className="text-center px-6 py-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Confirm Logout
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to logout?
+              </p>
+            </div>
+            <div className="flex gap-3 px-6 pb-6">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className="flex-1 px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors duration-200"
+              >
                 Logout
               </button>
             </div>

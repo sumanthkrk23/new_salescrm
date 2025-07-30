@@ -10,8 +10,12 @@ import {
   Filter,
   Calendar,
   TrendingUp,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import axios from "axios";
+import Modal from "./Modal";
+import toast from "react-hot-toast";
 
 function exportToCSV(data, filename = "report.csv", activeTab = "calls") {
   if (!data || data.length === 0) return;
@@ -90,6 +94,12 @@ const Reports = () => {
   const tableWrapperRef = useRef(null);
   const [showScrollRight, setShowScrollRight] = useState(false);
   const [showScrollLeft, setShowScrollLeft] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
+
+
 
   useEffect(() => {
     fetchEmployees();
@@ -190,7 +200,7 @@ const Reports = () => {
   const handleExport = () => {
     const dataToExport = activeTab === "performance" ? getDedupedReports() : getFilteredReports();
     if (!dataToExport || dataToExport.length === 0) {
-      alert("No data to export!");
+      toast.error("No data to export!");
       return;
     }
     exportToCSV(dataToExport, "report.csv", activeTab);
@@ -280,6 +290,22 @@ const Reports = () => {
     }
 
     return filteredReports;
+  };
+
+  // Get paginated reports
+  const getPaginatedReports = () => {
+    const filtered = getFilteredReports();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filtered.slice(startIndex, endIndex);
+  };
+
+  // Calculate total pages
+  const totalPages = Math.ceil(getFilteredReports().length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -406,6 +432,9 @@ const Reports = () => {
                   <option value="">All Status</option>
                   <option value="fresh">Fresh</option>
                   <option value="follow_up">Follow Up</option>
+                  <option value="demo">Demo</option>
+                  <option value="proposal">Proposal</option>
+                  <option value="negotiation">Negotiation</option>
                   <option value="closure">Closure</option>
                   <option value="converted">Converted</option>
                 </select>
@@ -511,15 +540,15 @@ const Reports = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {getFilteredReports().map((report, index) => (
+                {getPaginatedReports().map((report, index) => (
                   <tr key={index}>
                     {activeTab === "calls" ? (
                       <>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {report.database_name || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {report.agent_name || "N/A"}
+                          {report.agent_name || "Not assigned yet"}
                         </td>
                         <td
                           className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
@@ -563,7 +592,7 @@ const Reports = () => {
                                   : report.status === "proposal"
                                     ? "bg-pink-100 text-pink-800"
                                     : report.status === "negotiation"
-                                      ? "bg-gray-200 text-gray-800"
+                                      ? "bg-red-100 text-red-800"
                                       : report.status === "closure"
                                         ? "bg-purple-100 text-purple-800"
                                         : report.status === "converted"
@@ -647,7 +676,101 @@ const Reports = () => {
             </p>
           </div>
         )}
+
+        {/* Pagination Controls */}
+        {getFilteredReports().length > itemsPerPage ? (
+          <div className="mt-8 flex items-center justify-between px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+            <div className="flex items-center text-sm text-gray-700">
+              <span className="text-left">
+                <span className="hidden sm:inline">
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} to{" "}
+                  {Math.min(currentPage * itemsPerPage, getFilteredReports().length)} of{" "}
+                  {getFilteredReports().length} results
+                </span>
+                <span className="sm:hidden">
+                  {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, getFilteredReports().length)} of {getFilteredReports().length}
+                </span>
+              </span>
+            </div>
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: totalPages }, (_, index) => {
+                  const pageNumber = index + 1;
+                  // Show first page, last page, current page, and pages around current
+                  const shouldShow =
+                    pageNumber === 1 ||
+                    pageNumber === totalPages ||
+                    (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1);
+
+                  if (!shouldShow) {
+                    // Show ellipsis if there's a gap
+                    if (pageNumber === currentPage - 2 || pageNumber === currentPage + 2) {
+                      return (
+                        <span key={`ellipsis-${pageNumber}`} className="px-1 sm:px-2 py-1 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  }
+
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-md min-w-[32px] sm:min-w-[40px] ${currentPage === pageNumber
+                        ? "bg-primary-600 text-white"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </button>
+            </div>
+          </div>
+        ) : getFilteredReports().length > 0 && (
+          <div className="mt-8 flex items-center justify-center px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+            <div className="flex items-center text-sm text-gray-700">
+              <span className="text-center">
+                <span className="hidden sm:inline">
+                  Showing {getFilteredReports().length} of {getFilteredReports().length} results
+                </span>
+                <span className="sm:hidden">
+                  {getFilteredReports().length} of {getFilteredReports().length}
+                </span>
+              </span>
+            </div>
+          </div>
+        )}
       </div>
+
+
     </div>
   );
 };

@@ -11,6 +11,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
@@ -46,9 +47,11 @@ const AddEmployee = () => {
 
     try {
       await axios.post("/api/employees", formData);
+      toast.success("Employee added successfully!");
       navigate("/employees");
     } catch (error) {
       setError(error.response?.data?.error || "Failed to add employee");
+      toast.error(error.response?.data?.error || "Failed to add employee");
     } finally {
       setLoading(false);
     }

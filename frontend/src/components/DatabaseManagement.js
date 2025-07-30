@@ -9,9 +9,13 @@ import {
   Filter,
   Users,
   FileText,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import axios from "axios";
 import Category from "./Category";
+import Modal from "./Modal";
+import toast from "react-hot-toast";
 
 const DatabaseManagement = () => {
   const { user } = useAuth();
@@ -39,6 +43,14 @@ const DatabaseManagement = () => {
   const [showScrollLeft1, setShowScrollLeft1] = useState(false);
   const [showScrollRight2, setShowScrollRight2] = useState(false);
   const [showScrollLeft2, setShowScrollLeft2] = useState(false);
+
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteDatabaseId, setDeleteDatabaseId] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
 
   // Move filteredCalls here so it is available for useEffect dependencies
   const filteredCalls = databaseCalls.filter((call) => {
@@ -174,7 +186,7 @@ const DatabaseManagement = () => {
     const category = selectedCategory;
 
     if (!file || !name || !type || !category) {
-      alert("Please fill all required fields");
+      toast.error("Please fill all required fields");
       return;
     }
 
@@ -188,15 +200,15 @@ const DatabaseManagement = () => {
       await axios.post("/api/databases", formData);
       setShowUploadForm(false);
       fetchDatabases();
-      alert("Database uploaded successfully!");
+      toast.success("Database uploaded successfully!");
     } catch (error) {
-      alert("Error uploading database: " + error.response?.data?.error);
+      toast.error("Error uploading database: " + error.response?.data?.error);
     }
   };
 
   const handleAssignCalls = async () => {
     if (!selectedCalls.length || !selectedEmployees.length) {
-      alert("Please select calls and at least one employee");
+      toast.error("Please select calls and at least one employee");
       return;
     }
     try {
@@ -204,28 +216,43 @@ const DatabaseManagement = () => {
         call_ids: selectedCalls,
         user_ids: selectedEmployees,
       });
-      alert("Calls assigned successfully!");
+      toast.success("Calls assigned successfully!");
       setSelectedCalls([]);
       setSelectedEmployees([]);
       fetchDatabaseCalls(selectedDatabase);
     } catch (error) {
-      alert("Error assigning calls: " + error.response?.data?.error);
+      toast.error("Error assigning calls: " + error.response?.data?.error);
     }
   };
 
   const handleDeleteDatabase = async (dbId) => {
-    if (!window.confirm("Are you sure you want to delete this database?"))
-      return;
+    setDeleteDatabaseId(dbId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteDatabase = async () => {
     try {
-      await axios.delete(`/api/databases/${dbId}`);
-      setDatabases(databases.filter((db) => db.id !== dbId));
-      alert("Database deleted successfully!");
+      await axios.delete(`/api/databases/${deleteDatabaseId}`);
+      setDatabases(databases.filter((db) => db.id !== deleteDatabaseId));
+      toast.success("Database deleted successfully!");
     } catch (error) {
-      alert(
-        "Error deleting database: " +
-        (error.response?.data?.error || error.message)
-      );
+      toast.error("Error deleting database: " + (error.response?.data?.error || error.message));
     }
+  };
+
+  // Get paginated databases
+  const getPaginatedDatabases = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return databases.slice(startIndex, endIndex);
+  };
+
+  // Calculate total pages
+  const totalPages = Math.ceil(databases.length / itemsPerPage);
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const isAdmin = user?.user_role === "sales_manager";
@@ -455,7 +482,7 @@ const DatabaseManagement = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {databases.map((db) => (
+              {getPaginatedDatabases().map((db) => (
                 <tr key={db.id}>
                   <td className="px-6 py-4 whitespace-normal break-words font-medium text-gray-900 flex items-center">
                     <Database className="w-5 h-5 text-primary-500 mr-2" />
@@ -522,6 +549,98 @@ const DatabaseManagement = () => {
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {databases.length > itemsPerPage ? (
+          <div className="mt-8 flex items-center justify-between px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+            <div className="flex items-center text-sm text-gray-700">
+              <span className="text-left">
+                <span className="hidden sm:inline">
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} to{" "}
+                  {Math.min(currentPage * itemsPerPage, databases.length)} of{" "}
+                  {databases.length} databases
+                </span>
+                <span className="sm:hidden">
+                  {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, databases.length)} of {databases.length}
+                </span>
+              </span>
+            </div>
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: totalPages }, (_, index) => {
+                  const pageNumber = index + 1;
+                  // Show first page, last page, current page, and pages around current
+                  const shouldShow =
+                    pageNumber === 1 ||
+                    pageNumber === totalPages ||
+                    (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1);
+
+                  if (!shouldShow) {
+                    // Show ellipsis if there's a gap
+                    if (pageNumber === currentPage - 2 || pageNumber === currentPage + 2) {
+                      return (
+                        <span key={`ellipsis-${pageNumber}`} className="px-1 sm:px-2 py-1 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  }
+
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`px-2 sm:px-3 py-2 text-sm font-medium rounded-md min-w-[32px] sm:min-w-[40px] ${currentPage === pageNumber
+                        ? "bg-primary-600 text-white"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                        }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`flex items-center px-2 sm:px-3 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </button>
+            </div>
+          </div>
+        ) : databases.length > 0 && (
+          <div className="mt-8 flex items-center justify-center px-4 sm:px-6 py-4 bg-white border-t border-gray-200 rounded-b-lg">
+            <div className="flex items-center text-sm text-gray-700">
+              <span className="text-center">
+                <span className="hidden sm:inline">
+                  Showing {databases.length} of {databases.length} databases
+                </span>
+                <span className="sm:hidden">
+                  {databases.length} of {databases.length}
+                </span>
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Database Calls */}
@@ -818,6 +937,18 @@ const DatabaseManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Database"
+        message="Are you sure you want to delete this database? This action cannot be undone."
+        type="delete"
+        onConfirm={confirmDeleteDatabase}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };
