@@ -1880,4 +1880,4 @@ def reset_password():
     return jsonify({'success': True, 'message': 'Password reset successful'})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    app.run(debug=True, port=5001)
