@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { Edit, Trash2, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
@@ -28,7 +28,7 @@ const Category = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/category");
+      const res = await api.get("/api/category");
       setCategories(res.data.categories || []);
     } catch (err) {
       setError("Failed to fetch categories");
@@ -80,7 +80,7 @@ const Category = () => {
       return;
     }
     try {
-      await axios.post("/api/category", { category });
+      await api.post("/api/category", { category });
       setCategory("");
       toast.success("Category added successfully!");
       fetchCategories();
@@ -112,7 +112,7 @@ const Category = () => {
       return;
     }
     try {
-      await axios.put(`/api/category/${categoryId}`, {
+      await api.put(`/api/category/${categoryId}`, {
         category: editValue,
         created_date: editDate
       });
@@ -134,7 +134,7 @@ const Category = () => {
 
   const confirmDeleteCategory = async () => {
     try {
-      await axios.delete(`/api/category/${deleteCategoryId}`);
+      await api.delete(`/api/category/${deleteCategoryId}`);
       toast.success("Category deleted successfully!");
       fetchCategories();
     } catch (err) {

@@ -18,7 +18,7 @@ import {
   FileText,
   Users,
 } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 import { FaWhatsapp } from "react-icons/fa";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
@@ -60,12 +60,10 @@ const CallManagement = () => {
   const scrollPositionRef = useRef(0);
 
   useEffect(() => {
-    fetchCalls();
-    // Fetch all calls for search functionality
+    if (!user) return;
     fetchAllCalls();
-    if (user?.user_role === "sales_manager") {
-      // Fetch all sales executives for filter
-      axios.get("/api/employees").then((res) => {
+    if (user.user_role === "sales_manager") {
+      api.get("/api/employees").then((res) => {
         setEmployees(
           res.data.employees.filter(
             (emp) => emp.user_role === "sales_executive"
@@ -73,7 +71,12 @@ const CallManagement = () => {
         );
       });
     }
-  }, [activeTab, selectedExecutive]);
+  }, [user, selectedExecutive]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchCalls();
+  }, [activeTab, selectedExecutive, user]);
 
   // Reset to first page when tab, executive filter, or search term changes
   useEffect(() => {
@@ -105,7 +108,7 @@ const CallManagement = () => {
       const params = selectedExecutive ? { assigned_to: selectedExecutive } : {};
 
       const responses = await Promise.all(
-        endpoints.map(endpoint => axios.get(endpoint, { params }))
+        endpoints.map(endpoint => api.get(endpoint, { params }))
       );
 
       const allCallsData = responses.flatMap(response => response.data.calls);
@@ -182,7 +185,7 @@ const CallManagement = () => {
             endpoint = "/api/calls/fresh";
         }
       }
-      const response = await axios.get(endpoint, { params });
+      const response = await api.get(endpoint, { params });
       console.log(`API Response for ${activeTab}:`, response.data);
       setCalls(response.data.calls);
 
@@ -199,7 +202,7 @@ const CallManagement = () => {
 
   const fetchDispositionCounts = async (callId) => {
     try {
-      const response = await axios.get(
+      const response = await api.get(
         `/api/calls/${callId}/disposition-count`
       );
       return response.data.counts;
@@ -213,7 +216,7 @@ const CallManagement = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `/api/calls/${selectedCall.id}/disposition`,
         dispositionForm
       );

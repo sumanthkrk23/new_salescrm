@@ -10,7 +10,7 @@ import {
   MapPin,
   DollarSign,
 } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 import toast from "react-hot-toast";
 
 const AddEmployee = () => {
@@ -46,7 +46,7 @@ const AddEmployee = () => {
     setError("");
 
     try {
-      await axios.post("/api/employees", formData);
+      await api.post("/api/employees", formData);
       toast.success("Employee added successfully!");
       navigate("/employees");
     } catch (error) {

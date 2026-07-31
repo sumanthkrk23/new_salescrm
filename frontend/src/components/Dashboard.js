@@ -16,7 +16,7 @@ import {
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import '../dashboard-chart-no-outline.css';
 import CircularProgress from "./CircularProgress";
@@ -56,8 +56,9 @@ const Dashboard = () => {
   const [axisFontSize, setAxisFontSize] = useState(18); // Responsive font size for axes
 
   useEffect(() => {
+    if (!user) return;
     fetchStats();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -81,78 +82,70 @@ const Dashboard = () => {
   }, []);
 
   const fetchStats = async () => {
+    setLoading(true);
     try {
-      const [employeesResponse, databasesResponse, allCallsResponse] =
-        await Promise.all([
-          axios.get("/api/employees"),
-          axios.get("/api/databases"),
-          axios.get("/api/reports/calls"),
-        ]);
+      const isManager = user?.user_role === "sales_manager";
+      const callSuffix = isManager ? "?all=1" : "";
+
+      const [
+        employeesResponse,
+        databasesResponse,
+        freshRes,
+        followUpRes,
+        demoRes,
+        proposalRes,
+        negotiationRes,
+        closureRes,
+        convertedRes,
+      ] = await Promise.all([
+        api.get("/api/employees"),
+        api.get("/api/databases"),
+        api.get(`/api/calls/fresh${callSuffix}`),
+        api.get(`/api/calls/follow-up${callSuffix}`),
+        api.get(`/api/calls/demo${callSuffix}`),
+        api.get(`/api/calls/proposal${callSuffix}`),
+        api.get(`/api/calls/negotiation${callSuffix}`),
+        api.get(`/api/calls/closure${callSuffix}`),
+        api.get(`/api/calls/converted${callSuffix}`),
+      ]);
+
       const employees = employeesResponse.data.employees;
       const databases = databasesResponse.data.databases;
-      const allCalls = allCallsResponse.data.calls || [];
-      let totalCalls = 0,
-        freshCalls = 0,
-        followUpCalls = 0,
-        demoCalls = 0,
-        proposalCalls = 0,
-        negotiationCalls = 0,
-        convertedCalls = 0,
-        closureCalls = 0;
-      let interestedCalls = 0;
-      let joinedConvertedCalls = 0;
-      let notInterestedCalls = 0;
-      if (user?.user_role === "sales_manager") {
-        // Fetch all calls for each status
-        const [freshRes, followUpRes, demoRes, proposalRes, negotiationRes, closureRes, convertedRes] =
-          await Promise.all([
-            axios.get("/api/calls/fresh?all=1"),
-            axios.get("/api/calls/follow-up?all=1"),
-            axios.get("/api/calls/demo?all=1"),
-            axios.get("/api/calls/proposal?all=1"),
-            axios.get("/api/calls/negotiation?all=1"),
-            axios.get("/api/calls/closure?all=1"),
-            axios.get("/api/calls/converted?all=1"),
-          ]);
-        freshCalls = freshRes.data.calls.length;
-        followUpCalls = followUpRes.data.calls.length;
-        demoCalls = demoRes.data.calls.length;
-        proposalCalls = proposalRes.data.calls.length;
-        negotiationCalls = negotiationRes.data.calls.length;
-        closureCalls = closureRes.data.calls.length;
-        convertedCalls = convertedRes.data.calls.length;
-        totalCalls = freshCalls + followUpCalls + demoCalls + proposalCalls + negotiationCalls + closureCalls + convertedCalls;
-      } else {
-        // Sales executive: fetch all their assigned calls for all statuses
-        const [freshRes, followUpRes, demoRes, proposalRes, negotiationRes, closureRes, convertedRes] =
-          await Promise.all([
-            axios.get("/api/calls/fresh"),
-            axios.get("/api/calls/follow-up"),
-            axios.get("/api/calls/demo"),
-            axios.get("/api/calls/proposal"),
-            axios.get("/api/calls/negotiation"),
-            axios.get("/api/calls/closure"),
-            axios.get("/api/calls/converted"),
-          ]);
-        freshCalls = freshRes.data.calls.length;
-        followUpCalls = followUpRes.data.calls.length;
-        demoCalls = demoRes.data.calls.length;
-        proposalCalls = proposalRes.data.calls.length;
-        negotiationCalls = negotiationRes.data.calls.length;
-        closureCalls = closureRes.data.calls.length;
-        convertedCalls = convertedRes.data.calls.length;
-        totalCalls = freshCalls + followUpCalls + demoCalls + proposalCalls + negotiationCalls + closureCalls + convertedCalls;
-      }
-      // Count interested calls as sum of follow_up, demo, proposal, and negotiation calls
-      interestedCalls = followUpCalls + demoCalls + proposalCalls + negotiationCalls;
+      const freshCalls = freshRes.data.calls?.length || 0;
+      const followUpCalls = followUpRes.data.calls?.length || 0;
+      const demoCalls = demoRes.data.calls?.length || 0;
+      const proposalCalls = proposalRes.data.calls?.length || 0;
+      const negotiationCalls = negotiationRes.data.calls?.length || 0;
+      const closureCalls = closureRes.data.calls?.length || 0;
+      const convertedCalls = convertedRes.data.calls?.length || 0;
+      const totalCalls =
+        freshCalls +
+        followUpCalls +
+        demoCalls +
+        proposalCalls +
+        negotiationCalls +
+        closureCalls +
+        convertedCalls;
 
-      // Count joined/converted and not interested calls from allCalls
-      joinedConvertedCalls = allCalls.filter(
+      const allCallsList = [
+        ...(freshRes.data.calls || []),
+        ...(followUpRes.data.calls || []),
+        ...(demoRes.data.calls || []),
+        ...(proposalRes.data.calls || []),
+        ...(negotiationRes.data.calls || []),
+        ...(closureRes.data.calls || []),
+        ...(convertedRes.data.calls || []),
+      ];
+
+      const interestedCalls =
+        followUpCalls + demoCalls + proposalCalls + negotiationCalls;
+      const joinedConvertedCalls = allCallsList.filter(
         (call) => call.disposition === "Joined / Converted"
       ).length;
-      notInterestedCalls = allCalls.filter(
+      const notInterestedCalls = allCallsList.filter(
         (call) => call.disposition === "Not Interested"
       ).length;
+
       setStats({
         totalEmployees: employees.length,
         activeEmployees: employees.filter((emp) => emp.active === "active")
@@ -175,8 +168,9 @@ const Dashboard = () => {
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Update StatCard to render icon as a React element and only show value if not null

@@ -13,7 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
 
@@ -129,7 +129,7 @@ const Reports = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get("/api/employees");
+      const response = await api.get("/api/employees");
       setEmployees(response.data.employees);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -138,7 +138,7 @@ const Reports = () => {
 
   const fetchDatabases = async () => {
     try {
-      const response = await axios.get("/api/databases");
+      const response = await api.get("/api/databases");
       setDatabases(response.data.databases);
     } catch (error) {
       console.error("Error fetching databases:", error);
@@ -172,7 +172,7 @@ const Reports = () => {
         }
       });
 
-      const response = await axios.get(`${endpoint}?${params}`);
+      const response = await api.get(`${endpoint}?${params}`);
       setReports(response.data.calls || response.data.reports || []);
     } catch (error) {
       console.error("Error generating report:", error);

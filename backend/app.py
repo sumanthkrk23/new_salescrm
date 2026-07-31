@@ -13,12 +13,13 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='build',static_url_path='')
 app.secret_key = 'your-secret-key-here'
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root@123'
 app.config['MYSQL_DB'] = 'salescrm_new'
+# app.config['MYSQL_CONNECT_TIMEOUT'] = 30
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
 JWT_SECRET = 'your_jwt_secret_key_here'
@@ -159,10 +160,6 @@ def create_tables():
     mysql.connection.commit()
     cur.close()
 
-# Create tables on startup
-with app.app_context():
-    create_tables()
-
 # Add a table for password reset OTPs
 # (You should run this SQL in your DB as a migration or on startup)
 def create_password_reset_table():
@@ -177,9 +174,6 @@ def create_password_reset_table():
     ''')
     mysql.connection.commit()
     cur.close()
-
-with app.app_context():
-    create_password_reset_table()
 
 # Helper: JWT encode
 def generate_jwt(user_data):
@@ -413,6 +407,9 @@ def upload_database():
         # Normalize columns
         df.columns = df.columns.str.strip().str.lower()
         
+        # Fill NaN values with empty strings
+        df = df.fillna('')
+        
         # Define required columns and mapping for each type
         if db_type == 'corporate':  # B2B
             required_columns = ['company name', 'contact person', 'phone number', 'email', 'designation']
@@ -424,7 +421,7 @@ def upload_database():
         # Validate columns
         missing_cols = [col for col in required_columns if col not in df.columns]
         if missing_cols:
-            return jsonify({'error': f'Missing required columns: {', '.join(missing_cols)}'}), 400
+            return jsonify({'error': f"Missing required columns: {', '.join(missing_cols)}"}), 400
         
         # Insert calls
         for idx, row in df.iterrows():
@@ -436,11 +433,11 @@ def upload_database():
                 """, (
                     call_id,
                     'B2B',
-                    row.get('company name', ''),
-                    row.get('contact person', ''),
-                    row.get('phone number', ''),
-                    row.get('email', ''),
-                    row.get('designation', ''),
+                    str(row.get('company name', '')).strip(),
+                    str(row.get('contact person', '')).strip(),
+                    str(row.get('phone number', '')).strip(),
+                    str(row.get('email', '')).strip(),
+                    str(row.get('designation', '')).strip(),
                     database_id
                 ))
             elif db_type == 'institution':  # B2C
@@ -450,12 +447,12 @@ def upload_database():
                 """, (
                     call_id,
                     'B2C',
-                    row.get('client name', ''),
-                    row.get('phone number', ''),
-                    row.get('email', ''),
-                    row.get('department', ''),
-                    row.get('company name', ''),
-                    row.get('city', ''),
+                    str(row.get('client name', '')).strip(),
+                    str(row.get('phone number', '')).strip(),
+                    str(row.get('email', '')).strip(),
+                    str(row.get('department', '')).strip(),
+                    str(row.get('company name', '')).strip(),
+                    str(row.get('city', '')).strip(),
                     database_id
                 ))
         
@@ -1879,5 +1876,41 @@ def reset_password():
     cur.close()
     return jsonify({'success': True, 'message': 'Password reset successful'})
 
+
+@app.route('/your-endpoint', methods=['GET', 'POST', 'OPTIONS'])
+def your_endpoint():
+    if request.method == 'OPTIONS':
+        # Respond to preflight request
+        response = app.make_default_options_response()
+        headers = response.headers
+
+        headers['Access-Control-Allow-Origin'] = request.headers['Origin']
+        headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
+        headers['Access-Control-Allow-Headers'] = request.headers.get(
+            'Access-Control-Request-Headers', 'Authorization')
+        return response
+
+    if request.method == 'POST':
+        data = request.json
+        return jsonify({'message': 'Received data', 'data': data})
+    else:
+        return jsonify({'message': 'This is a GET request'})
+
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    import threading
+
+    def init_db():
+        with app.app_context():
+            create_tables()
+            create_password_reset_table()
+
+    threading.Thread(target=init_db, daemon=True).start()
+    app.run(debug=True, port=5001, host='0.0.0.0', threaded=True)

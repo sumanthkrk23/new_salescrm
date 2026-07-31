@@ -47,15 +47,17 @@ const Navbar = () => {
   };
 
   const confirmLogout = async () => {
+    setShowLogoutConfirm(false);
     await logout();
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
-  const handleUserDropdown = async () => {
-    if (!userDropdown) {
-      await refreshUser();
+  const handleUserDropdown = () => {
+    const opening = !userDropdown;
+    setUserDropdown(opening);
+    if (opening) {
+      refreshUser();
     }
-    setUserDropdown((v) => !v);
   };
 
   const isAdmin = user?.user_role === "sales_manager";
@@ -121,7 +123,7 @@ const Navbar = () => {
 
           {/* User Menu Dropdown */}
           <div
-            className="hidden lg:flex items-center space-x-4"
+            className="hidden lg:flex items-center space-x-4 relative"
             ref={userMenuRef}
           >
             <button

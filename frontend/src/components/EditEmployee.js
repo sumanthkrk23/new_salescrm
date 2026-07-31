@@ -10,7 +10,7 @@ import {
   MapPin,
   DollarSign,
 } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 
 const EditEmployee = () => {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ const EditEmployee = () => {
 
   const fetchEmployee = async () => {
     try {
-      const response = await axios.get("/api/employees");
+      const response = await api.get("/api/employees");
       const employee = response.data.employees.find((emp) => emp.id == id);
 
       if (employee) {
@@ -81,7 +81,7 @@ const EditEmployee = () => {
     setError("");
 
     try {
-      await axios.put(`/api/employees/${id}`, formData);
+      await api.put(`/api/employees/${id}`, formData);
       navigate("/employees");
     } catch (error) {
       setError(error.response?.data?.error || "Failed to update employee");

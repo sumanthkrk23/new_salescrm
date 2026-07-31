@@ -12,7 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 import Category from "./Category";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
@@ -69,9 +69,28 @@ const DatabaseManagement = () => {
   const assignedCallsCount = filteredCalls.filter(call => call.assigned_to !== null && call.assigned_to !== undefined && call.assigned_to !== '').length;
 
   useEffect(() => {
-    fetchDatabases();
-    fetchEmployees();
-    fetchCategories();
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [databasesRes, employeesRes, categoriesRes] = await Promise.all([
+          api.get("/api/databases"),
+          api.get("/api/employees"),
+          api.get("/api/category"),
+        ]);
+        setDatabases(databasesRes.data.databases);
+        setEmployees(
+          employeesRes.data.employees.filter(
+            (emp) => emp.user_role === "sales_executive"
+          )
+        );
+        setCategories(categoriesRes.data.categories || []);
+      } catch (error) {
+        console.error("Error loading database page:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -129,18 +148,16 @@ const DatabaseManagement = () => {
 
   const fetchDatabases = async () => {
     try {
-      const response = await axios.get("/api/databases");
+      const response = await api.get("/api/databases");
       setDatabases(response.data.databases);
     } catch (error) {
       console.error("Error fetching databases:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get("/api/employees");
+      const response = await api.get("/api/employees");
       setEmployees(
         response.data.employees.filter(
           (emp) => emp.user_role === "sales_executive"
@@ -153,7 +170,7 @@ const DatabaseManagement = () => {
 
   const fetchDatabaseCalls = async (dbId) => {
     try {
-      const response = await axios.get(`/api/databases/${dbId}/calls`);
+      const response = await api.get(`/api/databases/${dbId}/calls`);
       setDatabaseCalls(response.data.calls);
       setSelectedDatabase(dbId);
       // Scroll to details after data is set (with a slight delay to ensure render)
@@ -169,7 +186,7 @@ const DatabaseManagement = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("/api/category");
+      const res = await api.get("/api/category");
       setCategories(res.data.categories || []);
     } catch (err) {
       setCategories([]);
@@ -197,7 +214,7 @@ const DatabaseManagement = () => {
     formData.append("category", category);
 
     try {
-      await axios.post("/api/databases", formData);
+      await api.post("/api/databases", formData);
       setShowUploadForm(false);
       fetchDatabases();
       toast.success("Database uploaded successfully!");
@@ -212,7 +229,7 @@ const DatabaseManagement = () => {
       return;
     }
     try {
-      await axios.post("/api/calls/assign", {
+      await api.post("/api/calls/assign", {
         call_ids: selectedCalls,
         user_ids: selectedEmployees,
       });
@@ -232,7 +249,7 @@ const DatabaseManagement = () => {
 
   const confirmDeleteDatabase = async () => {
     try {
-      await axios.delete(`/api/databases/${deleteDatabaseId}`);
+      await api.delete(`/api/databases/${deleteDatabaseId}`);
       setDatabases(databases.filter((db) => db.id !== deleteDatabaseId));
       toast.success("Database deleted successfully!");
     } catch (error) {

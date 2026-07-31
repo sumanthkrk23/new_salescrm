@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
@@ -18,7 +18,7 @@ const ForgotPassword = () => {
     setError("");
     setSuccess("");
     try {
-      await axios.post("/api/forgot-password", { email });
+      await api.post("/api/forgot-password", { email });
       setStep(2);
       setSuccess("OTP sent to your email.");
     } catch (err) {
@@ -34,7 +34,7 @@ const ForgotPassword = () => {
     setError("");
     setSuccess("");
     try {
-      await axios.post("/api/reset-password", { email, otp, new_password: newPassword });
+      await api.post("/api/reset-password", { email, otp, new_password: newPassword });
       setSuccess("Password reset successful. You can now log in.");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {

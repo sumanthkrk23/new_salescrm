@@ -13,7 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
 
@@ -38,7 +38,7 @@ const EmployeeList = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get("/api/employees");
+      const response = await api.get("/api/employees");
       let allEmployees = response.data.employees;
       // Show only sales executives for sales executive user
       if (user?.user_role === "sales_executive") {
@@ -61,7 +61,7 @@ const EmployeeList = () => {
 
   const confirmDeleteEmployee = async () => {
     try {
-      await axios.delete(`/api/employees/${deleteEmployeeId}`);
+      await api.delete(`/api/employees/${deleteEmployeeId}`);
       toast.success("Employee deleted successfully!");
       fetchEmployees();
     } catch (error) {
